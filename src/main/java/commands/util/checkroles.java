@@ -1,0 +1,421 @@
+package commands.util;
+
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Nonnull;
+
+import datautil.DBManager;
+import datawrapper.Club;
+import datawrapper.Player;
+import datawrapper.User;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.commands.Command;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import util.MessageUtil;
+
+public class checkroles extends ListenerAdapter {
+
+	@Override
+	public void onSlashCommandInteraction(@Nonnull SlashCommandInteractionEvent event) {
+		if (!event.getName().equals("checkroles"))
+			return;
+		event.deferReply().queue();
+
+		new Thread(() -> {
+			String title = "Rollen-Check";
+
+			// Check permissions - must be at least co-leader
+			User userExecuted = new User(event.getUser().getId());
+			boolean hasPermission = false;
+			for (String Clubtag : DBManager.getAllClubs()) {
+				Player.RoleType role = userExecuted.getClubRoles().get(Clubtag);
+				if (role == Player.RoleType.ADMIN || role == Player.RoleType.LEADER
+						|| role == Player.RoleType.COLEADER) {
+					hasPermission = true;
+					break;
+				}
+			}
+
+			if (!hasPermission) {
+				event.getHook().editOriginalEmbeds(MessageUtil.buildEmbed(title,
+						"Du musst mindestens Vize-Anführer eines Clubs sein, um diesen Befehl ausführen zu können.",
+						MessageUtil.EmbedType.ERROR)).queue();
+				return;
+			}
+
+			OptionMapping ClubOption = event.getOption("Club");
+			OptionMapping ignoreHiddenColeadersOption = event.getOption("ignore_hiddencoleaders");
+
+			if (ClubOption == null) {
+				event.getHook().editOriginalEmbeds(MessageUtil.buildEmbed(title,
+						"Der Parameter 'Club' ist erforderlich!", MessageUtil.EmbedType.ERROR)).queue();
+				return;
+			}
+
+			String Clubtag = ClubOption.getAsString();
+
+			boolean ignoreHiddenColeaders = false;
+			if (ignoreHiddenColeadersOption != null) {
+				String ignoreHiddenColeadersValue = ignoreHiddenColeadersOption.getAsString();
+				if ("true".equalsIgnoreCase(ignoreHiddenColeadersValue)) {
+					ignoreHiddenColeaders = true;
+				} else {
+					event.getHook().editOriginalEmbeds(MessageUtil.buildEmbed(title,
+							"Der ignore_hiddencoleaders Parameter muss entweder \"true\" enthalten oder nicht angegeben sein (false).",
+							MessageUtil.EmbedType.ERROR)).queue();
+					return;
+				}
+			}
+
+			performRoleCheck(event.getHook(), event.getGuild(), title, Clubtag, ignoreHiddenColeaders);
+
+		}, "CheckRolesCommand-" + event.getUser().getId()).start();
+	}
+
+	@SuppressWarnings("null")
+	@Override
+	public void onCommandAutoCompleteInteraction(@Nonnull CommandAutoCompleteInteractionEvent event) {
+		if (!event.getName().equals("checkroles"))
+			return;
+
+		new Thread(() -> {
+			String focused = event.getFocusedOption().getName();
+			String input = event.getFocusedOption().getValue();
+
+			if (focused.equals("Club")) {
+				List<Command.Choice> choices = DBManager.getClubsAutocomplete(input);
+				event.replyChoices(choices).queue();
+			} else if (focused.equals("ignore_hiddencoleaders")) {
+				List<Command.Choice> choices = new ArrayList<>();
+				if ("true".startsWith(input.toLowerCase())) {
+					choices.add(new Command.Choice("true", "true"));
+				}
+				event.replyChoices(choices).queue();
+			}
+		}, "CheckRolesAutocomplete-" + event.getUser().getId()).start();
+	}
+
+	@Override
+	public void onButtonInteraction(@Nonnull ButtonInteractionEvent event) {
+		String id = event.getComponentId();
+		if (!id.startsWith("checkroles_"))
+			return;
+
+		event.deferEdit().queue();
+
+		// Parse the button ID: checkroles_{Clubtag}_{ignoreHiddenColeaders}
+		String remainder = id.substring("checkroles_".length());
+		String Clubtag;
+		boolean ignoreHiddenColeaders = false;
+
+		int lastUnderscore = remainder.lastIndexOf("_");
+		if (lastUnderscore != -1) {
+			Clubtag = remainder.substring(0, lastUnderscore);
+			String ignoreHiddenColeadersStr = remainder.substring(lastUnderscore + 1);
+			ignoreHiddenColeaders = "true".equals(ignoreHiddenColeadersStr);
+		} else {
+			// Fallback for old button IDs without ignore_hiddencoleaders
+			Clubtag = remainder;
+		}
+
+		String title = "Rollen-Check";
+
+		event.getInteraction().getHook()
+				.editOriginalEmbeds(MessageUtil.buildEmbed(title, "Wird geladen...", MessageUtil.EmbedType.LOADING))
+				.queue();
+
+		final boolean ignoreHiddenColeadersFinal = ignoreHiddenColeaders;
+		new Thread(() -> {
+			performRoleCheck(event.getHook(), event.getGuild(), title, Clubtag, ignoreHiddenColeadersFinal);
+		}, "CheckRolesRefresh-" + event.getUser().getId()).start();
+	}
+
+	@SuppressWarnings({ "null", "unused" })
+	private void performRoleCheck(net.dv8tion.jda.api.interactions.InteractionHook hook, Guild guild, String title,
+			String Clubtag, boolean ignoreHiddenColeaders) {
+
+		if (guild == null) {
+			hook.editOriginalEmbeds(MessageUtil.buildEmbed(title,
+					"Dieser Befehl kann nur auf einem Server ausgeführt werden.", MessageUtil.EmbedType.ERROR)).queue();
+			return;
+		}
+
+		Club Club = new Club(Clubtag);
+		ArrayList<Player> playerlist = Club.getPlayersDB();
+
+		if (playerlist == null || playerlist.isEmpty()) {
+			hook.editOriginalEmbeds(MessageUtil.buildEmbed(title, "Keine Mitglieder in diesem Club gefunden.",
+					MessageUtil.EmbedType.ERROR)).queue();
+			return;
+		}
+
+		// Build description with members missing roles
+		StringBuilder description = new StringBuilder();
+		description.append("## ").append(Club.getInfoStringDB()).append("\n\n");
+
+		int totalMembers = 0;
+		int membersWithoutRole = 0;
+		int linkedMembers = 0;
+		int unlinkedMembers = 0;
+
+		List<String> missingRolesList = new ArrayList<>();
+
+		for (Player p : playerlist) {
+			Player.RoleType roleDB = p.getRole();
+			if (roleDB == null || roleDB == Player.RoleType.NOTINClub) {
+				continue;
+			}
+
+			// Skip hidden coleaders if ignore_hiddencoleaders is true
+			if (ignoreHiddenColeaders && p.isHiddenColeader()) {
+				continue;
+			}
+
+			totalMembers++;
+
+			User user = p.getUser();
+			if (user == null) {
+				unlinkedMembers++;
+				continue;
+			}
+
+			linkedMembers++;
+
+			// Always check the MEMBER role first
+			String memberRoleId = Club.getRoleID(Club.Role.MEMBER);
+
+			// Get expected Discord role ID based on Club role (for higher roles)
+			String expectedRoleId = null;
+			switch (roleDB) {
+				case LEADER:
+					expectedRoleId = Club.getRoleID(Club.Role.LEADER);
+					break;
+				case COLEADER:
+					expectedRoleId = Club.getRoleID(Club.Role.COLEADER);
+					break;
+				case ELDER:
+					expectedRoleId = Club.getRoleID(Club.Role.ELDER);
+					break;
+				case MEMBER:
+					expectedRoleId = memberRoleId;
+					break;
+				default:
+					break;
+			}
+
+			// Check if Discord user has the expected role(s)
+			Member member = guild.getMemberById(user.getUserID());
+			if (member == null) {
+				// User is linked but not in the Discord server
+				missingRolesList.add(String.format("%s - **%s** - <@%s> (nicht auf dem Server)", p.getInfoStringDB(),
+						getRoleDisplayName(roleDB), user.getUserID()));
+				membersWithoutRole++;
+			} else {
+				// Check member role first (for everyone)
+				if (memberRoleId != null) {
+					Role memberRole = guild.getRoleById(memberRoleId);
+					if (memberRole != null && !member.getRoles().contains(memberRole)) {
+						missingRolesList.add(String.format("%s - **%s** - <@%s> (fehlt: %s)", p.getInfoStringDB(),
+								getRoleDisplayName(roleDB), user.getUserID(), memberRole.getAsMention()));
+						membersWithoutRole++;
+						continue; // Skip checking other roles if member role is missing
+					}
+				}
+
+				// Check additional role for non-members (leader, coleader, elder)
+				if (expectedRoleId != null && !expectedRoleId.equals(memberRoleId)) {
+					Role expectedRole = guild.getRoleById(expectedRoleId);
+					if (expectedRole == null) {
+						// Role doesn't exist in Discord server
+						missingRolesList.add(String.format("%s - **%s** - <@%s> (Rolle nicht konfiguriert)",
+								p.getInfoStringDB(), getRoleDisplayName(roleDB), user.getUserID()));
+						membersWithoutRole++;
+					} else if (!member.getRoles().contains(expectedRole)) {
+						// Member doesn't have the expected role
+						missingRolesList.add(String.format("%s - **%s** - <@%s> (fehlt: %s)", p.getInfoStringDB(),
+								getRoleDisplayName(roleDB), user.getUserID(), expectedRole.getAsMention()));
+						membersWithoutRole++;
+					}
+				}
+			}
+		}
+
+		// Summary statistics
+		description.append("**Statistik:**\n");
+		description.append("Gesamte Mitglieder: ").append(totalMembers).append("\n");
+		description.append("Verlinkte Mitglieder: ").append(linkedMembers).append("\n");
+		description.append("Nicht verlinkte Mitglieder: ").append(unlinkedMembers).append("\n");
+		description.append("Mitglieder ohne korrekte Rolle: ").append(membersWithoutRole).append("\n\n");
+
+		// List members missing roles
+		if (missingRolesList.isEmpty()) {
+			description.append("**✅ Alle verlinkten Mitglieder haben die korrekte Discord-Rolle!**\n");
+		} else {
+			description.append("**Mitglieder ohne korrekte Discord-Rolle:**\n");
+			for (String member : missingRolesList) {
+				description.append(member).append("\n");
+			}
+		}
+
+		description.append("\n");
+
+		// --- NEW: Check for members who have a role but shouldn't ---
+		List<String> unnecessaryRolesList = new ArrayList<>();
+		int membersWithUnnecessaryRoles = 0;
+
+		String elderRoleId = Club.getRoleID(Club.Role.ELDER);
+		String memberRoleId = Club.getRoleID(Club.Role.MEMBER);
+
+		java.util.HashSet<String> ClubRoleIds = new java.util.HashSet<>();
+		if (elderRoleId != null)
+			ClubRoleIds.add(elderRoleId);
+		if (memberRoleId != null)
+			ClubRoleIds.add(memberRoleId);
+
+		if (!ClubRoleIds.isEmpty()) {
+			for (Member m : guild.getMembers()) {
+				List<Role> memberRoles = m.getRoles();
+				boolean hasAnyClubRole = false;
+				for (Role r : memberRoles) {
+					if (ClubRoleIds.contains(r.getId())) {
+						hasAnyClubRole = true;
+						break;
+					}
+				}
+
+				if (hasAnyClubRole) {
+					User user = new User(m.getId());
+					ArrayList<Player> linkedAccounts = user.getAllLinkedAccounts();
+
+					// Find the highest expected role for this user in this Club
+					Player.RoleType highestInGameRole = null;
+					for (Player p : linkedAccounts) {
+						if (p.getClubDB() == null)
+							continue;
+						if (Clubtag.equals(p.getClubDB().getTag())) {
+							Player.RoleType currentP = p.getRole();
+							if (highestInGameRole == null || isHigherRole(currentP, highestInGameRole)) {
+								highestInGameRole = currentP;
+							}
+						}
+					}
+
+					// Check if they should have any roles at all
+					if (highestInGameRole == null || highestInGameRole == Player.RoleType.NOTINClub) {
+						// Should not have any Club roles
+						StringBuilder rolesFound = new StringBuilder();
+						for (Role r : memberRoles) {
+							if (ClubRoleIds.contains(r.getId())) {
+								if (rolesFound.length() > 0)
+									rolesFound.append(", ");
+								rolesFound.append(r.getAsMention());
+							}
+						}
+						unnecessaryRolesList.add(String.format("<@%s> - hat Rollen: %s (nicht im Club)", m.getId(),
+								rolesFound.toString()));
+						membersWithUnnecessaryRoles++;
+					} else {
+
+						List<String> invalidRoles = new ArrayList<>();
+						for (Role r : memberRoles) {
+							String rId = r.getId();
+							if (!ClubRoleIds.contains(rId))
+								continue;
+
+							boolean isAllowed = false;
+							// Map the Discord role back to what it represents
+							if (rId.equals(elderRoleId)) {
+								if (highestInGameRole == Player.RoleType.ELDER
+										|| highestInGameRole == Player.RoleType.COLEADER
+										|| highestInGameRole == Player.RoleType.LEADER)
+									isAllowed = true;
+							} else if (rId.equals(memberRoleId)) {
+								isAllowed = true; // Everyone in Club is a member
+							}
+
+							if (!isAllowed) {
+								invalidRoles.add(r.getAsMention());
+							}
+						}
+
+						if (!invalidRoles.isEmpty()) {
+							unnecessaryRolesList.add(String.format("<@%s> - **%s** - hat zu hohe Rollen: %s", m.getId(),
+									getRoleDisplayName(highestInGameRole), String.join(", ", invalidRoles)));
+							membersWithUnnecessaryRoles++;
+						}
+					}
+				}
+			}
+		}
+
+		if (unnecessaryRolesList.isEmpty()) {
+			description.append("**✅ Niemand hat Rollen, die er nicht haben sollte!**\n");
+		} else {
+			description.append("**Mitglieder mit Rollen, die sie nicht haben sollten:**\n");
+			for (String member : unnecessaryRolesList) {
+				description.append(member).append("\n");
+			}
+		}
+
+		// Create refresh button
+		Button refreshButton = Button.secondary("checkroles_" + Clubtag + "_" + ignoreHiddenColeaders, "\u200B")
+				.withEmoji(Emoji.fromUnicode("🔁"));
+
+		// Add timestamp
+		ZonedDateTime jetzt = ZonedDateTime.now(ZoneId.of("Europe/Berlin"));
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy 'um' HH:mm 'Uhr'");
+		String formatiert = jetzt.format(formatter);
+
+		hook.editOriginalEmbeds(MessageUtil.buildEmbed(title, description.toString(), MessageUtil.EmbedType.INFO,
+				"Zuletzt aktualisiert am " + formatiert)).setActionRow(refreshButton).queue();
+	}
+
+	private boolean isHigherRole(Player.RoleType r1, Player.RoleType r2) {
+		return getRoleWeight(r1) > getRoleWeight(r2);
+	}
+
+	private int getRoleWeight(Player.RoleType role) {
+		if (role == null)
+			return -1;
+		switch (role) {
+			case LEADER:
+				return 4;
+			case COLEADER:
+				return 3;
+			case ELDER:
+				return 2;
+			case MEMBER:
+				return 1;
+			default:
+				return 0;
+		}
+	}
+
+	private String getRoleDisplayName(Player.RoleType roleType) {
+		switch (roleType) {
+			case LEADER:
+				return "Anführer";
+			case COLEADER:
+				return "Vize-Anführer";
+			case ELDER:
+				return "Ältester";
+			case MEMBER:
+				return "Mitglied";
+			default:
+				return "Unbekannt";
+		}
+	}
+}
+
