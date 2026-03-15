@@ -45,22 +45,22 @@ public class UserDTO {
             case ADMIN:
                 highestRole = role.toString();
                 break;
-            case LEADER:
+            case PRESIDENT:
                 if (highest != Player.RoleType.ADMIN)
                     highestRole = role.toString();
                 break;
-            case COLEADER:
-                if (highest != Player.RoleType.ADMIN || highest != Player.RoleType.LEADER)
+            case COPRESIDENT:
+                if (highest != Player.RoleType.ADMIN || highest != Player.RoleType.PRESIDENT)
                     highestRole = role.toString();
                 break;
-            case ELDER:
-                if (highest != Player.RoleType.ADMIN || highest != Player.RoleType.LEADER
-                        || highest != Player.RoleType.COLEADER)
+            case SENIOR:
+                if (highest != Player.RoleType.ADMIN || highest != Player.RoleType.PRESIDENT
+                        || highest != Player.RoleType.COPRESIDENT)
                     highestRole = role.toString();
                 break;
             case MEMBER:
-                if (highest != Player.RoleType.ADMIN || highest != Player.RoleType.LEADER
-                        || highest != Player.RoleType.COLEADER || highest != Player.RoleType.ELDER)
+                if (highest != Player.RoleType.ADMIN || highest != Player.RoleType.PRESIDENT
+                        || highest != Player.RoleType.COPRESIDENT || highest != Player.RoleType.SENIOR)
                     highestRole = role.toString();
                 break;
             default:
@@ -80,6 +80,9 @@ public class UserDTO {
     public String getNickname() { return nickname; }
     public void setNickname(String nickname) { this.nickname = nickname; }
 }
+
+
+
 
 
 

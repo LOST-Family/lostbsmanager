@@ -92,14 +92,14 @@ public class memberstatus extends ListenerAdapter {
 				if (!taglistapi.contains(s)) {
 					Player p = new Player(s);
 					// Skip hidden coleaders - they don't need to be in the club ingame
-					if (p.isHiddenColeader()) {
+					if (p.isCoPresident()) {
 						continue;
 					}
 					// Skip leaders/coleaders/admins if exclude_leaders is true
 					if (excludeLeadersFinal) {
 						Player.RoleType role = p.getRole();
-						if (role == Player.RoleType.ADMIN || role == Player.RoleType.LEADER
-								|| role == Player.RoleType.COLEADER) {
+						if (role == Player.RoleType.ADMIN || role == Player.RoleType.PRESIDENT
+								|| role == Player.RoleType.COPRESIDENT) {
 							continue;
 						}
 					}
@@ -229,14 +229,14 @@ public class memberstatus extends ListenerAdapter {
 				if (!taglistapi.contains(s)) {
 					Player p = new Player(s);
 					// Skip hidden coleaders - they don't need to be in the club ingame
-					if (p.isHiddenColeader()) {
+					if (p.isCoPresident()) {
 						continue;
 					}
 					// Skip leaders/coleaders/admins if exclude_leaders is true
 					if (excludeLeadersFinal) {
 						Player.RoleType role = p.getRole();
-						if (role == Player.RoleType.ADMIN || role == Player.RoleType.LEADER
-								|| role == Player.RoleType.COLEADER) {
+						if (role == Player.RoleType.ADMIN || role == Player.RoleType.PRESIDENT
+								|| role == Player.RoleType.COPRESIDENT) {
 							continue;
 						}
 					}
@@ -281,6 +281,9 @@ public class memberstatus extends ListenerAdapter {
 	}
 
 }
+
+
+
 
 
 

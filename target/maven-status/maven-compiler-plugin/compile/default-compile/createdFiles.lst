@@ -2,8 +2,6 @@ commands\memberlist\signofflist$1SignoffData.class
 util\DiscordLogger$2.class
 webserver\api\dto\PlayerDTO.class
 commands\kickpoints\kpadd.class
-datawrapper\Player$WinsData.class
-datawrapper\Player$WinsRecord.class
 webserver\api\dto\UserDTO.class
 webserver\api\dto\KickpointDTO.class
 commands\kickpoints\kpremovereason.class

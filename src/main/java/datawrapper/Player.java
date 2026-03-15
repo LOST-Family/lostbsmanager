@@ -22,7 +22,7 @@ import lostbsmanager.Bot;
 public class Player {
 
 	public enum RoleType {
-		ADMIN, LEADER, COLEADER, ELDER, MEMBER, NOTINCLUB
+		ADMIN, PRESIDENT, COPRESIDENT, SENIOR, MEMBER, NOTINCLUB
 	};
 
 	private JSONObject apiresult;
@@ -33,20 +33,12 @@ public class Player {
 	private Club clubdb;
 	private Club clubapi;
 	private String clubtagcwdone;
-	private Integer cwfame;
-	private Integer decksUsed;
-	private Integer PathofLegendLeagueNumber;
 	private Integer trophies;
-	private Integer strtrophies;
-	private Integer PathofLegendTrophies;
-	private Integer lastPathOfLegendLeagueNumber;
-	private Integer lastPathOfLegendTrophies;
 	private ArrayList<Kickpoint> kickpoints;
 	private Long kickpointstotal;
 	private RoleType role;
 	private Boolean mark;
 	private String note;
-	private Integer wins;
 	private Integer expLevel;
 
 	public Player(String tag) {
@@ -64,17 +56,9 @@ public class Player {
 		kickpointstotal = null;
 		role = null;
 		clubtagcwdone = null;
-		cwfame = null;
-		decksUsed = null;
-		PathofLegendLeagueNumber = null;
 		trophies = null;
-		strtrophies = null;
-		PathofLegendTrophies = null;
-		lastPathOfLegendLeagueNumber = null;
-		lastPathOfLegendTrophies = null;
 		mark = null;
 		note = null;
-		wins = null;
 		expLevel = null;
 		return this;
 	}
@@ -129,16 +113,6 @@ public class Player {
 		return this;
 	}
 
-	public Player setCWFame(Integer fame) {
-		this.cwfame = fame;
-		return this;
-	}
-
-	public Player setDecksUsed(Integer decks) {
-		this.decksUsed = decks;
-		return this;
-	}
-
 	public Player setClubtagCWDone(String tag) {
 		this.clubtagcwdone = tag;
 		return this;
@@ -160,7 +134,7 @@ public class Player {
 	public boolean AccExists() {
 		try {
 			String encodedTag = URLEncoder.encode(tag, "UTF-8");
-			URL url = URI.create("https://api.clashroyale.com/v1/players/" + encodedTag).toURL();
+			URL url = URI.create("https://api.brawlstars.com/v1/players/" + encodedTag).toURL();
 
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 			connection.setRequestMethod("GET");
@@ -308,10 +282,10 @@ public class Player {
 					try (ResultSet rs = pstmt.executeQuery()) {
 						if (rs.next()) {
 							String rolestring = rs.getString("club_role");
-							role = rolestring.equals("leader") ? RoleType.LEADER
-									: rolestring.equals("coleader") || rolestring.equals("hiddencoleader")
-											? RoleType.COLEADER
-											: rolestring.equals("elder") ? RoleType.ELDER
+							role = rolestring.equals("president") ? RoleType.PRESIDENT
+									: rolestring.equals("copresident") || rolestring.equals("hiddencopresident")
+											? RoleType.COPRESIDENT
+											: rolestring.equals("senior") ? RoleType.SENIOR
 													: rolestring.equals("member") ? RoleType.MEMBER : null;
 						}
 					}
@@ -334,7 +308,7 @@ public class Player {
 	}
 
 	public Integer getSTRTrophies() {
-		if (strtrophies == null) {
+		if (trophies == null) {
 			if (apiresult == null) {
 				apiresult = new JSONObject(APIUtil.getPlayerJson(tag));
 			}
@@ -370,70 +344,22 @@ public class Player {
 					if (progress.has("seasonal-trophy-road-" + currentseasonstring)) {
 						JSONObject seasontrophyroad = progress
 								.getJSONObject("seasonal-trophy-road-" + currentseasonstring);
-						strtrophies = seasontrophyroad.getInt("trophies");
+						trophies = seasontrophyroad.getInt("trophies");
 					}
 				}
 			}
 
 		}
-		return strtrophies;
+		return trophies;
 	}
 
-	public Integer getPoLLeagueNumber() {
-		if (PathofLegendLeagueNumber == null) {
-			if (apiresult == null) {
-				apiresult = new JSONObject(APIUtil.getPlayerJson(tag));
-			}
-			if (apiresult.has("currentPathOfLegendSeasonResult")
-					&& !apiresult.isNull("currentPathOfLegendSeasonResult")) {
-				JSONObject currentPathOfLegendSeasonResult = apiresult.getJSONObject("currentPathOfLegendSeasonResult");
-				PathofLegendLeagueNumber = currentPathOfLegendSeasonResult.getInt("leagueNumber");
-			}
-		}
-		return PathofLegendLeagueNumber;
-	}
+	
 
-	public Integer getPoLTrophies() {
-		if (PathofLegendTrophies == null) {
-			if (apiresult == null) {
-				apiresult = new JSONObject(APIUtil.getPlayerJson(tag));
-			}
-			if (apiresult.has("currentPathOfLegendSeasonResult")
-					&& !apiresult.isNull("currentPathOfLegendSeasonResult")) {
-				JSONObject currentPathOfLegendSeasonResult = apiresult.getJSONObject("currentPathOfLegendSeasonResult");
-				PathofLegendTrophies = currentPathOfLegendSeasonResult.getInt("trophies");
-			}
-		}
-		return PathofLegendTrophies;
-	}
+	
 
-	public Integer getLastPathOfLegendLeagueNumber() {
-		if (lastPathOfLegendLeagueNumber == null) {
-			if (apiresult == null) {
-				apiresult = new JSONObject(APIUtil.getPlayerJson(tag));
-			}
-			if (apiresult.has("lastPathOfLegendSeasonResult")
-					&& !apiresult.isNull("lastPathOfLegendSeasonResult")) {
-				JSONObject lastPathOfLegendSeasonResult = apiresult.getJSONObject("lastPathOfLegendSeasonResult");
-				lastPathOfLegendLeagueNumber = lastPathOfLegendSeasonResult.getInt("leagueNumber");
-			}
-		}
-		return lastPathOfLegendLeagueNumber;
-	}
+	
 
-	public Integer getLastPathOfLegendTrophies() {
-		if (lastPathOfLegendTrophies == null) {
-			if (apiresult == null) {
-				apiresult = new JSONObject(APIUtil.getPlayerJson(tag));
-			}
-			if (apiresult.has("lastPathOfLegendSeasonResult")
-					&& !apiresult.isNull("lastPathOfLegendSeasonResult")) {
-				JSONObject lastPathOfLegendSeasonResult = apiresult.getJSONObject("lastPathOfLegendSeasonResult");
-				lastPathOfLegendTrophies = lastPathOfLegendSeasonResult.getInt("trophies");
-			}
-		}
-		return lastPathOfLegendTrophies;
-	}
+	
 
 	public Boolean isMarked() {
 		if (mark == null) {
@@ -461,55 +387,28 @@ public class Player {
 		return note;
 	}
 
-	public Integer getCWFame() {
-		if (cwfame == null) {
-			if (getClubAPI() != null) {
-				Club c = getClubAPI();
-				ArrayList<Player> cwfamelist = c.getCWFamePlayerList();
-				for (Player t : cwfamelist) {
-					if (t.getTag().equals(tag)) {
-						cwfame = t.getCWFame();
-						clubtagcwdone = t.getClubtagCWDone();
-						break;
-					}
-				}
-			}
-		}
-		return cwfame;
-	}
+	
 
 	public String getClubtagCWDone() {
 		if (clubtagcwdone == null) {
 			// same logic here
-			getCWFame();
+			
 		}
 		return clubtagcwdone;
 	}
 
-	public Integer getDecksUsed() {
-		return decksUsed;
-	}
+	
 
-	public boolean isHiddenColeader() {
+	public boolean isHiddenCopresident() {
 		if (getClubDB() == null) {
 			return false;
 		}
 		String rolestring = DBUtil.getValueFromSQL("SELECT club_role FROM club_members WHERE player_tag = ?",
 				String.class, tag);
-		return "hiddencoleader".equals(rolestring);
+		return "hiddencopresident".equals(rolestring);
 	}
 
-	public Integer getWinsAPI() {
-		if (wins == null) {
-			if (apiresult == null) {
-				apiresult = new JSONObject(APIUtil.getPlayerJson(tag));
-			}
-			if (apiresult.has("wins")) {
-				wins = apiresult.getInt("wins");
-			}
-		}
-		return wins;
-	}
+	
 
 	public Integer getExpLevelAPI() {
 		if (expLevel == null) {
@@ -530,28 +429,10 @@ public class Player {
 	/**
 	 * Helper class to hold wins data with warning flag
 	 */
-	public static class WinsData {
-		public final int wins;
-		public final boolean hasWarning;
-
-		public WinsData(int wins, boolean hasWarning) {
-			this.wins = wins;
-			this.hasWarning = hasWarning;
-		}
-	}
 
 	/**
 	 * Helper class to hold wins record from database
 	 */
-	public static class WinsRecord {
-		public final int wins;
-		public final OffsetDateTime recordedAt;
-
-		public WinsRecord(int wins, OffsetDateTime recordedAt) {
-			this.wins = wins;
-			this.recordedAt = recordedAt;
-		}
-	}
 
 	/**
 	 * Calculate monthly wins for a specific month and year
@@ -564,79 +445,18 @@ public class Player {
 	 * @param zone             Time zone
 	 * @return WinsData containing wins count and warning flag
 	 */
-	public WinsData getMonthlyWins(int year, int month, boolean isCurrentMonth,
-			java.time.ZonedDateTime startOfMonth, java.time.ZonedDateTime startOfNextMonth,
-			java.time.ZoneId zone) {
-
-		// Check if any data exists for this player, if not save current data first
-		if (!hasAnyWinsData()) {
-			savePlayerWins();
-		}
-
-		if (isCurrentMonth) {
-			// Current month: get start of month data and fetch current wins from API
-			WinsRecord startRecord = getWinsAtOrAfter(startOfMonth);
-
-			Integer currentWins = getWinsAPI();
-			if (currentWins == null || startRecord == null) {
-				return new WinsData(0, true);
-			}
-
-			int winsThisMonth = currentWins - startRecord.wins;
-			boolean hasWarning = !isStartOfMonth(startRecord.recordedAt, startOfMonth);
-			return new WinsData(Math.max(winsThisMonth, 0), hasWarning);
-		} else {
-			// Past month: get data from start of month and start of next month
-			WinsRecord startRecord = getWinsAtOrAfter(startOfMonth);
-			WinsRecord endRecord = getWinsAtOrAfter(startOfNextMonth);
-
-			if (startRecord == null || endRecord == null) {
-				return new WinsData(0, true);
-			}
-
-			int winsInMonth = endRecord.wins - startRecord.wins;
-			boolean startIsMonthStart = isStartOfMonth(startRecord.recordedAt, startOfMonth);
-			boolean endIsMonthStart = isStartOfMonth(endRecord.recordedAt, startOfNextMonth);
-			boolean hasWarning = !startIsMonthStart || !endIsMonthStart;
-
-			return new WinsData(winsInMonth, hasWarning);
-		}
-	}
 
 	/**
 	 * Get wins for the current month
 	 * 
 	 * @return WinsData containing wins count and warning flag
 	 */
-	public WinsData getCurrentMonthWins() {
-		java.time.ZoneId zone = java.time.ZoneId.of("Europe/Berlin");
-		java.time.ZonedDateTime now = java.time.ZonedDateTime.now(zone);
-		int year = now.getYear();
-		int month = now.getMonthValue();
-
-		java.time.ZonedDateTime startOfMonth = java.time.ZonedDateTime.of(year, month, 1, 0, 0, 0, 0, zone);
-
-		return getMonthlyWins(year, month, true, startOfMonth, startOfMonth.plusMonths(1), zone);
-	}
 
 	/**
 	 * Check if any wins data exists for this player in the database
 	 * 
 	 * @return true if data exists, false otherwise
 	 */
-	private boolean hasAnyWinsData() {
-		String sql = "SELECT 1 FROM player_wins WHERE player_tag = ? LIMIT 1";
-		try (PreparedStatement pstmt = Connection.getConnection().prepareStatement(sql)) {
-			pstmt.setString(1, tag);
-			try (ResultSet rs = pstmt.executeQuery()) {
-				return rs.next();
-			}
-		} catch (SQLException e) {
-			System.err.println("Fehler beim Prüfen der Wins-Daten für Spieler " + tag + ": " + e.getMessage());
-			e.printStackTrace();
-		}
-		return false;
-	}
 
 	/**
 	 * Get wins record at or after a specific date/time
@@ -644,26 +464,6 @@ public class Player {
 	 * @param dateTime The date/time to search from
 	 * @return WinsRecord or null if not found
 	 */
-	public WinsRecord getWinsAtOrAfter(java.time.ZonedDateTime dateTime) {
-		String sql = "SELECT wins, recorded_at FROM player_wins WHERE player_tag = ? AND recorded_at >= ? ORDER BY recorded_at ASC LIMIT 1";
-
-		try (PreparedStatement pstmt = Connection.getConnection().prepareStatement(sql)) {
-			pstmt.setString(1, tag);
-			pstmt.setObject(2, dateTime.toOffsetDateTime());
-
-			try (ResultSet rs = pstmt.executeQuery()) {
-				if (rs.next()) {
-					int wins = rs.getInt("wins");
-					OffsetDateTime recordedAt = rs.getObject("recorded_at", OffsetDateTime.class);
-					return new WinsRecord(wins, recordedAt);
-				}
-			}
-		} catch (SQLException e) {
-			System.err.println("Fehler beim Abrufen der Wins-Daten für Spieler " + tag + ": " + e.getMessage());
-			e.printStackTrace();
-		}
-		return null;
-	}
 
 	/**
 	 * Check if a recorded time is at the start of a month
@@ -672,30 +472,21 @@ public class Player {
 	 * @param expectedStart The expected start of month
 	 * @return true if recorded time is on the first day of the month
 	 */
-	public boolean isStartOfMonth(OffsetDateTime recordedAt, java.time.ZonedDateTime expectedStart) {
-		java.time.ZonedDateTime recordedZoned = recordedAt.atZoneSameInstant(expectedStart.getZone());
-		return recordedZoned.toLocalDate().equals(expectedStart.toLocalDate());
-	}
 
 	/**
 	 * Save current wins for this player to the database
 	 */
-	public void savePlayerWins() {
-		try {
-			Integer wins = getWinsAPI();
-			if (wins != null) {
-				OffsetDateTime now = OffsetDateTime.now(java.time.ZoneId.of("Europe/Berlin"));
-				String sql = "INSERT INTO player_wins (player_tag, recorded_at, wins) VALUES (?, ?, ?) "
-						+ "ON CONFLICT (player_tag, recorded_at) DO UPDATE SET wins = ?";
-				DBUtil.executeUpdate(sql, tag, now, wins, wins);
-				System.out.println("Wins gespeichert für " + tag + ": " + wins);
-			}
-		} catch (Exception e) {
-			System.err.println("Fehler beim Speichern der Wins für " + tag + ": " + e.getMessage());
-		}
-	}
 
+
+    public boolean isCoPresident() {
+        return this.role == RoleType.COPRESIDENT;
+    }
 }
+
+
+
+
+
 
 
 

@@ -118,7 +118,7 @@ public class transfermember extends ListenerAdapter {
 				return;
 			}
 
-			if (role == Player.RoleType.LEADER && userexecuted.getClubRoles().get(clubtag) != Player.RoleType.ADMIN) {
+			if (role == Player.RoleType.PRESIDENT && userexecuted.getClubRoles().get(clubtag) != Player.RoleType.ADMIN) {
 				event.getHook()
 						.editOriginalEmbeds(MessageUtil.buildEmbed(title,
 								"Um jemanden als Leader zu entfernen, musst du Admin sein.",
@@ -126,8 +126,8 @@ public class transfermember extends ListenerAdapter {
 						.queue();
 				return;
 			}
-			if (role == Player.RoleType.COLEADER && !(userexecuted.getClubRoles().get(clubtag) == Player.RoleType.ADMIN
-					|| userexecuted.getClubRoles().get(clubtag) == Player.RoleType.LEADER)) {
+			if (role == Player.RoleType.COPRESIDENT && !(userexecuted.getClubRoles().get(clubtag) == Player.RoleType.ADMIN
+					|| userexecuted.getClubRoles().get(clubtag) == Player.RoleType.PRESIDENT)) {
 				event.getHook()
 						.editOriginalEmbeds(MessageUtil.buildEmbed(title,
 								"Um jemanden als Vize-Anführer zu entfernen, musst du Admin oder Anführer sein.",
@@ -231,6 +231,9 @@ public class transfermember extends ListenerAdapter {
 	}
 
 }
+
+
+
 
 
 

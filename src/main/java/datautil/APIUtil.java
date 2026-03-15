@@ -14,7 +14,7 @@ public class APIUtil {
 		// URL-kodieren des Spieler-Tags (# -> %23)
 		String encodedTag = java.net.URLEncoder.encode(clubTag, java.nio.charset.StandardCharsets.UTF_8);
 
-		String url = "https://api.clashroyale.com/v1/clubs/" + encodedTag;
+		String url = "https://api.brawlstars.com/v1/clubs/" + encodedTag;
 
 		HttpClient client = HttpClient.newHttpClient();
 
@@ -44,7 +44,7 @@ public class APIUtil {
 		// URL-kodieren des Spieler-Tags (# -> %23)
 		String encodedTag = java.net.URLEncoder.encode(playerTag, java.nio.charset.StandardCharsets.UTF_8);
 
-		String url = "https://api.clashroyale.com/v1/players/" + encodedTag;
+		String url = "https://api.brawlstars.com/v1/players/" + encodedTag;
 
 		HttpClient client = HttpClient.newHttpClient();
 
@@ -68,38 +68,5 @@ public class APIUtil {
 			System.err.println("Antwort: " + response.body());
 			return null;
 		}
-	}
-	
-	public static String getCurrentRiverRaceJson(String clubTag) {
-		// URL-kodieren des Club-Tags (# -> %23)
-		String encodedTag = java.net.URLEncoder.encode(clubTag, java.nio.charset.StandardCharsets.UTF_8);
-
-		String url = "https://api.clashroyale.com/v1/clubs/" + encodedTag + "/currentriverrace";
-
-		HttpClient client = HttpClient.newHttpClient();
-
-		HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url))
-				.header("Authorization", "Bearer " + Bot.api_key).header("Accept", "application/json").GET().build();
-
-		HttpResponse<String> response = null;
-		try {
-			response = client.send(request, HttpResponse.BodyHandlers.ofString());
-		} catch (IOException | InterruptedException e) {
-			e.printStackTrace();
-			return null;
-		}
-
-		if (response.statusCode() == 200) {
-			String responseBody = response.body();
-			return responseBody;
-		} else {
-			System.err.println("Fehler beim Abrufen: HTTP " + response.statusCode());
-			System.err.println("Antwort: " + response.body());
-			return null;
-		}
-	}
-	
-}
-
-
+	}}
 

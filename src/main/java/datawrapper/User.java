@@ -11,7 +11,7 @@ import datautil.DBUtil;
 public class User {
 
 	public enum PermissionType {
-		ADMIN, LEADER, COLEADER, ELDER, MEMBER, NOTHING
+		ADMIN, PRESIDENT, COPRESIDENT, SENIOR, MEMBER, NOTHING
 	}
 
 	private HashMap<String, Player.RoleType> clubroles;
@@ -109,8 +109,8 @@ public class User {
 	public boolean isColeaderOrHigherInClub(String clubtag) {
 		Player.RoleType role = getClubRoles().get(clubtag);
 		return role == Player.RoleType.ADMIN
-				|| role == Player.RoleType.LEADER
-				|| role == Player.RoleType.COLEADER;
+				|| role == Player.RoleType.PRESIDENT
+				|| role == Player.RoleType.COPRESIDENT;
 	}
 
 	public boolean isColeaderOrHigher() {
@@ -118,7 +118,7 @@ public class User {
 			return true;
 
 		for (Player.RoleType role : getClubRoles().values()) {
-			if (role == Player.RoleType.LEADER || role == Player.RoleType.COLEADER || role == Player.RoleType.ADMIN) {
+			if (role == Player.RoleType.PRESIDENT || role == Player.RoleType.COPRESIDENT || role == Player.RoleType.ADMIN) {
 				return true;
 			}
 		}
@@ -126,6 +126,9 @@ public class User {
 	}
 
 }
+
+
+
 
 
 

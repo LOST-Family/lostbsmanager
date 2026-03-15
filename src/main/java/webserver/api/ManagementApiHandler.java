@@ -171,11 +171,11 @@ public class ManagementApiHandler implements HttpHandler {
 				return error("Must be admin to assign leader role", 403);
 			}
 			if (role.equals("coleader") && !(user.getClubRoles().get(clubTag) == Player.RoleType.ADMIN
-					|| user.getClubRoles().get(clubTag) == Player.RoleType.LEADER)) {
+					|| user.getClubRoles().get(clubTag) == Player.RoleType.PRESIDENT)) {
 				return error("Must be admin or leader to assign coleader role", 403);
 			}
 			if (role.equals("hiddencoleader") && !(user.getClubRoles().get(clubTag) == Player.RoleType.ADMIN
-					|| user.getClubRoles().get(clubTag) == Player.RoleType.LEADER)) {
+					|| user.getClubRoles().get(clubTag) == Player.RoleType.PRESIDENT)) {
 				return error("Must be admin or leader to assign hidden coleader role", 403);
 			}
 		}
@@ -256,11 +256,11 @@ public class ManagementApiHandler implements HttpHandler {
 			return error("Must be admin to assign leader role", 403);
 		}
 		if (role.equals("coleader") && !(user.getClubRoles().get(clubTag) == Player.RoleType.ADMIN
-				|| user.getClubRoles().get(clubTag) == Player.RoleType.LEADER)) {
+				|| user.getClubRoles().get(clubTag) == Player.RoleType.PRESIDENT)) {
 			return error("Must be admin or leader to assign coleader role", 403);
 		}
 		if (role.equals("hiddencoleader") && !(user.getClubRoles().get(clubTag) == Player.RoleType.ADMIN
-				|| user.getClubRoles().get(clubTag) == Player.RoleType.LEADER)) {
+				|| user.getClubRoles().get(clubTag) == Player.RoleType.PRESIDENT)) {
 			return error("Must be admin or leader to assign hidden coleader role", 403);
 		}
 
@@ -304,11 +304,11 @@ public class ManagementApiHandler implements HttpHandler {
 			}
 		}
 
-		if (role == Player.RoleType.LEADER && user.getClubRoles().get(clubTag) != Player.RoleType.ADMIN) {
+		if (role == Player.RoleType.PRESIDENT && user.getClubRoles().get(clubTag) != Player.RoleType.ADMIN) {
 			return error("Must be admin to remove a leader", 403);
 		}
-		if (role == Player.RoleType.COLEADER && !(user.getClubRoles().get(clubTag) == Player.RoleType.ADMIN
-				|| user.getClubRoles().get(clubTag) == Player.RoleType.LEADER)) {
+		if (role == Player.RoleType.COPRESIDENT && !(user.getClubRoles().get(clubTag) == Player.RoleType.ADMIN
+				|| user.getClubRoles().get(clubTag) == Player.RoleType.PRESIDENT)) {
 			return error("Must be admin or leader to remove a coleader", 403);
 		}
 
@@ -392,11 +392,11 @@ public class ManagementApiHandler implements HttpHandler {
 			return error("Cannot transfer a player to the same club", 400);
 		}
 
-		if (role == Player.RoleType.LEADER && user.getClubRoles().get(clubTag) != Player.RoleType.ADMIN) {
+		if (role == Player.RoleType.PRESIDENT && user.getClubRoles().get(clubTag) != Player.RoleType.ADMIN) {
 			return error("Must be admin to transfer a leader", 403);
 		}
-		if (role == Player.RoleType.COLEADER && !(user.getClubRoles().get(clubTag) == Player.RoleType.ADMIN
-				|| user.getClubRoles().get(clubTag) == Player.RoleType.LEADER)) {
+		if (role == Player.RoleType.COPRESIDENT && !(user.getClubRoles().get(clubTag) == Player.RoleType.ADMIN
+				|| user.getClubRoles().get(clubTag) == Player.RoleType.PRESIDENT)) {
 			return error("Must be admin or leader to transfer a coleader", 403);
 		}
 
@@ -820,7 +820,6 @@ public class ManagementApiHandler implements HttpHandler {
 		DBUtil.executeUpdate("INSERT INTO players (bs_tag, discord_id, name) VALUES (?, ?, ?)",
 				playerTag, targetUserId, playername);
 
-		final String finalTag = playerTag;
 		Thread saveWinsThread = new Thread(() -> {
 			
 		});
@@ -862,7 +861,6 @@ public class ManagementApiHandler implements HttpHandler {
 
 		DBUtil.executeUpdate("UPDATE players SET discord_id = ? WHERE bs_tag = ?", targetUserId, playerTag);
 
-		final String finalTag = playerTag;
 		Thread saveWinsThread = new Thread(() -> {
 			
 		});
@@ -1051,6 +1049,9 @@ public class ManagementApiHandler implements HttpHandler {
 		}
 	}
 }
+
+
+
 
 
 

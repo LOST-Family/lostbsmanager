@@ -424,8 +424,8 @@ public class RestApiServer {
 				// Collect all leader and coleader role IDs
 				for (String clubtag : allClubs) {
 					Club club = new Club(clubtag);
-					String leaderRole = club.getRoleID(Club.Role.LEADER);
-					String coleaderRole = club.getRoleID(Club.Role.COLEADER);
+					String leaderRole = club.getRoleID(Club.Role.PRESIDENT);
+					String coleaderRole = club.getRoleID(Club.Role.COPRESIDENT);
 					if (leaderRole != null)
 						targetRoleIds.add(leaderRole);
 					if (coleaderRole != null)
@@ -485,6 +485,9 @@ public class RestApiServer {
 		}
 	}
 }
+
+
+
 
 
 

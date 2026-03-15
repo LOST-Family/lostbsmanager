@@ -41,8 +41,8 @@ public class checkroles extends ListenerAdapter {
 			boolean hasPermission = false;
 			for (String clubtag : DBManager.getAllClubs()) {
 				Player.RoleType role = userExecuted.getClubRoles().get(clubtag);
-				if (role == Player.RoleType.ADMIN || role == Player.RoleType.LEADER
-						|| role == Player.RoleType.COLEADER) {
+				if (role == Player.RoleType.ADMIN || role == Player.RoleType.PRESIDENT
+						|| role == Player.RoleType.COPRESIDENT) {
 					hasPermission = true;
 					break;
 				}
@@ -179,7 +179,7 @@ public class checkroles extends ListenerAdapter {
 			}
 
 			// Skip hidden coleaders if ignore_hiddencoleaders is true
-			if (ignoreHiddenColeaders && p.isHiddenColeader()) {
+			if (ignoreHiddenColeaders && p.isCoPresident()) {
 				continue;
 			}
 
@@ -199,14 +199,14 @@ public class checkroles extends ListenerAdapter {
 			// Get expected Discord role ID based on club role (for higher roles)
 			String expectedRoleId = null;
 			switch (roleDB) {
-				case LEADER:
-					expectedRoleId = club.getRoleID(Club.Role.LEADER);
+				case PRESIDENT:
+					expectedRoleId = club.getRoleID(Club.Role.PRESIDENT);
 					break;
-				case COLEADER:
-					expectedRoleId = club.getRoleID(Club.Role.COLEADER);
+				case COPRESIDENT:
+					expectedRoleId = club.getRoleID(Club.Role.COPRESIDENT);
 					break;
-				case ELDER:
-					expectedRoleId = club.getRoleID(Club.Role.ELDER);
+				case SENIOR:
+					expectedRoleId = club.getRoleID(Club.Role.SENIOR);
 					break;
 				case MEMBER:
 					expectedRoleId = memberRoleId;
@@ -275,7 +275,7 @@ public class checkroles extends ListenerAdapter {
 		List<String> unnecessaryRolesList = new ArrayList<>();
 		int membersWithUnnecessaryRoles = 0;
 
-		String elderRoleId = club.getRoleID(Club.Role.ELDER);
+		String elderRoleId = club.getRoleID(Club.Role.SENIOR);
 		String memberRoleId = club.getRoleID(Club.Role.MEMBER);
 
 		java.util.HashSet<String> clubRoleIds = new java.util.HashSet<>();
@@ -337,9 +337,9 @@ public class checkroles extends ListenerAdapter {
 							boolean isAllowed = false;
 							// Map the Discord role back to what it represents
 							if (rId.equals(elderRoleId)) {
-								if (highestInGameRole == Player.RoleType.ELDER
-										|| highestInGameRole == Player.RoleType.COLEADER
-										|| highestInGameRole == Player.RoleType.LEADER)
+								if (highestInGameRole == Player.RoleType.SENIOR
+										|| highestInGameRole == Player.RoleType.COPRESIDENT
+										|| highestInGameRole == Player.RoleType.PRESIDENT)
 									isAllowed = true;
 							} else if (rId.equals(memberRoleId)) {
 								isAllowed = true; // Everyone in club is a member
@@ -390,11 +390,11 @@ public class checkroles extends ListenerAdapter {
 		if (role == null)
 			return -1;
 		switch (role) {
-			case LEADER:
+			case PRESIDENT:
 				return 4;
-			case COLEADER:
+			case COPRESIDENT:
 				return 3;
-			case ELDER:
+			case SENIOR:
 				return 2;
 			case MEMBER:
 				return 1;
@@ -405,11 +405,11 @@ public class checkroles extends ListenerAdapter {
 
 	private String getRoleDisplayName(Player.RoleType roleType) {
 		switch (roleType) {
-			case LEADER:
+			case PRESIDENT:
 				return "Anführer";
-			case COLEADER:
+			case COPRESIDENT:
 				return "Vize-Anführer";
-			case ELDER:
+			case SENIOR:
 				return "Ältester";
 			case MEMBER:
 				return "Mitglied";
@@ -418,6 +418,9 @@ public class checkroles extends ListenerAdapter {
 		}
 	}
 }
+
+
+
 
 
 

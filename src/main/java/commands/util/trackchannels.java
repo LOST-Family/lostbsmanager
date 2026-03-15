@@ -143,7 +143,7 @@ public class trackchannels extends ListenerAdapter {
             return true;
 
         for (Player.RoleType role : user.getClubRoles().values()) {
-            if (role == Player.RoleType.LEADER || role == Player.RoleType.COLEADER || role == Player.RoleType.ADMIN) {
+            if (role == Player.RoleType.PRESIDENT || role == Player.RoleType.COPRESIDENT || role == Player.RoleType.ADMIN) {
                 return true;
             }
         }
@@ -205,6 +205,9 @@ public class trackchannels extends ListenerAdapter {
                 .collect(Collectors.toList());
     }
 }
+
+
+
 
 
 

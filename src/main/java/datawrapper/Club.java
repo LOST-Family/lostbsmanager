@@ -28,14 +28,13 @@ public class Club {
 	private String nameapi;
 	private ArrayList<Player> playerlistdb;
 	private ArrayList<Player> playerlistapi;
-	private ArrayList<Player> cwfameplayerlist;
 	private Long max_kickpoints;
 	private Long index;
 	private Integer kickpoints_expire_after_days;
 	private ArrayList<KickpointReason> kickpoint_reasons;
 
 	public enum Role {
-		LEADER, COLEADER, ELDER, MEMBER
+		PRESIDENT, COPRESIDENT, SENIOR, MEMBER
 	}
 
 	public Club(String clubtag) {
@@ -59,13 +58,13 @@ public class Club {
 
 	public String getRoleID(Role role) {
 		switch (role) {
-			case LEADER:
-				return DBUtil.getValueFromSQL("SELECT leader_roleid FROM clubs WHERE tag = ?", String.class, club_tag);
-			case COLEADER:
-				return DBUtil.getValueFromSQL("SELECT coleader_roleid FROM clubs WHERE tag = ?", String.class,
+			case PRESIDENT:
+				return DBUtil.getValueFromSQL("SELECT president_roleid FROM clubs WHERE tag = ?", String.class, club_tag);
+			case COPRESIDENT:
+				return DBUtil.getValueFromSQL("SELECT copresident_roleid FROM clubs WHERE tag = ?", String.class,
 						club_tag);
-			case ELDER:
-				return DBUtil.getValueFromSQL("SELECT elder_roleid FROM clubs WHERE tag = ?", String.class, club_tag);
+			case SENIOR:
+				return DBUtil.getValueFromSQL("SELECT senior_roleid FROM clubs WHERE tag = ?", String.class, club_tag);
 			case MEMBER:
 				return DBUtil.getValueFromSQL("SELECT member_roleid FROM clubs WHERE tag = ?", String.class, club_tag);
 		}
@@ -205,63 +204,6 @@ public class Club {
 		return nameapi;
 	}
 
-	public ArrayList<Player> getCWFamePlayerList() {
-		if (cwfameplayerlist == null) {
-			// URL-kodieren des Spieler-Tags (# -> %23)
-			String encodedTag = java.net.URLEncoder.encode(club_tag, java.nio.charset.StandardCharsets.UTF_8);
-
-			String url = "https://api.clashroyale.com/v1/clubs/" + encodedTag + "/riverracelog?limit=1";
-
-			HttpClient client = HttpClient.newHttpClient();
-
-			HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url))
-					.header("Authorization", "Bearer " + Bot.api_key).header("Accept", "application/json").GET()
-					.build();
-
-			HttpResponse<String> response = null;
-			try {
-				response = client.send(request, HttpResponse.BodyHandlers.ofString());
-			} catch (IOException | InterruptedException e) {
-				e.printStackTrace();
-				return null;
-			}
-
-			if (response.statusCode() == 200) {
-				String responseBody = response.body();
-				// Einfacher JSON-Name-Parser ohne Bibliotheken:
-				JSONObject json = new JSONObject(responseBody);
-
-				JSONArray items = json.getJSONArray("items");
-				JSONObject item = items.getJSONObject(0);
-				JSONArray standings = item.getJSONArray("standings");
-
-				for (int i = 0; i < standings.length(); i++) {
-					JSONObject standing = standings.getJSONObject(i);
-					JSONObject club = standing.getJSONObject("club");
-					String tag = club.getString("tag");
-					if (tag.equals(club_tag)) {
-
-						JSONArray participants = club.getJSONArray("participants");
-
-						cwfameplayerlist = new ArrayList<>();
-						for (int j = 0; j < participants.length(); j++) {
-							JSONObject currentplayer = participants.getJSONObject(j);
-							Player p = new Player(currentplayer.getString("tag"));
-							p.setCWFame(currentplayer.getInt("fame"));
-							p.setClubtagCWDone(club_tag);
-							cwfameplayerlist.add(p);
-						}
-						break;
-					}
-				}
-
-			} else {
-				System.err.println("Fehler beim Abrufen: HTTP " + response.statusCode());
-				System.err.println("Antwort: " + response.body());
-			}
-		}
-		return cwfameplayerlist;
-	}
 
 	public String getDescriptionDB() {
 		if (descriptiondb == null) {
@@ -290,6 +232,9 @@ public class Club {
 		return descriptionapi;
 	}
 }
+
+
+
 
 
 

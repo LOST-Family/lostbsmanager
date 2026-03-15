@@ -63,8 +63,8 @@ public class togglemark extends ListenerAdapter {
 		User userexecuted = new User(event.getUser().getId());
 		if (!clubtag.equals("warteliste")) {
 			if (!(userexecuted.getClubRoles().get(clubtag) == Player.RoleType.ADMIN
-					|| userexecuted.getClubRoles().get(clubtag) == Player.RoleType.LEADER
-					|| userexecuted.getClubRoles().get(clubtag) == Player.RoleType.COLEADER)) {
+					|| userexecuted.getClubRoles().get(clubtag) == Player.RoleType.PRESIDENT
+					|| userexecuted.getClubRoles().get(clubtag) == Player.RoleType.COPRESIDENT)) {
 				event.replyEmbeds(MessageUtil.buildEmbed(title,
 						"Du musst mindestens Vize-Anführer des clubs sein, um diesen Befehl ausführen zu können.",
 						MessageUtil.EmbedType.ERROR)).queue();
@@ -74,8 +74,8 @@ public class togglemark extends ListenerAdapter {
 			boolean b = false;
 			for (String clubtags : DBManager.getAllClubs()) {
 				if (userexecuted.getClubRoles().get(clubtags) == Player.RoleType.ADMIN
-						|| userexecuted.getClubRoles().get(clubtags) == Player.RoleType.LEADER
-						|| userexecuted.getClubRoles().get(clubtags) == Player.RoleType.COLEADER) {
+						|| userexecuted.getClubRoles().get(clubtags) == Player.RoleType.PRESIDENT
+						|| userexecuted.getClubRoles().get(clubtags) == Player.RoleType.COPRESIDENT) {
 					b = true;
 					break;
 				}
@@ -166,6 +166,9 @@ public class togglemark extends ListenerAdapter {
 	}
 
 }
+
+
+
 
 
 

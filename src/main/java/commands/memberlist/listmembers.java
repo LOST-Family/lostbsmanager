@@ -111,7 +111,7 @@ public class listmembers extends ListenerAdapter {
 			int clubSizeCount = 0;
 
 			for (Player p : playerlist) {
-				boolean isHidden = p.isHiddenColeader();
+				boolean isHidden = p.isCoPresident();
 				if (!isHidden) {
 					clubSizeCount++;
 				}
@@ -123,14 +123,14 @@ public class listmembers extends ListenerAdapter {
 					}
 					adminlist += "\n";
 				}
-				if (p.getRole() == Player.RoleType.LEADER) {
+				if (p.getRole() == Player.RoleType.PRESIDENT) {
 					leaderlist += p.getInfoStringDB();
 					if (p.isMarked()) {
 						leaderlist += " (✗)";
 					}
 					leaderlist += "\n";
 				}
-				if (p.getRole() == Player.RoleType.COLEADER) {
+				if (p.getRole() == Player.RoleType.COPRESIDENT) {
 					coleaderlist += p.getInfoStringDB();
 					if (isHidden) {
 						coleaderlist += " (versteckt)";
@@ -140,7 +140,7 @@ public class listmembers extends ListenerAdapter {
 					}
 					coleaderlist += "\n";
 				}
-				if (p.getRole() == Player.RoleType.ELDER) {
+				if (p.getRole() == Player.RoleType.SENIOR) {
 					elderlist += p.getInfoStringDB();
 					if (p.isMarked()) {
 						elderlist += " (✗)";
@@ -281,7 +281,7 @@ public class listmembers extends ListenerAdapter {
 			int clubSizeCount = 0;
 
 			for (Player p : playerlist) {
-				boolean isHidden = p.isHiddenColeader();
+				boolean isHidden = p.isCoPresident();
 				if (!isHidden) {
 					clubSizeCount++;
 				}
@@ -294,7 +294,7 @@ public class listmembers extends ListenerAdapter {
 					}
 					adminlist += "\n";
 				}
-				if (p.getRole() == Player.RoleType.LEADER) {
+				if (p.getRole() == Player.RoleType.PRESIDENT) {
 					leaderlist += p.getInfoStringDB();
 					if (p.isMarked()) {
 						leaderlist += " (✗)";
@@ -302,7 +302,7 @@ public class listmembers extends ListenerAdapter {
 					}
 					leaderlist += "\n";
 				}
-				if (p.getRole() == Player.RoleType.COLEADER) {
+				if (p.getRole() == Player.RoleType.COPRESIDENT) {
 					coleaderlist += p.getInfoStringDB();
 					if (isHidden) {
 						coleaderlist += " (versteckt)";
@@ -313,7 +313,7 @@ public class listmembers extends ListenerAdapter {
 					}
 					coleaderlist += "\n";
 				}
-				if (p.getRole() == Player.RoleType.ELDER) {
+				if (p.getRole() == Player.RoleType.SENIOR) {
 					elderlist += p.getInfoStringDB();
 					if (p.isMarked()) {
 						elderlist += " (✗)";
@@ -509,6 +509,9 @@ public class listmembers extends ListenerAdapter {
 	}
 
 }
+
+
+
 
 
 

@@ -91,7 +91,7 @@ public class editmember extends ListenerAdapter {
 				return;
 			}
 			if (role.equals("coleader") && !(userexecuted.getClubRoles().get(clubtag) == Player.RoleType.ADMIN
-					|| userexecuted.getClubRoles().get(clubtag) == Player.RoleType.LEADER)) {
+					|| userexecuted.getClubRoles().get(clubtag) == Player.RoleType.PRESIDENT)) {
 				event.getHook()
 						.editOriginalEmbeds(MessageUtil.buildEmbed(title,
 								"Um jemanden als Vize-Anführer hinzuzufügen, musst du Admin oder Anführer sein.",
@@ -100,7 +100,7 @@ public class editmember extends ListenerAdapter {
 				return;
 			}
 			if (role.equals("hiddencoleader") && !(userexecuted.getClubRoles().get(clubtag) == Player.RoleType.ADMIN
-					|| userexecuted.getClubRoles().get(clubtag) == Player.RoleType.LEADER)) {
+					|| userexecuted.getClubRoles().get(clubtag) == Player.RoleType.PRESIDENT)) {
 				event.getHook()
 						.editOriginalEmbeds(MessageUtil.buildEmbed(title,
 								"Um jemanden als Vize-Anführer (versteckt) hinzuzufügen, musst du Admin oder Anführer sein.",
@@ -153,6 +153,9 @@ public class editmember extends ListenerAdapter {
 	}
 
 }
+
+
+
 
 
 
