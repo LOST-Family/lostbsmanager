@@ -30,17 +30,17 @@ public class memberstatus extends ListenerAdapter {
 		event.deferReply().queue();
 		String title = "Memberstatus";
 
-		OptionMapping ClubOption = event.getOption("Club");
+		OptionMapping clubOption = event.getOption("club");
 		OptionMapping excludeLeadersOption = event.getOption("exclude_leaders");
 
-		if (ClubOption == null) {
+		if (clubOption == null) {
 			event.getHook().editOriginalEmbeds(
 					MessageUtil.buildEmbed(title, "Der Parameter ist erforderlich!", MessageUtil.EmbedType.ERROR))
 					.queue();
 			return;
 		}
 
-		String Clubtag = ClubOption.getAsString();
+		String clubtag = clubOption.getAsString();
 		
 		boolean excludeLeaders = false;
 		if (excludeLeadersOption != null) {
@@ -55,7 +55,7 @@ public class memberstatus extends ListenerAdapter {
 			}
 		}
 
-		if (Clubtag.equals("warteliste")) {
+		if (clubtag.equals("warteliste")) {
 			event.getHook()
 					.editOriginalEmbeds(MessageUtil.buildEmbed(title,
 							"Diesen Befehl kannst du nicht auf die Warteliste ausführen.", MessageUtil.EmbedType.ERROR))
@@ -63,7 +63,7 @@ public class memberstatus extends ListenerAdapter {
 			return;
 		}
 
-		Club c = new Club(Clubtag);
+		Club c = new Club(clubtag);
 
 		if (!c.ExistsDB()) {
 			event.getHook()
@@ -85,13 +85,13 @@ public class memberstatus extends ListenerAdapter {
 			ArrayList<String> taglistapi = new ArrayList<>();
 			playerlistapi.forEach(p -> taglistapi.add(p.getTag()));
 
-			ArrayList<Player> membernotinClub = new ArrayList<>();
-			ArrayList<Player> inClubnotmember = new ArrayList<>();
+			ArrayList<Player> membernotinclub = new ArrayList<>();
+			ArrayList<Player> inclubnotmember = new ArrayList<>();
 
 			for (String s : taglistdb) {
 				if (!taglistapi.contains(s)) {
 					Player p = new Player(s);
-					// Skip hidden coleaders - they don't need to be in the Club ingame
+					// Skip hidden coleaders - they don't need to be in the club ingame
 					if (p.isHiddenColeader()) {
 						continue;
 					}
@@ -103,36 +103,36 @@ public class memberstatus extends ListenerAdapter {
 							continue;
 						}
 					}
-					membernotinClub.add(p);
+					membernotinclub.add(p);
 				}
 			}
 
 			for (String s : taglistapi) {
 				if (!taglistdb.contains(s)) {
-					inClubnotmember.add(new Player(s));
+					inclubnotmember.add(new Player(s));
 				}
 			}
 
-			String membernotinClubstr = "";
+			String membernotinclubstr = "";
 
-			for (Player p : membernotinClub) {
-				membernotinClubstr += p.getInfoStringDB() + "\n";
+			for (Player p : membernotinclub) {
+				membernotinclubstr += p.getInfoStringDB() + "\n";
 			}
 
-			String inClubnotmemberstr = "";
+			String inclubnotmemberstr = "";
 
-			for (Player p : inClubnotmember) {
-				inClubnotmemberstr += p.getInfoStringAPI() + "\n";
+			for (Player p : inclubnotmember) {
+				inclubnotmemberstr += p.getInfoStringAPI() + "\n";
 			}
 
 			String desc = "## " + c.getInfoStringDB() + "\n";
 
 			desc += "**Mitglied, ingame nicht im Club:**\n\n";
-			desc += membernotinClubstr == "" ? "---\n\n" : MessageUtil.unformat(membernotinClubstr) + "\n";
+			desc += membernotinclubstr == "" ? "---\n\n" : MessageUtil.unformat(membernotinclubstr) + "\n";
 			desc += "**Kein Mitglied, ingame im Club:**\n\n";
-			desc += inClubnotmemberstr == "" ? "---\n\n" : MessageUtil.unformat(inClubnotmemberstr) + "\n";
+			desc += inclubnotmemberstr == "" ? "---\n\n" : MessageUtil.unformat(inclubnotmemberstr) + "\n";
 
-			Button refreshButton = Button.secondary("memberstatus_" + Clubtag + "_" + excludeLeadersFinal, "\u200B").withEmoji(Emoji.fromUnicode("🔁"));
+			Button refreshButton = Button.secondary("memberstatus_" + clubtag + "_" + excludeLeadersFinal, "\u200B").withEmoji(Emoji.fromUnicode("🔁"));
 
 			ZonedDateTime jetzt = ZonedDateTime.now(ZoneId.of("Europe/Berlin"));
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy 'um' HH:mm 'Uhr'");
@@ -153,7 +153,7 @@ public class memberstatus extends ListenerAdapter {
 		String focused = event.getFocusedOption().getName();
 		String input = event.getFocusedOption().getValue();
 
-		if (focused.equals("Club")) {
+		if (focused.equals("club")) {
 			List<Command.Choice> choices = DBManager.getClubsAutocompleteNoWaitlist(input);
 
 			event.replyChoices(choices).queue();
@@ -175,24 +175,24 @@ public class memberstatus extends ListenerAdapter {
 
 		event.deferEdit().queue();
 
-		// Parse the button ID: memberstatus_{Clubtag}_{excludeLeaders}
+		// Parse the button ID: memberstatus_{clubtag}_{excludeLeaders}
 		String remainder = id.substring("memberstatus_".length());
-		String Clubtag;
+		String clubtag;
 		boolean excludeLeaders = false;
 		
 		int lastUnderscore = remainder.lastIndexOf("_");
 		if (lastUnderscore != -1) {
-			Clubtag = remainder.substring(0, lastUnderscore);
+			clubtag = remainder.substring(0, lastUnderscore);
 			String excludeLeadersStr = remainder.substring(lastUnderscore + 1);
 			excludeLeaders = "true".equals(excludeLeadersStr);
 		} else {
 			// Fallback for old button IDs without exclude_leaders
-			Clubtag = remainder;
+			clubtag = remainder;
 		}
 		
 		String title = "Memberstatus";
 
-		if (Clubtag.equals("warteliste")) {
+		if (clubtag.equals("warteliste")) {
 			event.getHook()
 					.editOriginalEmbeds(MessageUtil.buildEmbed(title,
 							"Diesen Befehl kannst du nicht auf die Warteliste ausführen.", MessageUtil.EmbedType.ERROR))
@@ -200,7 +200,7 @@ public class memberstatus extends ListenerAdapter {
 			return;
 		}
 
-		Club c = new Club(Clubtag);
+		Club c = new Club(clubtag);
 
 		if (!c.ExistsDB()) {
 			event.getHook()
@@ -222,13 +222,13 @@ public class memberstatus extends ListenerAdapter {
 			ArrayList<String> taglistapi = new ArrayList<>();
 			playerlistapi.forEach(p -> taglistapi.add(p.getTag()));
 
-			ArrayList<Player> membernotinClub = new ArrayList<>();
-			ArrayList<Player> inClubnotmember = new ArrayList<>();
+			ArrayList<Player> membernotinclub = new ArrayList<>();
+			ArrayList<Player> inclubnotmember = new ArrayList<>();
 
 			for (String s : taglistdb) {
 				if (!taglistapi.contains(s)) {
 					Player p = new Player(s);
-					// Skip hidden coleaders - they don't need to be in the Club ingame
+					// Skip hidden coleaders - they don't need to be in the club ingame
 					if (p.isHiddenColeader()) {
 						continue;
 					}
@@ -240,36 +240,36 @@ public class memberstatus extends ListenerAdapter {
 							continue;
 						}
 					}
-					membernotinClub.add(p);
+					membernotinclub.add(p);
 				}
 			}
 
 			for (String s : taglistapi) {
 				if (!taglistdb.contains(s)) {
-					inClubnotmember.add(new Player(s));
+					inclubnotmember.add(new Player(s));
 				}
 			}
 
-			String membernotinClubstr = "";
+			String membernotinclubstr = "";
 
-			for (Player p : membernotinClub) {
-				membernotinClubstr += p.getInfoStringDB() + "\n";
+			for (Player p : membernotinclub) {
+				membernotinclubstr += p.getInfoStringDB() + "\n";
 			}
 
-			String inClubnotmemberstr = "";
+			String inclubnotmemberstr = "";
 
-			for (Player p : inClubnotmember) {
-				inClubnotmemberstr += p.getInfoStringAPI() + "\n";
+			for (Player p : inclubnotmember) {
+				inclubnotmemberstr += p.getInfoStringAPI() + "\n";
 			}
 
 			String desc = "## " + c.getInfoStringDB() + "\n";
 
 			desc += "**Mitglied, ingame nicht im Club:**\n\n";
-			desc += membernotinClubstr == "" ? "---\n\n" : MessageUtil.unformat(membernotinClubstr) + "\n";
+			desc += membernotinclubstr == "" ? "---\n\n" : MessageUtil.unformat(membernotinclubstr) + "\n";
 			desc += "**Kein Mitglied, ingame im Club:**\n\n";
-			desc += inClubnotmemberstr == "" ? "---\n\n" : MessageUtil.unformat(inClubnotmemberstr) + "\n";
+			desc += inclubnotmemberstr == "" ? "---\n\n" : MessageUtil.unformat(inclubnotmemberstr) + "\n";
 
-			Button refreshButton = Button.secondary("memberstatus_" + Clubtag + "_" + excludeLeadersFinal, "\u200B").withEmoji(Emoji.fromUnicode("🔁"));
+			Button refreshButton = Button.secondary("memberstatus_" + clubtag + "_" + excludeLeadersFinal, "\u200B").withEmoji(Emoji.fromUnicode("🔁"));
 
 			ZonedDateTime jetzt = ZonedDateTime.now(ZoneId.of("Europe/Berlin"));
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy 'um' HH:mm 'Uhr'");
@@ -281,4 +281,6 @@ public class memberstatus extends ListenerAdapter {
 	}
 
 }
+
+
 

@@ -21,7 +21,7 @@ import lostbsmanager.Bot;
 
 public class Club {
 
-	private String Club_tag;
+	private String club_tag;
 	private String namedb;
 	private String descriptiondb;
 	private String descriptionapi;
@@ -38,14 +38,14 @@ public class Club {
 		LEADER, COLEADER, ELDER, MEMBER
 	}
 
-	public Club(String Clubtag) {
-		Club_tag = Clubtag;
+	public Club(String clubtag) {
+		club_tag = clubtag;
 	}
 
 	public boolean ExistsDB() {
-		String sql = "SELECT 1 FROM Clubs WHERE tag = ?";
+		String sql = "SELECT 1 FROM clubs WHERE tag = ?";
 		try (PreparedStatement pstmt = Connection.getConnection().prepareStatement(sql)) {
-			pstmt.setString(1, Club_tag);
+			pstmt.setString(1, club_tag);
 			try (ResultSet rs = pstmt.executeQuery()) {
 				return rs.next(); // true, wenn mindestens eine Zeile existiert
 			}
@@ -60,43 +60,43 @@ public class Club {
 	public String getRoleID(Role role) {
 		switch (role) {
 			case LEADER:
-				return DBUtil.getValueFromSQL("SELECT leader_roleid FROM Clubs WHERE tag = ?", String.class, Club_tag);
+				return DBUtil.getValueFromSQL("SELECT leader_roleid FROM clubs WHERE tag = ?", String.class, club_tag);
 			case COLEADER:
-				return DBUtil.getValueFromSQL("SELECT coleader_roleid FROM Clubs WHERE tag = ?", String.class,
-						Club_tag);
+				return DBUtil.getValueFromSQL("SELECT coleader_roleid FROM clubs WHERE tag = ?", String.class,
+						club_tag);
 			case ELDER:
-				return DBUtil.getValueFromSQL("SELECT elder_roleid FROM Clubs WHERE tag = ?", String.class, Club_tag);
+				return DBUtil.getValueFromSQL("SELECT elder_roleid FROM clubs WHERE tag = ?", String.class, club_tag);
 			case MEMBER:
-				return DBUtil.getValueFromSQL("SELECT member_roleid FROM Clubs WHERE tag = ?", String.class, Club_tag);
+				return DBUtil.getValueFromSQL("SELECT member_roleid FROM clubs WHERE tag = ?", String.class, club_tag);
 		}
 		return null;
 	}
 
 	public String getInfoStringAPI() {
-		if (!Club_tag.equals("warteliste")) {
-			return getNameAPI() + " (" + Club_tag + ")";
+		if (!club_tag.equals("warteliste")) {
+			return getNameAPI() + " (" + club_tag + ")";
 		} else {
 			return getNameAPI();
 		}
 	}
 
 	public String getInfoStringDB() {
-		if (!Club_tag.equals("warteliste")) {
-			return getNameDB() + " (" + Club_tag + ")";
+		if (!club_tag.equals("warteliste")) {
+			return getNameDB() + " (" + club_tag + ")";
 		} else {
 			return getNameDB();
 		}
 	}
 
 	public String getTag() {
-		return Club_tag;
+		return club_tag;
 	}
 
 	public Long getIndex() {
 		if (index == null) {
-			String sql = "SELECT index FROM Clubs WHERE tag = ?";
+			String sql = "SELECT index FROM clubs WHERE tag = ?";
 			try (PreparedStatement pstmt = Connection.getConnection().prepareStatement(sql)) {
-				pstmt.setString(1, Club_tag);
+				pstmt.setString(1, club_tag);
 				try (ResultSet rs = pstmt.executeQuery()) {
 					if (rs.next()) {
 						index = rs.getLong("index");
@@ -111,8 +111,8 @@ public class Club {
 
 	public ArrayList<Player> getPlayersDB() {
 		if (playerlistdb == null) {
-			String sql = "SELECT player_tag FROM Club_members WHERE Club_tag = ? ";
-			ArrayList<String> result = DBUtil.getArrayListFromSQL(sql, String.class, Club_tag);
+			String sql = "SELECT player_tag FROM club_members WHERE club_tag = ? ";
+			ArrayList<String> result = DBUtil.getArrayListFromSQL(sql, String.class, club_tag);
 
 			playerlistdb = new ArrayList<>();
 			for (String tags : result) {
@@ -125,7 +125,7 @@ public class Club {
 	public ArrayList<Player> getPlayersAPI() {
 		if (playerlistapi == null) {
 			playerlistapi = new ArrayList<>();
-			JSONObject jsonObject = new JSONObject(APIUtil.getClubJson(Club_tag));
+			JSONObject jsonObject = new JSONObject(APIUtil.getClubJson(club_tag));
 
 			JSONArray members = jsonObject.getJSONArray("memberList");
 
@@ -141,16 +141,16 @@ public class Club {
 
 	public Long getMaxKickpoints() {
 		if (max_kickpoints == null) {
-			String sql = "SELECT max_kickpoints FROM Club_settings WHERE Club_tag = ?";
-			max_kickpoints = DBUtil.getValueFromSQL(sql, Long.class, Club_tag);
+			String sql = "SELECT max_kickpoints FROM club_settings WHERE club_tag = ?";
+			max_kickpoints = DBUtil.getValueFromSQL(sql, Long.class, club_tag);
 		}
 		return max_kickpoints;
 	}
 
 	public Integer getDaysKickpointsExpireAfter() {
 		if (kickpoints_expire_after_days == null) {
-			String sql = "SELECT kickpoints_expire_after_days FROM Club_settings WHERE Club_tag = ?";
-			kickpoints_expire_after_days = DBUtil.getValueFromSQL(sql, Integer.class, Club_tag);
+			String sql = "SELECT kickpoints_expire_after_days FROM club_settings WHERE club_tag = ?";
+			kickpoints_expire_after_days = DBUtil.getValueFromSQL(sql, Integer.class, club_tag);
 		}
 		return kickpoints_expire_after_days;
 	}
@@ -159,13 +159,13 @@ public class Club {
 		if (kickpoint_reasons == null) {
 			kickpoint_reasons = new ArrayList<>();
 
-			String sql = "SELECT name, Club_tag FROM kickpoint_reasons WHERE Club_tag = ? ORDER BY index ASC";
+			String sql = "SELECT name, club_tag FROM kickpoint_reasons WHERE club_tag = ? ORDER BY index ASC";
 			try (PreparedStatement pstmt = Connection.getConnection().prepareStatement(sql)) {
-				pstmt.setObject(1, Club_tag);
+				pstmt.setObject(1, club_tag);
 
 				try (ResultSet rs = pstmt.executeQuery()) {
 					while (rs.next()) {
-						kickpoint_reasons.add(new KickpointReason(rs.getString("name"), rs.getString("Club_tag")));
+						kickpoint_reasons.add(new KickpointReason(rs.getString("name"), rs.getString("club_tag")));
 					}
 					Statement stmt = rs.getStatement();
 					rs.close();
@@ -182,9 +182,9 @@ public class Club {
 
 	public String getNameDB() {
 		if (namedb == null) {
-			String sql = "SELECT name FROM Clubs WHERE tag = ?";
+			String sql = "SELECT name FROM clubs WHERE tag = ?";
 			try (PreparedStatement pstmt = Connection.getConnection().prepareStatement(sql)) {
-				pstmt.setString(1, Club_tag);
+				pstmt.setString(1, club_tag);
 				try (ResultSet rs = pstmt.executeQuery()) {
 					if (rs.next()) {
 						namedb = rs.getString("name");
@@ -199,7 +199,7 @@ public class Club {
 
 	public String getNameAPI() {
 		if (nameapi == null) {
-			JSONObject jsonObject = new JSONObject(APIUtil.getClubJson(Club_tag));
+			JSONObject jsonObject = new JSONObject(APIUtil.getClubJson(club_tag));
 			nameapi = jsonObject.getString("name");
 		}
 		return nameapi;
@@ -208,9 +208,9 @@ public class Club {
 	public ArrayList<Player> getCWFamePlayerList() {
 		if (cwfameplayerlist == null) {
 			// URL-kodieren des Spieler-Tags (# -> %23)
-			String encodedTag = java.net.URLEncoder.encode(Club_tag, java.nio.charset.StandardCharsets.UTF_8);
+			String encodedTag = java.net.URLEncoder.encode(club_tag, java.nio.charset.StandardCharsets.UTF_8);
 
-			String url = "https://api.clashroyale.com/v1/Clubs/" + encodedTag + "/riverracelog?limit=1";
+			String url = "https://api.clashroyale.com/v1/clubs/" + encodedTag + "/riverracelog?limit=1";
 
 			HttpClient client = HttpClient.newHttpClient();
 
@@ -237,18 +237,18 @@ public class Club {
 
 				for (int i = 0; i < standings.length(); i++) {
 					JSONObject standing = standings.getJSONObject(i);
-					JSONObject Club = standing.getJSONObject("Club");
-					String tag = Club.getString("tag");
-					if (tag.equals(Club_tag)) {
+					JSONObject club = standing.getJSONObject("club");
+					String tag = club.getString("tag");
+					if (tag.equals(club_tag)) {
 
-						JSONArray participants = Club.getJSONArray("participants");
+						JSONArray participants = club.getJSONArray("participants");
 
 						cwfameplayerlist = new ArrayList<>();
 						for (int j = 0; j < participants.length(); j++) {
 							JSONObject currentplayer = participants.getJSONObject(j);
 							Player p = new Player(currentplayer.getString("tag"));
 							p.setCWFame(currentplayer.getInt("fame"));
-							p.setClubtagCWDone(Club_tag);
+							p.setClubtagCWDone(club_tag);
 							cwfameplayerlist.add(p);
 						}
 						break;
@@ -265,9 +265,9 @@ public class Club {
 
 	public String getDescriptionDB() {
 		if (descriptiondb == null) {
-			String sql = "SELECT description FROM Clubs WHERE tag = ?";
+			String sql = "SELECT description FROM clubs WHERE tag = ?";
 			try (PreparedStatement pstmt = Connection.getConnection().prepareStatement(sql)) {
-				pstmt.setString(1, Club_tag);
+				pstmt.setString(1, club_tag);
 				try (ResultSet rs = pstmt.executeQuery()) {
 					if (rs.next()) {
 						descriptiondb = rs.getString("description");
@@ -282,7 +282,7 @@ public class Club {
 
 	public String getDescriptionAPI() {
 		if (descriptionapi == null) {
-			JSONObject jsonobject = new JSONObject(APIUtil.getClubJson(Club_tag));
+			JSONObject jsonobject = new JSONObject(APIUtil.getClubJson(club_tag));
 			if (jsonobject.has("description") && !jsonobject.isNull("description")) {
 				descriptionapi = jsonobject.getString("description");
 			}

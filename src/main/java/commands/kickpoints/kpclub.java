@@ -26,27 +26,27 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import util.MessageUtil;
 
-public class kpClub extends ListenerAdapter {
+public class kpclub extends ListenerAdapter {
 
 	@Override
 	public void onSlashCommandInteraction(@Nonnull SlashCommandInteractionEvent event) {
-		if (!event.getName().equals("kpClub"))
+		if (!event.getName().equals("kpclub"))
 			return;
 		event.deferReply().queue();
 		String title = "Aktive Kickpunkte des Clubs";
 
-		OptionMapping ClubOption = event.getOption("Club");
+		OptionMapping clubOption = event.getOption("club");
 
-		if (ClubOption == null) {
+		if (clubOption == null) {
 			event.getHook().editOriginalEmbeds(
 					MessageUtil.buildEmbed(title, "Der Parameter Club ist erforderlich!", MessageUtil.EmbedType.ERROR))
 					.queue();
 			return;
 		}
 
-		String Clubtag = ClubOption.getAsString();
+		String clubtag = clubOption.getAsString();
 
-		if (Clubtag.equals("warteliste")) {
+		if (clubtag.equals("warteliste")) {
 			event.getHook()
 					.editOriginalEmbeds(MessageUtil.buildEmbed(title,
 							"Diesen Befehl kannst du nicht auf die Warteliste ausführen.", MessageUtil.EmbedType.ERROR))
@@ -58,14 +58,14 @@ public class kpClub extends ListenerAdapter {
 			String desc = "";
 			ArrayList<Player> playerlist = new ArrayList<>();
 
-			if (Clubtag.equals("all")) {
-				for (String Clubtags : DBManager.getAllClubs()) {
-					if (!Clubtags.equals("warteliste"))
-						playerlist.addAll(new Club(Clubtags).getPlayersDB());
+			if (clubtag.equals("all")) {
+				for (String clubtags : DBManager.getAllClubs()) {
+					if (!clubtags.equals("warteliste"))
+						playerlist.addAll(new Club(clubtags).getPlayersDB());
 				}
 				desc = "### Kickpunkte aller Spieler aller Clubs:\n";
 			} else {
-				Club c = new Club(Clubtag);
+				Club c = new Club(clubtag);
 
 				if (!c.ExistsDB()) {
 					event.getHook().editOriginalEmbeds(
@@ -108,7 +108,7 @@ public class kpClub extends ListenerAdapter {
 			event.getHook()
 					.editOriginalEmbeds(MessageUtil.buildEmbed(title, desc, MessageUtil.EmbedType.INFO,
 							"Zuletzt aktualisiert am " + formatiert))
-					.setActionRow(Button.secondary("kpClub_" + Clubtag, "\u200B").withEmoji(Emoji.fromUnicode("🔁")))
+					.setActionRow(Button.secondary("kpclub_" + clubtag, "\u200B").withEmoji(Emoji.fromUnicode("🔁")))
 					.queue();
 		}).start();
 
@@ -116,13 +116,13 @@ public class kpClub extends ListenerAdapter {
 
 	@Override
 	public void onCommandAutoCompleteInteraction(@Nonnull CommandAutoCompleteInteractionEvent event) {
-		if (!event.getName().equals("kpClub"))
+		if (!event.getName().equals("kpclub"))
 			return;
 
 		String focused = event.getFocusedOption().getName();
 		String input = event.getFocusedOption().getValue();
 
-		if (focused.equals("Club")) {
+		if (focused.equals("club")) {
 			List<Command.Choice> choices = DBManager.getClubsAutocompleteNoWaitlist(input);
 			choices.add(new Command.Choice("Alle Clubs", "all"));
 
@@ -133,12 +133,12 @@ public class kpClub extends ListenerAdapter {
 	@Override
 	public void onButtonInteraction(@Nonnull ButtonInteractionEvent event) {
 		String id = event.getComponentId();
-		if (!id.startsWith("kpClub_"))
+		if (!id.startsWith("kpclub_"))
 			return;
 
 		event.deferEdit().queue();
 
-		String Clubtag = id.substring("kpClub_".length());
+		String clubtag = id.substring("kpclub_".length());
 		String title = "Aktive Kickpunkte des Clubs";
 
 		event.getInteraction().getHook()
@@ -147,14 +147,14 @@ public class kpClub extends ListenerAdapter {
 		String descr;
 		ArrayList<Player> playerlist = new ArrayList<>();
 
-		if (Clubtag.equals("all")) {
-			for (String Clubtags : DBManager.getAllClubs()) {
-				if (!Clubtags.equals("warteliste"))
-					playerlist.addAll(new Club(Clubtags).getPlayersDB());
+		if (clubtag.equals("all")) {
+			for (String clubtags : DBManager.getAllClubs()) {
+				if (!clubtags.equals("warteliste"))
+					playerlist.addAll(new Club(clubtags).getPlayersDB());
 			}
 			descr = "### Kickpunkte aller Spieler aller Clubs:\n";
 		} else {
-			Club c = new Club(Clubtag);
+			Club c = new Club(clubtag);
 
 			if (!c.ExistsDB()) {
 				event.getHook().editOriginalEmbeds(
@@ -208,4 +208,6 @@ public class kpClub extends ListenerAdapter {
 	}
 
 }
+
+
 

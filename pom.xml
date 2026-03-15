@@ -3,7 +3,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.pixel</groupId>
-	<artifactId>lostcrmanager</artifactId>
+	<artifactId>lostbsmanager</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>LostCRManager</name>
 	<description>Discord Bot for Clash Royale Clan Management in Lost Family</description>
@@ -46,7 +46,7 @@
 		</dependency>
 	</dependencies>
 	<build>
-		<finalName>crmanager</finalName>
+		<finalName>bsmanager</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -62,7 +62,7 @@
 							<createDependencyReducedPom>false</createDependencyReducedPom>
 							<transformers>
 								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-									<mainClass>lostcrmanager.Bot</mainClass>
+									<mainClass>lostbsmanager.Bot</mainClass>
 								</transformer>
 							</transformers>
 						</configuration>

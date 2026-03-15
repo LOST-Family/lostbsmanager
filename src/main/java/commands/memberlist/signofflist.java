@@ -66,7 +66,7 @@ public class signofflist extends ListenerAdapter {
                 }
             }
 
-            // Determine if user is coleader or higher (in any Club)
+            // Determine if user is coleader or higher (in any club)
             User userExecuted = new User(event.getUser().getId());
             boolean isColeader = userExecuted.isColeaderOrHigher();
 
@@ -114,8 +114,8 @@ public class signofflist extends ListenerAdapter {
         class SignoffData {
             MemberSignoff signoff;
             String playerName;
-            Long ClubIndex;
-            String ClubName;
+            Long clubIndex;
+            String clubName;
         }
 
         List<SignoffData> dataList = new ArrayList<>();
@@ -127,14 +127,14 @@ public class signofflist extends ListenerAdapter {
             if (d.playerName == null) {
                 d.playerName = s.getPlayerTag();
             }
-            Club Club = p.getClubDB();
-            d.ClubIndex = Club != null && Club.getIndex() != null ? Club.getIndex() : Long.MAX_VALUE;
-            d.ClubName = Club != null && Club.getNameDB() != null ? Club.getNameDB() : "Kein Club";
+            Club club = p.getClubDB();
+            d.clubIndex = club != null && club.getIndex() != null ? club.getIndex() : Long.MAX_VALUE;
+            d.clubName = club != null && club.getNameDB() != null ? club.getNameDB() : "Kein Club";
             dataList.add(d);
         }
 
         dataList.sort((d1, d2) -> {
-            int cmp = Long.compare(d1.ClubIndex, d2.ClubIndex);
+            int cmp = Long.compare(d1.clubIndex, d2.clubIndex);
             if (cmp == 0) {
                 return d1.playerName.compareToIgnoreCase(d2.playerName);
             }
@@ -150,7 +150,7 @@ public class signofflist extends ListenerAdapter {
             MemberSignoff signoff = d.signoff;
 
             desc.append("**").append(MessageUtil.unformat(d.playerName)).append("** (")
-                    .append(signoff.getPlayerTag()).append(") - ").append(d.ClubName).append("\n");
+                    .append(signoff.getPlayerTag()).append(") - ").append(d.clubName).append("\n");
 
             // Start date
             desc.append("Von: ").append(signoff.getStartDate().toLocalDateTime().format(DATE_FORMAT));
@@ -268,4 +268,6 @@ public class signofflist extends ListenerAdapter {
         return choices;
     }
 }
+
+
 

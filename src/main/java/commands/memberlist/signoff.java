@@ -235,7 +235,7 @@ public class signoff extends ListenerAdapter {
 
             if (focused.equals("player")) {
                 List<Command.Choice> choices = DBManager.getPlayerlistAutocompleteNoWaitlist(input,
-                        DBManager.InClubType.INClub);
+                        DBManager.InClubType.INCLUB);
                 event.replyChoices(choices).queue(_ -> {
                 }, _ -> {
                 });
@@ -252,4 +252,6 @@ public class signoff extends ListenerAdapter {
         }, "SignoffAutocomplete-" + event.getUser().getId()).start();
     }
 }
+
+
 

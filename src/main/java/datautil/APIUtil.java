@@ -10,11 +10,11 @@ import lostbsmanager.Bot;
 
 public class APIUtil {
 
-	public static String getClubJson(String ClubTag) {
+	public static String getClubJson(String clubTag) {
 		// URL-kodieren des Spieler-Tags (# -> %23)
-		String encodedTag = java.net.URLEncoder.encode(ClubTag, java.nio.charset.StandardCharsets.UTF_8);
+		String encodedTag = java.net.URLEncoder.encode(clubTag, java.nio.charset.StandardCharsets.UTF_8);
 
-		String url = "https://api.clashroyale.com/v1/Clubs/" + encodedTag;
+		String url = "https://api.clashroyale.com/v1/clubs/" + encodedTag;
 
 		HttpClient client = HttpClient.newHttpClient();
 
@@ -70,11 +70,11 @@ public class APIUtil {
 		}
 	}
 	
-	public static String getCurrentRiverRaceJson(String ClubTag) {
+	public static String getCurrentRiverRaceJson(String clubTag) {
 		// URL-kodieren des Club-Tags (# -> %23)
-		String encodedTag = java.net.URLEncoder.encode(ClubTag, java.nio.charset.StandardCharsets.UTF_8);
+		String encodedTag = java.net.URLEncoder.encode(clubTag, java.nio.charset.StandardCharsets.UTF_8);
 
-		String url = "https://api.clashroyale.com/v1/Clubs/" + encodedTag + "/currentriverrace";
+		String url = "https://api.clashroyale.com/v1/clubs/" + encodedTag + "/currentriverrace";
 
 		HttpClient client = HttpClient.newHttpClient();
 
@@ -100,5 +100,6 @@ public class APIUtil {
 	}
 	
 }
+
 
 

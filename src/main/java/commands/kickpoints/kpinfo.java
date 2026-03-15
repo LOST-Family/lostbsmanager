@@ -25,18 +25,18 @@ public class kpinfo extends ListenerAdapter {
 		event.deferReply().queue();
 		String title = "Einstellungen";
 
-		OptionMapping ClubOption = event.getOption("Club");
+		OptionMapping clubOption = event.getOption("club");
 
-		if (ClubOption == null) {
+		if (clubOption == null) {
 			event.getHook().editOriginalEmbeds(
 					MessageUtil.buildEmbed(title, "Der Parameter Club ist erforderlich!", MessageUtil.EmbedType.ERROR))
 					.queue();
 			return;
 		}
 
-		String Clubtag = ClubOption.getAsString();
+		String clubtag = clubOption.getAsString();
 
-		Club c = new Club(Clubtag);
+		Club c = new Club(clubtag);
 
 		if (!c.ExistsDB()) {
 			event.getHook()
@@ -46,7 +46,7 @@ public class kpinfo extends ListenerAdapter {
 			return;
 		}
 
-		if(Clubtag.equals("warteliste")) {
+		if(clubtag.equals("warteliste")) {
 			event.getHook().editOriginalEmbeds(
 					MessageUtil.buildEmbed(title, "Diesen Befehl kannst du nicht auf die Warteliste ausführen.", MessageUtil.EmbedType.ERROR))
 					.queue();
@@ -114,7 +114,7 @@ public class kpinfo extends ListenerAdapter {
 		String focused = event.getFocusedOption().getName();
 		String input = event.getFocusedOption().getValue();
 
-		if (focused.equals("Club")) {
+		if (focused.equals("club")) {
 			List<Command.Choice> choices = DBManager.getClubsAutocompleteNoWaitlist(input);
 
 			event.replyChoices(choices).queue();
@@ -122,4 +122,6 @@ public class kpinfo extends ListenerAdapter {
 	}
 
 }
+
+
 

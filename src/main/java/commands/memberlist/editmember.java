@@ -65,9 +65,9 @@ public class editmember extends ListenerAdapter {
 				return;
 			}
 
-			String Clubtag = c.getTag();
+			String clubtag = c.getTag();
 			User userexecuted = new User(event.getUser().getId());
-			if (!userexecuted.isColeaderOrHigherInClub(Clubtag)) {
+			if (!userexecuted.isColeaderOrHigherInClub(clubtag)) {
 				event.getHook()
 						.editOriginalEmbeds(MessageUtil.buildEmbed(title,
 								"Du musst mindestens Vize-Anführer des Clubs sein, um diesen Befehl ausführen zu können.",
@@ -83,15 +83,15 @@ public class editmember extends ListenerAdapter {
 						.queue();
 				return;
 			}
-			if (role.equals("leader") && userexecuted.getClubRoles().get(Clubtag) != Player.RoleType.ADMIN) {
+			if (role.equals("leader") && userexecuted.getClubRoles().get(clubtag) != Player.RoleType.ADMIN) {
 				event.getHook()
 						.editOriginalEmbeds(MessageUtil.buildEmbed(title,
 								"Um jemanden als Leader hinzuzufügen, musst du Admin sein.", MessageUtil.EmbedType.ERROR))
 						.queue();
 				return;
 			}
-			if (role.equals("coleader") && !(userexecuted.getClubRoles().get(Clubtag) == Player.RoleType.ADMIN
-					|| userexecuted.getClubRoles().get(Clubtag) == Player.RoleType.LEADER)) {
+			if (role.equals("coleader") && !(userexecuted.getClubRoles().get(clubtag) == Player.RoleType.ADMIN
+					|| userexecuted.getClubRoles().get(clubtag) == Player.RoleType.LEADER)) {
 				event.getHook()
 						.editOriginalEmbeds(MessageUtil.buildEmbed(title,
 								"Um jemanden als Vize-Anführer hinzuzufügen, musst du Admin oder Anführer sein.",
@@ -99,8 +99,8 @@ public class editmember extends ListenerAdapter {
 						.queue();
 				return;
 			}
-			if (role.equals("hiddencoleader") && !(userexecuted.getClubRoles().get(Clubtag) == Player.RoleType.ADMIN
-					|| userexecuted.getClubRoles().get(Clubtag) == Player.RoleType.LEADER)) {
+			if (role.equals("hiddencoleader") && !(userexecuted.getClubRoles().get(clubtag) == Player.RoleType.ADMIN
+					|| userexecuted.getClubRoles().get(clubtag) == Player.RoleType.LEADER)) {
 				event.getHook()
 						.editOriginalEmbeds(MessageUtil.buildEmbed(title,
 								"Um jemanden als Vize-Anführer (versteckt) hinzuzufügen, musst du Admin oder Anführer sein.",
@@ -109,7 +109,7 @@ public class editmember extends ListenerAdapter {
 				return;
 			}
 
-			DBUtil.executeUpdate("UPDATE Club_members SET Club_role = ? WHERE player_tag = ?", role, playertag);
+			DBUtil.executeUpdate("UPDATE club_members SET club_role = ? WHERE player_tag = ?", role, playertag);
 			String rolestring = role.equals("leader") ? "Anführer"
 					: role.equals("coleader") ? "Vize-Anführer"
 							: role.equals("hiddencoleader") ? "Vize-Anführer (versteckt)"
@@ -137,7 +137,7 @@ public class editmember extends ListenerAdapter {
 
 		if (focused.equals("player")) {
 			List<Command.Choice> choices = DBManager.getPlayerlistAutocompleteNoWaitlist(input,
-					DBManager.InClubType.INClub);
+					DBManager.InClubType.INCLUB);
 
 			event.replyChoices(choices).queue();
 		}
@@ -153,4 +153,6 @@ public class editmember extends ListenerAdapter {
 	}
 
 }
+
+
 

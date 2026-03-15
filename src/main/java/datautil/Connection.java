@@ -38,15 +38,15 @@ public class Connection {
 
 	public static void tablesExists() {
 		ArrayList<String> tableNames = new ArrayList<>();
-		tableNames.add("Clubs");
+		tableNames.add("clubs");
 		tableNames.add("users");
 		tableNames.add("players");
-		tableNames.add("Club_members");
-		tableNames.add("Club_settings");
+		tableNames.add("club_members");
+		tableNames.add("club_settings");
 		tableNames.add("kickpoint_reasons");
 		tableNames.add("kickpoints");
-		
-		
+		tableNames.add("reminders");
+		tableNames.add("player_wins");
 		try (java.sql.Connection conn = DriverManager.getConnection(url, user, password)) {
 			DatabaseMetaData dbm = conn.getMetaData();
 
@@ -58,7 +58,7 @@ public class Connection {
 						System.out.println("Tabelle '" + tableName + "' existiert nicht. Erstelle sie jetzt...");
 						String createTableSQL = null;
 						switch (tableName) {
-							case "Clubs":
+							case "clubs":
 								createTableSQL = "CREATE TABLE " + tableName + " (tag TEXT PRIMARY KEY," + "name TEXT,"
 										+ "index BIGINT," + "guild_id CHARACTER VARYING(19),"
 										+ "leader_roleid CHARACTER VARYING(19),"
@@ -74,17 +74,17 @@ public class Connection {
 								createTableSQL = "CREATE TABLE " + tableName + " (bs_tag TEXT PRIMARY KEY,"
 										+ "discord_id CHARACTER VARYING(19), name TEXT)";
 								break;
-							case "Club_members":
+							case "club_members":
 								createTableSQL = "CREATE TABLE " + tableName + " (player_tag TEXT PRIMARY KEY,"
-										+ "Club_tag TEXT," + "Club_role TEXT)";
+										+ "club_tag TEXT," + "club_role TEXT)";
 								break;
-							case "Club_settings":
-								createTableSQL = "CREATE TABLE " + tableName + " (Club_tag TEXT PRIMARY KEY,"
+							case "club_settings":
+								createTableSQL = "CREATE TABLE " + tableName + " (club_tag TEXT PRIMARY KEY,"
 										+ "max_kickpoints BIGINT," + "kickpoints_expire_after_days SMALLINT)";
 								break;
 							case "kickpoint_reasons":
-								createTableSQL = "CREATE TABLE " + tableName + " (name TEXT," + "Club_tag text,"
-										+ "amount SMALLINT," + "PRIMARY KEY (name, Club_tag))";
+								createTableSQL = "CREATE TABLE " + tableName + " (name TEXT," + "club_tag text,"
+										+ "amount SMALLINT," + "PRIMARY KEY (name, club_tag))";
 								break;
 							case "kickpoints":
 								createTableSQL = "CREATE TABLE " + tableName + " (id BIGINT PRIMARY KEY,"
@@ -93,8 +93,15 @@ public class Connection {
 										+ "created_by_discord_id CHARACTER VARYING(19)," + "created_at TIMESTAMPTZ,"
 										+ "expires_at TIMESTAMPTZ)";
 								break;
-							
-							
+							case "reminders":
+								createTableSQL = "CREATE TABLE " + tableName + " (id BIGINT PRIMARY KEY,"
+										+ "clubtag TEXT," + "channelid TEXT," + "time TIME," + "last_sent_date DATE)";
+								break;
+							case "player_wins":
+								createTableSQL = "CREATE TABLE " + tableName + " (player_tag TEXT,"
+										+ "recorded_at TIMESTAMPTZ," + "wins INTEGER,"
+										+ "PRIMARY KEY (player_tag, recorded_at))";
+								break;
 						}
 
 						try (Statement stmt = conn.createStatement()) {
@@ -111,27 +118,63 @@ public class Connection {
 
 	}
 
-	public static void migrateRemindersTable() {}
-
-	public static void migrateClubMembersTable() {
-		// Add note column to Club_members table if it doesn't exist
+	public static void migrateRemindersTable() {
+		// Add last_sent_date column to reminders table if it doesn't exist
 		try (java.sql.Connection conn = DriverManager.getConnection(url, user, password)) {
 			DatabaseMetaData dbm = conn.getMetaData();
-			try (ResultSet columns = dbm.getColumns(null, null, "Club_members", "note")) {
+			try (ResultSet columns = dbm.getColumns(null, null, "reminders", "last_sent_date")) {
 				if (!columns.next()) {
 					// Column doesn't exist, add it
-					System.out.println("Adding 'note' column to Club_members table...");
-					String alterTableSQL = "ALTER TABLE Club_members ADD COLUMN note TEXT";
+					System.out.println("Adding 'last_sent_date' column to reminders table...");
+					String alterTableSQL = "ALTER TABLE reminders ADD COLUMN last_sent_date DATE";
+					try (Statement stmt = conn.createStatement()) {
+						stmt.executeUpdate(alterTableSQL);
+						System.out.println("Column 'last_sent_date' added successfully.");
+					}
+				} else {
+					System.out.println("Column 'last_sent_date' already exists in reminders table.");
+				}
+			}
+
+			// Add weekday column to reminders table if it doesn't exist
+			try (ResultSet columns = dbm.getColumns(null, null, "reminders", "weekday")) {
+				if (!columns.next()) {
+					// Column doesn't exist, add it
+					System.out.println("Adding 'weekday' column to reminders table...");
+					String alterTableSQL = "ALTER TABLE reminders ADD COLUMN weekday TEXT";
+					try (Statement stmt = conn.createStatement()) {
+						stmt.executeUpdate(alterTableSQL);
+						System.out.println("Column 'weekday' added successfully.");
+					}
+				} else {
+					System.out.println("Column 'weekday' already exists in reminders table.");
+				}
+			}
+		} catch (SQLException e) {
+			System.err.println("Error migrating reminders table: " + e.getMessage());
+			e.printStackTrace();
+		}
+	}
+
+	public static void migrateClubMembersTable() {
+		// Add note column to club_members table if it doesn't exist
+		try (java.sql.Connection conn = DriverManager.getConnection(url, user, password)) {
+			DatabaseMetaData dbm = conn.getMetaData();
+			try (ResultSet columns = dbm.getColumns(null, null, "club_members", "note")) {
+				if (!columns.next()) {
+					// Column doesn't exist, add it
+					System.out.println("Adding 'note' column to club_members table...");
+					String alterTableSQL = "ALTER TABLE club_members ADD COLUMN note TEXT";
 					try (Statement stmt = conn.createStatement()) {
 						stmt.executeUpdate(alterTableSQL);
 						System.out.println("Column 'note' added successfully.");
 					}
 				} else {
-					System.out.println("Column 'note' already exists in Club_members table.");
+					System.out.println("Column 'note' already exists in club_members table.");
 				}
 			}
 		} catch (SQLException e) {
-			System.err.println("Error migrating Club_members table: " + e.getMessage());
+			System.err.println("Error migrating club_members table: " + e.getMessage());
 			e.printStackTrace();
 		}
 	}

@@ -2,7 +2,7 @@ package commands.links;
 
 import javax.annotation.Nonnull;
 
-import commands.wins.wins;
+
 import datautil.DBUtil;
 import datawrapper.Player;
 import datawrapper.User;
@@ -72,7 +72,7 @@ public class link extends ListenerAdapter {
 					
 					// Save initial wins data for the newly linked player (async to not block response)
 					Thread saveWinsThread = new Thread(() -> {
-						wins.savePlayerWins(finalTag);
+						
 					});
 					saveWinsThread.setDaemon(true);
 					saveWinsThread.start();
@@ -102,4 +102,7 @@ public class link extends ListenerAdapter {
 	}
 
 }
+
+
+
 

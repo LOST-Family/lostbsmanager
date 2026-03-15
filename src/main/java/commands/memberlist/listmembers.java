@@ -39,19 +39,19 @@ public class listmembers extends ListenerAdapter {
 		event.deferReply().queue();
 		String title = "Memberliste";
 
-		OptionMapping ClubOption = event.getOption("Club");
+		OptionMapping clubOption = event.getOption("club");
 
-		if (ClubOption == null) {
+		if (clubOption == null) {
 			event.getHook().editOriginalEmbeds(
 					MessageUtil.buildEmbed(title, "Der Parameter ist erforderlich!", MessageUtil.EmbedType.ERROR))
 					.queue();
 			return;
 		}
 
-		final String Clubtag_raw = ClubOption.getAsString();
-		final boolean markedOnly = Clubtag_raw.startsWith("marked_");
-		final String Clubtag = markedOnly ? Clubtag_raw.substring("marked_".length()) : Clubtag_raw;
-		final boolean isAllMarked = Clubtag.equals("all_marked");
+		final String clubtag_raw = clubOption.getAsString();
+		final boolean markedOnly = clubtag_raw.startsWith("marked_");
+		final String clubtag = markedOnly ? clubtag_raw.substring("marked_".length()) : clubtag_raw;
+		final boolean isAllMarked = clubtag.equals("all_marked");
 
 		final String title_initial = "Memberliste";
 		final String title_final = (markedOnly || isAllMarked) ? "Markierte Spieler" : title_initial;
@@ -75,15 +75,15 @@ public class listmembers extends ListenerAdapter {
 		final String finalTitle = title_final;
 		final boolean isMarkedOnly = markedOnly;
 
-		// Handle "noClub" option specially
-		if (Clubtag.equals("noClub")) {
+		// Handle "noclub" option specially
+		if (clubtag.equals("noclub")) {
 			new Thread(() -> {
 				handleNoClubOptionGeneric(event.getHook(), finalTitle, isMarkedOnly);
 			}).start();
 			return;
 		}
 
-		Club c = new Club(Clubtag);
+		Club c = new Club(clubtag);
 
 		new Thread(() -> {
 			ArrayList<Player> playerlist = c.getPlayersDB();
@@ -108,12 +108,12 @@ public class listmembers extends ListenerAdapter {
 			String coleaderlist = "";
 			String elderlist = "";
 			String memberlist = "";
-			int ClubSizeCount = 0;
+			int clubSizeCount = 0;
 
 			for (Player p : playerlist) {
 				boolean isHidden = p.isHiddenColeader();
 				if (!isHidden) {
-					ClubSizeCount++;
+					clubSizeCount++;
 				}
 
 				if (p.getRole() == Player.RoleType.ADMIN) {
@@ -170,7 +170,7 @@ public class listmembers extends ListenerAdapter {
 				}
 			} else {
 				desc = "## " + c.getInfoStringDB() + "\n";
-				if (!Clubtag.equals("warteliste")) {
+				if (!clubtag.equals("warteliste")) {
 					desc += "**Admin:**\n";
 					desc += adminlist == "" ? "---\n\n" : MessageUtil.unformat(adminlist) + "\n";
 					desc += "**Anführer:**\n";
@@ -181,7 +181,7 @@ public class listmembers extends ListenerAdapter {
 					desc += elderlist == "" ? "---\n\n" : MessageUtil.unformat(elderlist) + "\n";
 					desc += "**Mitglied:**\n";
 					desc += memberlist == "" ? "---\n\n" : MessageUtil.unformat(memberlist) + "\n";
-					desc += "\nInsgesamte Mitglieder des Clubs: " + ClubSizeCount;
+					desc += "\nInsgesamte Mitglieder des Clubs: " + clubSizeCount;
 				} else {
 					desc += "**Wartend:**\n";
 					desc += memberlist == "" ? "---\n\n" : MessageUtil.unformat(memberlist) + "\n";
@@ -189,7 +189,7 @@ public class listmembers extends ListenerAdapter {
 				}
 			}
 
-			String buttonId = "listmembers_" + Clubtag;
+			String buttonId = "listmembers_" + clubtag;
 			if (isMarkedOnly) {
 				buttonId += "_marked";
 			}
@@ -214,10 +214,10 @@ public class listmembers extends ListenerAdapter {
 		String focused = event.getFocusedOption().getName();
 		String input = event.getFocusedOption().getValue();
 
-		if (focused.equals("Club")) {
+		if (focused.equals("club")) {
 			User user = new User(event.getUser().getId());
 			List<Command.Choice> choices = DBManager.getClubsAutocompleteWithMarked(input, user.isColeaderOrHigher());
-			choices.add(new Command.Choice("Kein Club zugewiesen", "noClub"));
+			choices.add(new Command.Choice("Kein Club zugewiesen", "noclub"));
 			event.replyChoices(choices).queue();
 		}
 	}
@@ -230,11 +230,11 @@ public class listmembers extends ListenerAdapter {
 
 		event.deferEdit().queue();
 
-		final String Clubtag_raw = id.substring("listmembers_".length());
-		final boolean markedOnly = Clubtag_raw.endsWith("_marked");
-		final boolean isAllMarked = Clubtag_raw.equals("all_marked");
-		final String Clubtag = isAllMarked ? ""
-				: (markedOnly ? Clubtag_raw.substring(0, Clubtag_raw.length() - "_marked".length()) : Clubtag_raw);
+		final String clubtag_raw = id.substring("listmembers_".length());
+		final boolean markedOnly = clubtag_raw.endsWith("_marked");
+		final boolean isAllMarked = clubtag_raw.equals("all_marked");
+		final String clubtag = isAllMarked ? ""
+				: (markedOnly ? clubtag_raw.substring(0, clubtag_raw.length() - "_marked".length()) : clubtag_raw);
 
 		if (isAllMarked) {
 			new Thread(() -> {
@@ -245,15 +245,15 @@ public class listmembers extends ListenerAdapter {
 
 		final String title = markedOnly ? "Markierte Spieler" : "Memberliste";
 
-		// Handle "noClub" option specially
-		if (Clubtag.equals("noClub")) {
+		// Handle "noclub" option specially
+		if (clubtag.equals("noclub")) {
 			new Thread(() -> {
 				handleNoClubOptionGeneric(event.getHook(), title, markedOnly);
 			}).start();
 			return;
 		}
 
-		Club c = new Club(Clubtag);
+		Club c = new Club(clubtag);
 
 		new Thread(() -> {
 			ArrayList<Player> playerlist = c.getPlayersDB();
@@ -278,12 +278,12 @@ public class listmembers extends ListenerAdapter {
 			String coleaderlist = "";
 			String elderlist = "";
 			String memberlist = "";
-			int ClubSizeCount = 0;
+			int clubSizeCount = 0;
 
 			for (Player p : playerlist) {
 				boolean isHidden = p.isHiddenColeader();
 				if (!isHidden) {
-					ClubSizeCount++;
+					clubSizeCount++;
 				}
 
 				if (p.getRole() == Player.RoleType.ADMIN) {
@@ -345,7 +345,7 @@ public class listmembers extends ListenerAdapter {
 				}
 			} else {
 				desc = "## " + c.getInfoStringDB() + "\n";
-				if (!Clubtag.equals("warteliste")) {
+				if (!clubtag.equals("warteliste")) {
 					desc += "**Admin:**\n";
 					desc += adminlist == "" ? "---\n\n" : MessageUtil.unformat(adminlist) + "\n";
 					desc += "**Anführer:**\n";
@@ -356,7 +356,7 @@ public class listmembers extends ListenerAdapter {
 					desc += elderlist == "" ? "---\n\n" : MessageUtil.unformat(elderlist) + "\n";
 					desc += "**Mitglied:**\n";
 					desc += memberlist == "" ? "---\n\n" : MessageUtil.unformat(memberlist) + "\n";
-					desc += "\nInsgesamte Mitglieder des Clubs: " + ClubSizeCount;
+					desc += "\nInsgesamte Mitglieder des Clubs: " + clubSizeCount;
 				} else {
 					desc += "**Wartend:**\n";
 					desc += memberlist == "" ? "---\n\n" : MessageUtil.unformat(memberlist) + "\n";
@@ -364,7 +364,7 @@ public class listmembers extends ListenerAdapter {
 				}
 			}
 
-			String buttonId = "listmembers_" + Clubtag;
+			String buttonId = "listmembers_" + clubtag;
 			if (markedOnly) {
 				buttonId += "_marked";
 			}
@@ -384,9 +384,9 @@ public class listmembers extends ListenerAdapter {
 		StringBuilder desc = new StringBuilder();
 		desc.append("## Alle markierten Spieler\n\n");
 
-		String sql = "SELECT cm.player_tag, cm.Club_tag, c.name as Club_name, cm.note " +
-				"FROM Club_members cm " +
-				"JOIN Clubs c ON c.tag = cm.Club_tag " +
+		String sql = "SELECT cm.player_tag, cm.club_tag, c.name as club_name, cm.note " +
+				"FROM club_members cm " +
+				"JOIN clubs c ON c.tag = cm.club_tag " +
 				"WHERE cm.marked = TRUE " +
 				"ORDER BY c.index ASC, cm.player_tag ASC";
 
@@ -396,7 +396,7 @@ public class listmembers extends ListenerAdapter {
 			try (ResultSet rs = pstmt.executeQuery()) {
 				while (rs.next()) {
 					String playerTag = rs.getString("player_tag");
-					String ClubName = rs.getString("Club_name");
+					String clubName = rs.getString("club_name");
 					String note = rs.getString("note");
 
 					Player p = new Player(playerTag);
@@ -405,28 +405,28 @@ public class listmembers extends ListenerAdapter {
 						playerInfo += " - *" + note + "*";
 					}
 
-					groupedPlayers.computeIfAbsent(ClubName, _ -> new ArrayList<>()).add(playerInfo);
+					groupedPlayers.computeIfAbsent(clubName, _ -> new ArrayList<>()).add(playerInfo);
 				}
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 
-		// Also look for players without Club who are marked
-		// Note: The above query only gets players IN a Club.
-		// Let's check if there are marked players NOT in Club_members or with special
+		// Also look for players without club who are marked
+		// Note: The above query only gets players IN a club.
+		// Let's check if there are marked players NOT in club_members or with special
 		// tag.
-		// Wait, 'marked' and 'note' are only in Club_members table.
-		// If a player is not in a Club, they are not in Club_members (usually).
+		// Wait, 'marked' and 'note' are only in club_members table.
+		// If a player is not in a club, they are not in club_members (usually).
 		// But handleNoClubOptionGeneric uses Player.isMarked() which checks
-		// Club_members.
+		// club_members.
 
 		if (groupedPlayers.isEmpty()) {
 			desc.append("Keine markierten Spieler gefunden.");
 		} else {
-			for (String ClubName : groupedPlayers.keySet()) {
-				desc.append("**").append(ClubName).append(":**\n");
-				for (String playerInfo : groupedPlayers.get(ClubName)) {
+			for (String clubName : groupedPlayers.keySet()) {
+				desc.append("**").append(clubName).append(":**\n");
+				for (String playerInfo : groupedPlayers.get(clubName)) {
 					desc.append("• ").append(playerInfo).append("\n");
 				}
 				desc.append("\n");
@@ -459,7 +459,7 @@ public class listmembers extends ListenerAdapter {
 		String sql = "SELECT bs_tag FROM players";
 		ArrayList<String> allPlayerTags = DBUtil.getArrayListFromSQL(sql, String.class);
 
-		// Filter players without Club and build output
+		// Filter players without club and build output
 		StringBuilder desc = new StringBuilder();
 		if (markedOnly) {
 			desc.append("## Markierte Spieler (Kein Club)\n\n");
@@ -509,4 +509,6 @@ public class listmembers extends ListenerAdapter {
 	}
 
 }
+
+
 

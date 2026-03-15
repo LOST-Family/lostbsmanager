@@ -26,16 +26,16 @@ public class copyreasons extends ListenerAdapter {
         event.deferReply().queue();
         String title = "Kickpunkt-Gründe kopieren";
 
-        OptionMapping ClubOption = event.getOption("Club");
+        OptionMapping clubOption = event.getOption("club");
 
-        if (ClubOption == null) {
+        if (clubOption == null) {
             event.getHook().editOriginalEmbeds(
                     MessageUtil.buildEmbed(title, "Der Club-Parameter ist erforderlich!", MessageUtil.EmbedType.ERROR))
                     .queue();
             return;
         }
 
-        String sourceClubtag = ClubOption.getAsString();
+        String sourceClubtag = clubOption.getAsString();
         Club sourceClub = new Club(sourceClubtag);
 
         if (!sourceClub.ExistsDB()) {
@@ -63,7 +63,7 @@ public class copyreasons extends ListenerAdapter {
             return;
         }
 
-        // Get all kickpoint reasons from source Club
+        // Get all kickpoint reasons from source club
         ArrayList<KickpointReason> sourceReasons = sourceClub.getKickpointReasons();
 
         if (sourceReasons.isEmpty()) {
@@ -74,33 +74,33 @@ public class copyreasons extends ListenerAdapter {
             return;
         }
 
-        // Get all Clubs and copy reasons to each (except warteliste and source Club)
+        // Get all clubs and copy reasons to each (except warteliste and source club)
         ArrayList<String> allClubs = DBManager.getAllClubs();
-        int ClubsUpdated = 0;
+        int clubsUpdated = 0;
 
         for (String targetClubtag : allClubs) {
-            // Skip warteliste and source Club
+            // Skip warteliste and source club
             if (targetClubtag.equals("warteliste") || targetClubtag.equals(sourceClubtag)) {
                 continue;
             }
 
-            // Delete all existing kickpoint reasons for target Club
-            DBUtil.executeUpdate("DELETE FROM kickpoint_reasons WHERE Club_tag = ?", targetClubtag);
+            // Delete all existing kickpoint reasons for target club
+            DBUtil.executeUpdate("DELETE FROM kickpoint_reasons WHERE club_tag = ?", targetClubtag);
 
-            // Copy all reasons from source Club
+            // Copy all reasons from source club
             for (KickpointReason reason : sourceReasons) {
                 DBUtil.executeUpdate(
-                        "INSERT INTO kickpoint_reasons (name, Club_tag, amount, index) VALUES (?, ?, ?, ?)",
+                        "INSERT INTO kickpoint_reasons (name, club_tag, amount, index) VALUES (?, ?, ?, ?)",
                         reason.getReason(), targetClubtag, reason.getAmount(), reason.getIndex());
             }
 
-            ClubsUpdated++;
+            clubsUpdated++;
         }
 
         String desc = "Die Kickpunkt-Gründe wurden erfolgreich kopiert.\n\n";
         desc += "**Quell-Club:** " + sourceClub.getInfoStringDB() + "\n";
         desc += "**Anzahl Gründe:** " + sourceReasons.size() + "\n";
-        desc += "**Aktualisierte Clubs:** " + ClubsUpdated;
+        desc += "**Aktualisierte Clubs:** " + clubsUpdated;
 
         event.getHook().editOriginalEmbeds(MessageUtil.buildEmbed(title, desc, MessageUtil.EmbedType.SUCCESS)).queue();
     }
@@ -114,10 +114,12 @@ public class copyreasons extends ListenerAdapter {
         String focused = event.getFocusedOption().getName();
         String input = event.getFocusedOption().getValue();
 
-        if (focused.equals("Club")) {
+        if (focused.equals("club")) {
             List<Command.Choice> choices = DBManager.getClubsAutocompleteNoWaitlist(input);
             event.replyChoices(choices).queue();
         }
     }
 }
+
+
 

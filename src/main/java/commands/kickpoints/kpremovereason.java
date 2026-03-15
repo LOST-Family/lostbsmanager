@@ -25,10 +25,10 @@ public class kpremovereason extends ListenerAdapter {
 		event.deferReply().queue();
 		String title = "Kickpunkt-Grund Vorlage";
 
-		OptionMapping ClubOption = event.getOption("Club");
+		OptionMapping clubOption = event.getOption("club");
 		OptionMapping reasonoption = event.getOption("reason");
 
-		if (ClubOption == null || reasonoption == null) {
+		if (clubOption == null || reasonoption == null) {
 			event.getHook().editOriginalEmbeds(
 					MessageUtil.buildEmbed(title, "Alle Parameter sind erforderlich!", MessageUtil.EmbedType.ERROR))
 					.queue();
@@ -36,8 +36,8 @@ public class kpremovereason extends ListenerAdapter {
 		}
 
 		String reason = reasonoption.getAsString();
-		String Clubtag = ClubOption.getAsString();
-		Club Club = new Club(Clubtag);
+		String clubtag = clubOption.getAsString();
+		Club club = new Club(clubtag);
 
 		User userexecuted = new User(event.getUser().getId());
 		if (!userexecuted.isColeaderOrHigher()) {
@@ -49,7 +49,7 @@ public class kpremovereason extends ListenerAdapter {
 			return;
 		}
 
-		if (!Club.ExistsDB()) {
+		if (!club.ExistsDB()) {
 			event.getHook()
 					.editOriginalEmbeds(
 							MessageUtil.buildEmbed(title, "Dieser Club existiert nicht.", MessageUtil.EmbedType.ERROR))
@@ -57,7 +57,7 @@ public class kpremovereason extends ListenerAdapter {
 			return;
 		}
 
-		if (Clubtag.equals("warteliste")) {
+		if (clubtag.equals("warteliste")) {
 			event.getHook().editOriginalEmbeds(
 					MessageUtil.buildEmbed(title, "Diesen Befehl kannst du nicht auf die Warteliste ausführen.",
 							MessageUtil.EmbedType.ERROR))
@@ -65,7 +65,7 @@ public class kpremovereason extends ListenerAdapter {
 			return;
 		}
 
-		KickpointReason kpreason = new KickpointReason(reason, Clubtag);
+		KickpointReason kpreason = new KickpointReason(reason, clubtag);
 
 		if (!kpreason.Exists()) {
 			event.getHook().editOriginalEmbeds(
@@ -74,11 +74,11 @@ public class kpremovereason extends ListenerAdapter {
 			return;
 		}
 
-		DBUtil.executeUpdate("DELETE FROM kickpoint_reasons WHERE name = ? AND Club_tag = ?", reason, Clubtag);
+		DBUtil.executeUpdate("DELETE FROM kickpoint_reasons WHERE name = ? AND club_tag = ?", reason, clubtag);
 
 		String desc = "Der Kickpunkt-Grund wurde als Vorlage gelöscht.\n";
 		desc += "Grund: " + reason + "\n";
-		desc += "Club: " + Club.getInfoStringDB() + "\n";
+		desc += "Club: " + club.getInfoStringDB() + "\n";
 
 		event.getHook().editOriginalEmbeds(MessageUtil.buildEmbed(title, desc, MessageUtil.EmbedType.SUCCESS)).queue();
 
@@ -93,18 +93,20 @@ public class kpremovereason extends ListenerAdapter {
 		String focused = event.getFocusedOption().getName();
 		String input = event.getFocusedOption().getValue();
 
-		if (focused.equals("Club")) {
+		if (focused.equals("club")) {
 			List<Command.Choice> choices = DBManager.getClubsAutocompleteNoWaitlist(input);
 
 			event.replyChoices(choices).queue();
 		}
 		if (focused.equals("reason")) {
 			List<Command.Choice> choices = DBManager.getKPReasonsAutocomplete(input,
-					event.getOption("Club").getAsString());
+					event.getOption("club").getAsString());
 
 			event.replyChoices(choices).queue();
 		}
 	}
 
 }
+
+
 

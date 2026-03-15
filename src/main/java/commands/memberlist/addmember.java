@@ -32,11 +32,11 @@ public class addmember extends ListenerAdapter {
 		event.deferReply().queue();
 		String title = "Memberverwaltung";
 
-		OptionMapping ClubOption = event.getOption("Club");
+		OptionMapping clubOption = event.getOption("club");
 		OptionMapping playeroption = event.getOption("player");
 		OptionMapping roleoption = event.getOption("role");
 
-		if (ClubOption == null || playeroption == null || roleoption == null) {
+		if (clubOption == null || playeroption == null || roleoption == null) {
 			event.getHook().editOriginalEmbeds(
 					MessageUtil.buildEmbed(title, "Alle Parameter sind erforderlich!", MessageUtil.EmbedType.ERROR))
 					.queue();
@@ -44,12 +44,12 @@ public class addmember extends ListenerAdapter {
 		}
 
 		String playertag = playeroption.getAsString();
-		String Clubtag = ClubOption.getAsString();
+		String clubtag = clubOption.getAsString();
 		String role = roleoption.getAsString();
 
 		User userexecuted = new User(event.getUser().getId());
-		if (!Clubtag.equals("warteliste")) {
-			if (!userexecuted.isColeaderOrHigherInClub(Clubtag)) {
+		if (!clubtag.equals("warteliste")) {
+			if (!userexecuted.isColeaderOrHigherInClub(clubtag)) {
 				event.getHook().editOriginalEmbeds(MessageUtil.buildEmbed(title,
 						"Du musst mindestens Vize-Anführer des Clubs sein, um diesen Befehl ausführen zu können.",
 						MessageUtil.EmbedType.ERROR)).queue();
@@ -71,15 +71,15 @@ public class addmember extends ListenerAdapter {
 					.queue();
 			return;
 		}
-		if (role.equals("leader") && userexecuted.getClubRoles().get(Clubtag) != Player.RoleType.ADMIN) {
+		if (role.equals("leader") && userexecuted.getClubRoles().get(clubtag) != Player.RoleType.ADMIN) {
 			event.getHook()
 					.editOriginalEmbeds(MessageUtil.buildEmbed(title,
 							"Um jemanden als Leader hinzuzufügen, musst du Admin sein.", MessageUtil.EmbedType.ERROR))
 					.queue();
 			return;
 		}
-		if (role.equals("coleader") && !(userexecuted.getClubRoles().get(Clubtag) == Player.RoleType.ADMIN
-				|| userexecuted.getClubRoles().get(Clubtag) == Player.RoleType.LEADER)) {
+		if (role.equals("coleader") && !(userexecuted.getClubRoles().get(clubtag) == Player.RoleType.ADMIN
+				|| userexecuted.getClubRoles().get(clubtag) == Player.RoleType.LEADER)) {
 			event.getHook()
 					.editOriginalEmbeds(MessageUtil.buildEmbed(title,
 							"Um jemanden als Vize-Anführer hinzuzufügen, musst du Admin oder Anführer sein.",
@@ -87,8 +87,8 @@ public class addmember extends ListenerAdapter {
 					.queue();
 			return;
 		}
-		if (role.equals("hiddencoleader") && !(userexecuted.getClubRoles().get(Clubtag) == Player.RoleType.ADMIN
-				|| userexecuted.getClubRoles().get(Clubtag) == Player.RoleType.LEADER)) {
+		if (role.equals("hiddencoleader") && !(userexecuted.getClubRoles().get(clubtag) == Player.RoleType.ADMIN
+				|| userexecuted.getClubRoles().get(clubtag) == Player.RoleType.LEADER)) {
 			event.getHook()
 					.editOriginalEmbeds(MessageUtil.buildEmbed(title,
 							"Um jemanden als Vize-Anführer (versteckt) hinzuzufügen, musst du Admin oder Anführer sein.",
@@ -99,7 +99,7 @@ public class addmember extends ListenerAdapter {
 
 		new Thread(() -> {
 			Player p = new Player(playertag);
-			Club c = new Club(Clubtag);
+			Club c = new Club(clubtag);
 
 			if (!p.IsLinked()) {
 				event.getHook().editOriginalEmbeds(
@@ -121,18 +121,18 @@ public class addmember extends ListenerAdapter {
 						"Dieser Spieler ist bereits in einem Club.", MessageUtil.EmbedType.ERROR)).queue();
 				return;
 			}
-			DBUtil.executeUpdate("INSERT INTO Club_members (player_tag, Club_tag, Club_role) VALUES (?, ?, ?)", playertag,
-					Clubtag, role);
+			DBUtil.executeUpdate("INSERT INTO club_members (player_tag, club_tag, club_role) VALUES (?, ?, ?)", playertag,
+					clubtag, role);
 			String rolestring = role.equals("leader") ? "Anführer"
 					: role.equals("coleader") ? "Vize-Anführer"
 							: role.equals("hiddencoleader") ? "Vize-Anführer (versteckt)"
 								: role.equals("elder") ? "Ältester" : role.equals("member") ? "Mitglied" : null;
 
 			String desc = "";
-			if (!Clubtag.equals("warteliste")) {
+			if (!clubtag.equals("warteliste")) {
 				try {
 					desc += "Der Spieler " + MessageUtil.unformat(p.getInfoStringDB()) + " wurde erfolgreich dem Club "
-							+ new Club(Clubtag).getInfoStringDB() + " als " + rolestring + " hinzugefügt.";
+							+ new Club(clubtag).getInfoStringDB() + " als " + rolestring + " hinzugefügt.";
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -145,7 +145,7 @@ public class addmember extends ListenerAdapter {
 				}
 			}
 
-			if (!Clubtag.equals("warteliste")) {
+			if (!clubtag.equals("warteliste")) {
 				String userid = p.getUser().getUserID();
 				Guild guild = Bot.getJda().getGuildById(Bot.guild_id);
 				Member member = guild.getMemberById(userid);
@@ -181,18 +181,18 @@ public class addmember extends ListenerAdapter {
 		String focused = event.getFocusedOption().getName();
 		String input = event.getFocusedOption().getValue();
 
-		if (focused.equals("Club")) {
+		if (focused.equals("club")) {
 			List<Command.Choice> choices = DBManager.getClubsAutocomplete(input);
 
 			event.replyChoices(choices).queue();
 		}
 		if (focused.equals("player")) {
-			List<Command.Choice> choices = DBManager.getPlayerlistAutocomplete(input, DBManager.InClubType.NOTINClub);
+			List<Command.Choice> choices = DBManager.getPlayerlistAutocomplete(input, DBManager.InClubType.NOTINCLUB);
 
 			event.replyChoices(choices).queue();
 		}
 		if (focused.equals("role")) {
-			if (!event.getOption("Club").getAsString().equals("warteliste")) {
+			if (!event.getOption("club").getAsString().equals("warteliste")) {
 				List<Command.Choice> choices = new ArrayList<>();
 				choices.add(new Command.Choice("Anführer", "leader"));
 				choices.add(new Command.Choice("Vize-Anführer", "coleader"));
@@ -208,4 +208,6 @@ public class addmember extends ListenerAdapter {
 		}
 	}
 }
+
+
 

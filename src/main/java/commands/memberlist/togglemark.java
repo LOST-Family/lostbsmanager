@@ -53,36 +53,36 @@ public class togglemark extends ListenerAdapter {
 
 		if (playerClub == null) {
 			event.replyEmbeds(
-					MessageUtil.buildEmbed(title, "Dieser Spieler ist in keinem Club.", MessageUtil.EmbedType.ERROR))
+					MessageUtil.buildEmbed(title, "Dieser Spieler ist in keinem club.", MessageUtil.EmbedType.ERROR))
 					.queue();
 			return;
 		}
 
-		String Clubtag = playerClub.getTag();
+		String clubtag = playerClub.getTag();
 
 		User userexecuted = new User(event.getUser().getId());
-		if (!Clubtag.equals("warteliste")) {
-			if (!(userexecuted.getClubRoles().get(Clubtag) == Player.RoleType.ADMIN
-					|| userexecuted.getClubRoles().get(Clubtag) == Player.RoleType.LEADER
-					|| userexecuted.getClubRoles().get(Clubtag) == Player.RoleType.COLEADER)) {
+		if (!clubtag.equals("warteliste")) {
+			if (!(userexecuted.getClubRoles().get(clubtag) == Player.RoleType.ADMIN
+					|| userexecuted.getClubRoles().get(clubtag) == Player.RoleType.LEADER
+					|| userexecuted.getClubRoles().get(clubtag) == Player.RoleType.COLEADER)) {
 				event.replyEmbeds(MessageUtil.buildEmbed(title,
-						"Du musst mindestens Vize-Anführer des Clubs sein, um diesen Befehl ausführen zu können.",
+						"Du musst mindestens Vize-Anführer des clubs sein, um diesen Befehl ausführen zu können.",
 						MessageUtil.EmbedType.ERROR)).queue();
 				return;
 			}
 		} else {
 			boolean b = false;
-			for (String Clubtags : DBManager.getAllClubs()) {
-				if (userexecuted.getClubRoles().get(Clubtags) == Player.RoleType.ADMIN
-						|| userexecuted.getClubRoles().get(Clubtags) == Player.RoleType.LEADER
-						|| userexecuted.getClubRoles().get(Clubtags) == Player.RoleType.COLEADER) {
+			for (String clubtags : DBManager.getAllClubs()) {
+				if (userexecuted.getClubRoles().get(clubtags) == Player.RoleType.ADMIN
+						|| userexecuted.getClubRoles().get(clubtags) == Player.RoleType.LEADER
+						|| userexecuted.getClubRoles().get(clubtags) == Player.RoleType.COLEADER) {
 					b = true;
 					break;
 				}
 			}
 			if (b == false) {
 				event.replyEmbeds(MessageUtil.buildEmbed(title,
-						"Du musst mindestens Vize-Anführer eines Clubs sein, um diesen Befehl ausführen zu können.",
+						"Du musst mindestens Vize-Anführer eines clubs sein, um diesen Befehl ausführen zu können.",
 						MessageUtil.EmbedType.ERROR)).queue();
 				return;
 			}
@@ -92,7 +92,7 @@ public class togglemark extends ListenerAdapter {
 		if (player.isMarked()) {
 			event.deferReply().queue();
 			new Thread(() -> {
-				DBUtil.executeUpdate("UPDATE Club_members SET marked = FALSE, note = NULL WHERE player_tag = ?", playertag);
+				DBUtil.executeUpdate("UPDATE club_members SET marked = FALSE, note = NULL WHERE player_tag = ?", playertag);
 				String desc = "Der Spieler " + player.getInfoStringDB() + " ist nun nicht mehr markiert.";
 				event.getHook().editOriginalEmbeds(MessageUtil.buildEmbed(title, desc, MessageUtil.EmbedType.SUCCESS)).queue();
 			}).start();
@@ -134,9 +134,9 @@ public class togglemark extends ListenerAdapter {
 
 				// Update mark and note
 				if (note == null || note.trim().isEmpty()) {
-					DBUtil.executeUpdate("UPDATE Club_members SET marked = TRUE, note = NULL WHERE player_tag = ?", playertag);
+					DBUtil.executeUpdate("UPDATE club_members SET marked = TRUE, note = NULL WHERE player_tag = ?", playertag);
 				} else {
-					DBUtil.executeUpdate("UPDATE Club_members SET marked = TRUE, note = ? WHERE player_tag = ?", note, playertag);
+					DBUtil.executeUpdate("UPDATE club_members SET marked = TRUE, note = ? WHERE player_tag = ?", note, playertag);
 				}
 
 				String desc = "Der Spieler " + player.getInfoStringDB() + " ist nun markiert.";
@@ -159,11 +159,14 @@ public class togglemark extends ListenerAdapter {
 		String input = event.getFocusedOption().getValue();
 
 		if (focused.equals("player")) {
-			List<Command.Choice> choices = DBManager.getPlayerlistAutocomplete(input, DBManager.InClubType.INClub);
+			List<Command.Choice> choices = DBManager.getPlayerlistAutocomplete(input, DBManager.InClubType.INCLUB);
 
 			event.replyChoices(choices).queue();
 		}
 	}
 
 }
+
+
+
 

@@ -154,7 +154,7 @@ public class kpmember extends ListenerAdapter {
 
 		if (focused.equals("player")) {
 			List<Command.Choice> choices = DBManager.getPlayerlistAutocompleteNoWaitlist(input,
-					DBManager.InClubType.INClub);
+					DBManager.InClubType.INCLUB);
 
 			event.replyChoices(choices).queue();
 		}
@@ -282,4 +282,6 @@ public class kpmember extends ListenerAdapter {
 	}
 
 }
+
+
 

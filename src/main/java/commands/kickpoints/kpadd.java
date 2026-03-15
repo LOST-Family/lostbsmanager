@@ -63,9 +63,9 @@ public class kpadd extends ListenerAdapter {
 			return;
 		}
 
-		String Clubtag = c.getTag();
+		String clubtag = c.getTag();
 
-		if (Clubtag.equals("warteliste")) {
+		if (clubtag.equals("warteliste")) {
 			event.replyEmbeds(MessageUtil.buildEmbed(title,
 					"Diesen Befehl kannst du nicht auf die Warteliste ausführen.", MessageUtil.EmbedType.ERROR))
 					.queue();
@@ -82,12 +82,12 @@ public class kpadd extends ListenerAdapter {
 
 		if (p.getClubDB().getDaysKickpointsExpireAfter() == null || p.getClubDB().getMaxKickpoints() == null) {
 			event.replyEmbeds(MessageUtil.buildEmbed(title,
-					"Es müssen zuerst die Clubconfigs eingestellt werden. Nutze /Clubconfig.",
+					"Es müssen zuerst die Clubconfigs eingestellt werden. Nutze /clubconfig.",
 					MessageUtil.EmbedType.ERROR)).queue();
 			return;
 		}
 
-		KickpointReason kpreason = new KickpointReason(reason, Clubtag);
+		KickpointReason kpreason = new KickpointReason(reason, clubtag);
 
 		TextInput reasonti;
 		TextInput kpamountti;
@@ -215,7 +215,7 @@ public class kpadd extends ListenerAdapter {
 
 		if (focused.equals("player")) {
 			List<Command.Choice> choices = DBManager.getPlayerlistAutocompleteNoWaitlist(input,
-					DBManager.InClubType.INClub);
+					DBManager.InClubType.INCLUB);
 
 			event.replyChoices(choices).queue();
 		}
@@ -226,8 +226,8 @@ public class kpadd extends ListenerAdapter {
 			if (c == null) {
 				return;
 			}
-			String Clubtag = c.getTag();
-			List<Command.Choice> choices = DBManager.getKPReasonsAutocomplete(input, Clubtag);
+			String clubtag = c.getTag();
+			List<Command.Choice> choices = DBManager.getKPReasonsAutocomplete(input, clubtag);
 
 			event.replyChoices(choices).queue();
 		}
@@ -253,4 +253,6 @@ public class kpadd extends ListenerAdapter {
 	}
 
 }
+
+
 

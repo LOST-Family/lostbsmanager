@@ -39,8 +39,8 @@ public class checkroles extends ListenerAdapter {
 			// Check permissions - must be at least co-leader
 			User userExecuted = new User(event.getUser().getId());
 			boolean hasPermission = false;
-			for (String Clubtag : DBManager.getAllClubs()) {
-				Player.RoleType role = userExecuted.getClubRoles().get(Clubtag);
+			for (String clubtag : DBManager.getAllClubs()) {
+				Player.RoleType role = userExecuted.getClubRoles().get(clubtag);
 				if (role == Player.RoleType.ADMIN || role == Player.RoleType.LEADER
 						|| role == Player.RoleType.COLEADER) {
 					hasPermission = true;
@@ -55,16 +55,16 @@ public class checkroles extends ListenerAdapter {
 				return;
 			}
 
-			OptionMapping ClubOption = event.getOption("Club");
+			OptionMapping clubOption = event.getOption("club");
 			OptionMapping ignoreHiddenColeadersOption = event.getOption("ignore_hiddencoleaders");
 
-			if (ClubOption == null) {
+			if (clubOption == null) {
 				event.getHook().editOriginalEmbeds(MessageUtil.buildEmbed(title,
-						"Der Parameter 'Club' ist erforderlich!", MessageUtil.EmbedType.ERROR)).queue();
+						"Der Parameter 'club' ist erforderlich!", MessageUtil.EmbedType.ERROR)).queue();
 				return;
 			}
 
-			String Clubtag = ClubOption.getAsString();
+			String clubtag = clubOption.getAsString();
 
 			boolean ignoreHiddenColeaders = false;
 			if (ignoreHiddenColeadersOption != null) {
@@ -79,7 +79,7 @@ public class checkroles extends ListenerAdapter {
 				}
 			}
 
-			performRoleCheck(event.getHook(), event.getGuild(), title, Clubtag, ignoreHiddenColeaders);
+			performRoleCheck(event.getHook(), event.getGuild(), title, clubtag, ignoreHiddenColeaders);
 
 		}, "CheckRolesCommand-" + event.getUser().getId()).start();
 	}
@@ -94,7 +94,7 @@ public class checkroles extends ListenerAdapter {
 			String focused = event.getFocusedOption().getName();
 			String input = event.getFocusedOption().getValue();
 
-			if (focused.equals("Club")) {
+			if (focused.equals("club")) {
 				List<Command.Choice> choices = DBManager.getClubsAutocomplete(input);
 				event.replyChoices(choices).queue();
 			} else if (focused.equals("ignore_hiddencoleaders")) {
@@ -115,19 +115,19 @@ public class checkroles extends ListenerAdapter {
 
 		event.deferEdit().queue();
 
-		// Parse the button ID: checkroles_{Clubtag}_{ignoreHiddenColeaders}
+		// Parse the button ID: checkroles_{clubtag}_{ignoreHiddenColeaders}
 		String remainder = id.substring("checkroles_".length());
-		String Clubtag;
+		String clubtag;
 		boolean ignoreHiddenColeaders = false;
 
 		int lastUnderscore = remainder.lastIndexOf("_");
 		if (lastUnderscore != -1) {
-			Clubtag = remainder.substring(0, lastUnderscore);
+			clubtag = remainder.substring(0, lastUnderscore);
 			String ignoreHiddenColeadersStr = remainder.substring(lastUnderscore + 1);
 			ignoreHiddenColeaders = "true".equals(ignoreHiddenColeadersStr);
 		} else {
 			// Fallback for old button IDs without ignore_hiddencoleaders
-			Clubtag = remainder;
+			clubtag = remainder;
 		}
 
 		String title = "Rollen-Check";
@@ -138,13 +138,13 @@ public class checkroles extends ListenerAdapter {
 
 		final boolean ignoreHiddenColeadersFinal = ignoreHiddenColeaders;
 		new Thread(() -> {
-			performRoleCheck(event.getHook(), event.getGuild(), title, Clubtag, ignoreHiddenColeadersFinal);
+			performRoleCheck(event.getHook(), event.getGuild(), title, clubtag, ignoreHiddenColeadersFinal);
 		}, "CheckRolesRefresh-" + event.getUser().getId()).start();
 	}
 
 	@SuppressWarnings({ "null", "unused" })
 	private void performRoleCheck(net.dv8tion.jda.api.interactions.InteractionHook hook, Guild guild, String title,
-			String Clubtag, boolean ignoreHiddenColeaders) {
+			String clubtag, boolean ignoreHiddenColeaders) {
 
 		if (guild == null) {
 			hook.editOriginalEmbeds(MessageUtil.buildEmbed(title,
@@ -152,8 +152,8 @@ public class checkroles extends ListenerAdapter {
 			return;
 		}
 
-		Club Club = new Club(Clubtag);
-		ArrayList<Player> playerlist = Club.getPlayersDB();
+		Club club = new Club(clubtag);
+		ArrayList<Player> playerlist = club.getPlayersDB();
 
 		if (playerlist == null || playerlist.isEmpty()) {
 			hook.editOriginalEmbeds(MessageUtil.buildEmbed(title, "Keine Mitglieder in diesem Club gefunden.",
@@ -163,7 +163,7 @@ public class checkroles extends ListenerAdapter {
 
 		// Build description with members missing roles
 		StringBuilder description = new StringBuilder();
-		description.append("## ").append(Club.getInfoStringDB()).append("\n\n");
+		description.append("## ").append(club.getInfoStringDB()).append("\n\n");
 
 		int totalMembers = 0;
 		int membersWithoutRole = 0;
@@ -174,7 +174,7 @@ public class checkroles extends ListenerAdapter {
 
 		for (Player p : playerlist) {
 			Player.RoleType roleDB = p.getRole();
-			if (roleDB == null || roleDB == Player.RoleType.NOTINClub) {
+			if (roleDB == null || roleDB == Player.RoleType.NOTINCLUB) {
 				continue;
 			}
 
@@ -194,19 +194,19 @@ public class checkroles extends ListenerAdapter {
 			linkedMembers++;
 
 			// Always check the MEMBER role first
-			String memberRoleId = Club.getRoleID(Club.Role.MEMBER);
+			String memberRoleId = club.getRoleID(Club.Role.MEMBER);
 
-			// Get expected Discord role ID based on Club role (for higher roles)
+			// Get expected Discord role ID based on club role (for higher roles)
 			String expectedRoleId = null;
 			switch (roleDB) {
 				case LEADER:
-					expectedRoleId = Club.getRoleID(Club.Role.LEADER);
+					expectedRoleId = club.getRoleID(Club.Role.LEADER);
 					break;
 				case COLEADER:
-					expectedRoleId = Club.getRoleID(Club.Role.COLEADER);
+					expectedRoleId = club.getRoleID(Club.Role.COLEADER);
 					break;
 				case ELDER:
-					expectedRoleId = Club.getRoleID(Club.Role.ELDER);
+					expectedRoleId = club.getRoleID(Club.Role.ELDER);
 					break;
 				case MEMBER:
 					expectedRoleId = memberRoleId;
@@ -275,21 +275,21 @@ public class checkroles extends ListenerAdapter {
 		List<String> unnecessaryRolesList = new ArrayList<>();
 		int membersWithUnnecessaryRoles = 0;
 
-		String elderRoleId = Club.getRoleID(Club.Role.ELDER);
-		String memberRoleId = Club.getRoleID(Club.Role.MEMBER);
+		String elderRoleId = club.getRoleID(Club.Role.ELDER);
+		String memberRoleId = club.getRoleID(Club.Role.MEMBER);
 
-		java.util.HashSet<String> ClubRoleIds = new java.util.HashSet<>();
+		java.util.HashSet<String> clubRoleIds = new java.util.HashSet<>();
 		if (elderRoleId != null)
-			ClubRoleIds.add(elderRoleId);
+			clubRoleIds.add(elderRoleId);
 		if (memberRoleId != null)
-			ClubRoleIds.add(memberRoleId);
+			clubRoleIds.add(memberRoleId);
 
-		if (!ClubRoleIds.isEmpty()) {
+		if (!clubRoleIds.isEmpty()) {
 			for (Member m : guild.getMembers()) {
 				List<Role> memberRoles = m.getRoles();
 				boolean hasAnyClubRole = false;
 				for (Role r : memberRoles) {
-					if (ClubRoleIds.contains(r.getId())) {
+					if (clubRoleIds.contains(r.getId())) {
 						hasAnyClubRole = true;
 						break;
 					}
@@ -299,12 +299,12 @@ public class checkroles extends ListenerAdapter {
 					User user = new User(m.getId());
 					ArrayList<Player> linkedAccounts = user.getAllLinkedAccounts();
 
-					// Find the highest expected role for this user in this Club
+					// Find the highest expected role for this user in this club
 					Player.RoleType highestInGameRole = null;
 					for (Player p : linkedAccounts) {
 						if (p.getClubDB() == null)
 							continue;
-						if (Clubtag.equals(p.getClubDB().getTag())) {
+						if (clubtag.equals(p.getClubDB().getTag())) {
 							Player.RoleType currentP = p.getRole();
 							if (highestInGameRole == null || isHigherRole(currentP, highestInGameRole)) {
 								highestInGameRole = currentP;
@@ -313,11 +313,11 @@ public class checkroles extends ListenerAdapter {
 					}
 
 					// Check if they should have any roles at all
-					if (highestInGameRole == null || highestInGameRole == Player.RoleType.NOTINClub) {
-						// Should not have any Club roles
+					if (highestInGameRole == null || highestInGameRole == Player.RoleType.NOTINCLUB) {
+						// Should not have any club roles
 						StringBuilder rolesFound = new StringBuilder();
 						for (Role r : memberRoles) {
-							if (ClubRoleIds.contains(r.getId())) {
+							if (clubRoleIds.contains(r.getId())) {
 								if (rolesFound.length() > 0)
 									rolesFound.append(", ");
 								rolesFound.append(r.getAsMention());
@@ -331,7 +331,7 @@ public class checkroles extends ListenerAdapter {
 						List<String> invalidRoles = new ArrayList<>();
 						for (Role r : memberRoles) {
 							String rId = r.getId();
-							if (!ClubRoleIds.contains(rId))
+							if (!clubRoleIds.contains(rId))
 								continue;
 
 							boolean isAllowed = false;
@@ -342,7 +342,7 @@ public class checkroles extends ListenerAdapter {
 										|| highestInGameRole == Player.RoleType.LEADER)
 									isAllowed = true;
 							} else if (rId.equals(memberRoleId)) {
-								isAllowed = true; // Everyone in Club is a member
+								isAllowed = true; // Everyone in club is a member
 							}
 
 							if (!isAllowed) {
@@ -370,7 +370,7 @@ public class checkroles extends ListenerAdapter {
 		}
 
 		// Create refresh button
-		Button refreshButton = Button.secondary("checkroles_" + Clubtag + "_" + ignoreHiddenColeaders, "\u200B")
+		Button refreshButton = Button.secondary("checkroles_" + clubtag + "_" + ignoreHiddenColeaders, "\u200B")
 				.withEmoji(Emoji.fromUnicode("🔁"));
 
 		// Add timestamp
@@ -418,4 +418,6 @@ public class checkroles extends ListenerAdapter {
 		}
 	}
 }
+
+
 

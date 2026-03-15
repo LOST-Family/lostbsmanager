@@ -14,7 +14,7 @@ public class User {
 		ADMIN, LEADER, COLEADER, ELDER, MEMBER, NOTHING
 	}
 
-	private HashMap<String, Player.RoleType> Clubroles;
+	private HashMap<String, Player.RoleType> clubroles;
 	private String userid;
 	private ArrayList<Player> linkedaccounts;
 	private Boolean isadmin;
@@ -25,7 +25,7 @@ public class User {
 	}
 
 	public User refreshData() {
-		Clubroles = null;
+		clubroles = null;
 		linkedaccounts = null;
 		isadmin = null;
 		return this;
@@ -73,8 +73,8 @@ public class User {
 	}
 
 	public HashMap<String, Player.RoleType> getClubRoles() {
-		if (Clubroles == null) {
-			Clubroles = new HashMap<>();
+		if (clubroles == null) {
+			clubroles = new HashMap<>();
 			boolean admin = false;
 			if (DBUtil.getValueFromSQL("SELECT is_admin FROM users WHERE discord_id = ?", Boolean.class,
 					userid) == null) {
@@ -85,29 +85,29 @@ public class User {
 			}
 
 			ArrayList<Player> linkedaccs = getAllLinkedAccounts();
-			ArrayList<String> allClubs = DBManager.getAllClubs();
+			ArrayList<String> allclubs = DBManager.getAllClubs();
 			if (admin) {
-				for (String Clubtag : allClubs) {
-					Clubroles.put(Clubtag, Player.RoleType.ADMIN);
+				for (String clubtag : allclubs) {
+					clubroles.put(clubtag, Player.RoleType.ADMIN);
 				}
 			} else {
 				for (Player p : linkedaccs) {
 					if (p.getClubDB() != null) {
-						Clubroles.put(p.getClubDB().getTag(), p.getRole());
+						clubroles.put(p.getClubDB().getTag(), p.getRole());
 					}
 				}
 			}
-			for (String Clubtag : allClubs) {
-				if (!Clubroles.containsKey(Clubtag)) {
-					Clubroles.put(Clubtag, Player.RoleType.NOTINClub);
+			for (String clubtag : allclubs) {
+				if (!clubroles.containsKey(clubtag)) {
+					clubroles.put(clubtag, Player.RoleType.NOTINCLUB);
 				}
 			}
 		}
-		return Clubroles;
+		return clubroles;
 	}
 
-	public boolean isColeaderOrHigherInClub(String Clubtag) {
-		Player.RoleType role = getClubRoles().get(Clubtag);
+	public boolean isColeaderOrHigherInClub(String clubtag) {
+		Player.RoleType role = getClubRoles().get(clubtag);
 		return role == Player.RoleType.ADMIN
 				|| role == Player.RoleType.LEADER
 				|| role == Player.RoleType.COLEADER;
@@ -126,4 +126,6 @@ public class User {
 	}
 
 }
+
+
 

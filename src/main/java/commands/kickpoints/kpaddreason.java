@@ -25,12 +25,12 @@ public class kpaddreason extends ListenerAdapter {
 		event.deferReply().queue();
 		String title = "Kickpunkt-Grund Vorlage";
 
-		OptionMapping ClubOption = event.getOption("Club");
+		OptionMapping clubOption = event.getOption("club");
 		OptionMapping reasonoption = event.getOption("reason");
 		OptionMapping amountoption = event.getOption("amount");
 		OptionMapping indexOption = event.getOption("index");
 
-		if (ClubOption == null || reasonoption == null || amountoption == null) {
+		if (clubOption == null || reasonoption == null || amountoption == null) {
 			event.getHook().editOriginalEmbeds(
 					MessageUtil.buildEmbed(title, "Alle Parameter sind erforderlich!", MessageUtil.EmbedType.ERROR))
 					.queue();
@@ -38,16 +38,16 @@ public class kpaddreason extends ListenerAdapter {
 		}
 
 		String reason = reasonoption.getAsString();
-		String Clubtag = ClubOption.getAsString();
+		String clubtag = clubOption.getAsString();
 		int amount = amountoption.getAsInt();
 		Integer index = null;
 		if (indexOption != null) {
 			index = indexOption.getAsInt();
 		}
 
-		Club Club = new Club(Clubtag);
+		Club club = new Club(clubtag);
 
-		if (!Club.ExistsDB()) {
+		if (!club.ExistsDB()) {
 			event.getHook()
 					.editOriginalEmbeds(
 							MessageUtil.buildEmbed(title, "Dieser Club existiert nicht.", MessageUtil.EmbedType.ERROR))
@@ -55,7 +55,7 @@ public class kpaddreason extends ListenerAdapter {
 			return;
 		}
 
-		if (Clubtag.equals("warteliste")) {
+		if (clubtag.equals("warteliste")) {
 			event.getHook().editOriginalEmbeds(
 					MessageUtil.buildEmbed(title, "Diesen Befehl kannst du nicht auf die Warteliste ausführen.",
 							MessageUtil.EmbedType.ERROR))
@@ -73,7 +73,7 @@ public class kpaddreason extends ListenerAdapter {
 			return;
 		}
 
-		KickpointReason kpreason = new KickpointReason(reason, Clubtag);
+		KickpointReason kpreason = new KickpointReason(reason, clubtag);
 
 		if (kpreason.Exists()) {
 			event.getHook().editOriginalEmbeds(
@@ -84,8 +84,8 @@ public class kpaddreason extends ListenerAdapter {
 
 		if (index == null) {
 			// Calculate max index + 1
-			String sql = "SELECT MAX(index) FROM kickpoint_reasons WHERE Club_tag = ?";
-			Integer maxIndex = DBUtil.getValueFromSQL(sql, Integer.class, Clubtag);
+			String sql = "SELECT MAX(index) FROM kickpoint_reasons WHERE club_tag = ?";
+			Integer maxIndex = DBUtil.getValueFromSQL(sql, Integer.class, clubtag);
 			if (maxIndex == null) {
 				index = 1;
 			} else {
@@ -93,13 +93,13 @@ public class kpaddreason extends ListenerAdapter {
 			}
 		}
 
-		DBUtil.executeUpdate("INSERT INTO kickpoint_reasons (name, Club_tag, amount, index) VALUES (?, ?, ?, ?)",
-				reason, Clubtag,
+		DBUtil.executeUpdate("INSERT INTO kickpoint_reasons (name, club_tag, amount, index) VALUES (?, ?, ?, ?)",
+				reason, clubtag,
 				amount, index);
 
 		String desc = "Der Kickpunkt-Grund wurde als Vorlage hinzugefügt.\n";
 		desc += "Grund: " + reason + "\n";
-		desc += "Club: " + Club.getInfoStringDB() + "\n";
+		desc += "Club: " + club.getInfoStringDB() + "\n";
 		desc += "Anzahl: " + amount + "\n";
 		desc += "Index: " + index;
 
@@ -116,7 +116,7 @@ public class kpaddreason extends ListenerAdapter {
 		String focused = event.getFocusedOption().getName();
 		String input = event.getFocusedOption().getValue();
 
-		if (focused.equals("Club")) {
+		if (focused.equals("club")) {
 			List<Command.Choice> choices = DBManager.getClubsAutocompleteNoWaitlist(input);
 
 			event.replyChoices(choices).queue();
@@ -124,4 +124,6 @@ public class kpaddreason extends ListenerAdapter {
 	}
 
 }
+
+
 

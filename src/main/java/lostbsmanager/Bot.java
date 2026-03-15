@@ -26,10 +26,10 @@ import org.json.JSONObject;
 
 import commands.admin.copyreasons;
 import commands.admin.restart;
-import commands.kickpoints.Clubconfig;
+import commands.kickpoints.clubconfig;
 import commands.kickpoints.kpadd;
 import commands.kickpoints.kpaddreason;
-import commands.kickpoints.kpClub;
+import commands.kickpoints.kpclub;
 import commands.kickpoints.kpedit;
 import commands.kickpoints.kpeditreason;
 import commands.kickpoints.kpinfo;
@@ -50,16 +50,16 @@ import commands.memberlist.signoff;
 import commands.memberlist.signofflist;
 import commands.memberlist.togglemark;
 import commands.memberlist.transfermember;
-
-
-
+//import commands.reminders.remindersadd;
+//import commands.reminders.remindersinfo;
+//import commands.reminders.remindersremove;
 import commands.util.checkroles;
 
 
 
 import commands.util.trackchannels;
-
-
+//import commands.wins.wins;
+//import commands.wins.winsfails;
 import datautil.APIUtil;
 import datautil.DBUtil;
 import datawrapper.Club;
@@ -123,7 +123,7 @@ public class Bot extends ListenerAdapter {
 
 		// Start REST API servers
 		LinkWebServer.start();
-		// Start generic REST API (Club/player endpoints) similar to lostmanager
+		// Start generic REST API (club/player endpoints) similar to lostmanager
 		int restPort = 8070;
 		try {
 			restPort = Integer.parseInt(System.getenv().getOrDefault("REST_API_PORT", "8060"));
@@ -141,8 +141,8 @@ public class Bot extends ListenerAdapter {
 
 		startNameUpdates();
 		startLoadingLists();
-		startReminders();
-		startMonthlyWinsSave();
+		//startReminders();
+		//startMonthlyWinsSave();
 
 		JDABuilder.createDefault(token).enableIntents(GatewayIntent.GUILD_MEMBERS)
 				.setMemberCachePolicy(MemberCachePolicy.ALL).setChunkingFilter(ChunkingFilter.ALL)
@@ -151,10 +151,8 @@ public class Bot extends ListenerAdapter {
 						new addmember(),
 						new removemember(), new listmembers(), new editmember(), new playerinfo(), new memberstatus(),
 						new kpaddreason(), new kpremovereason(), new kpeditreason(), new kpadd(), new kpmember(),
-						new kpremove(), new kpedit(), new kpinfo(), new kplistreasons(), new kpClub(), new Clubconfig(),
-						new transfermember(), new togglemark(), new cwfails(),
-						new wins(), new statslist(),
-						new checkroles(), new relink(), new trackchannels(), new signoff(),
+						new kpremove(), new kpedit(), new kpinfo(), new kplistreasons(), new kpclub(), new clubconfig(),
+						new transfermember(), new togglemark(), new checkroles(), new relink(), new trackchannels(), new signoff(),
 						new signofflist())
 				.build();
 	}
@@ -184,10 +182,10 @@ public class Bot extends ListenerAdapter {
 									"Die ID des Users, mit dem der Account verlinkt werden soll."),
 					Commands.slash("restart", "Startet den Bot neu."),
 					Commands.slash("copyreasons", "Kopiere Kickpunkt-Gründe eines Clubs auf alle anderen Clubs.")
-							.addOptions(new OptionData(OptionType.STRING, "Club",
+							.addOptions(new OptionData(OptionType.STRING, "club",
 									"Der Club, von dem kopiert werden soll.", true).setAutoComplete(true)),
 					Commands.slash("addmember", "Füge einen Spieler zu einem Club hinzu.")
-							.addOptions(new OptionData(OptionType.STRING, "Club",
+							.addOptions(new OptionData(OptionType.STRING, "club",
 									"Der Club, zu welchem der Spieler hinzugefügt werden soll", true)
 									.setAutoComplete(true))
 							.addOptions(new OptionData(OptionType.STRING, "player",
@@ -202,7 +200,7 @@ public class Bot extends ListenerAdapter {
 									"Der Spieler, welcher markiert/entmarkiert werden soll", true)
 									.setAutoComplete(true)),
 					Commands.slash("listmembers", "Liste aller Spieler in einem Club.")
-							.addOptions(new OptionData(OptionType.STRING, "Club",
+							.addOptions(new OptionData(OptionType.STRING, "club",
 									"Der Club, welcher ausgegeben werden soll.", true).setAutoComplete(true)),
 					Commands.slash("editmember", "Ändere die Rolle eines Mitglieds.")
 							.addOptions(new OptionData(OptionType.STRING, "player",
@@ -220,13 +218,13 @@ public class Bot extends ListenerAdapter {
 									.setAutoComplete(true).setRequired(false)),
 					Commands.slash("memberstatus",
 							"Status über einen Club, welche Spieler keine Mitglieder sind und welche Mitglieder fehlen.")
-							.addOptions(new OptionData(OptionType.STRING, "Club",
+							.addOptions(new OptionData(OptionType.STRING, "club",
 									"Der Club, welcher ausgegeben werden soll.", true).setAutoComplete(true))
 							.addOptions(new OptionData(OptionType.STRING, "exclude_leaders",
 									"(Optional) Wenn 'true', werden Leader, Co-Leader und Admins von der Prüfung ausgeschlossen")
 									.setAutoComplete(true).setRequired(false)),
 					Commands.slash("kpaddreason", "Erstelle einen vorgefertigten Kickpunktgrund.")
-							.addOptions(new OptionData(OptionType.STRING, "Club",
+							.addOptions(new OptionData(OptionType.STRING, "club",
 									"Der Club, für welchen dieser erstellt wird.", true).setAutoComplete(true))
 							.addOptions(new OptionData(OptionType.STRING, "reason", "Der angezeigte Grund.", true))
 							.addOptions(
@@ -234,12 +232,12 @@ public class Bot extends ListenerAdapter {
 							.addOptions(
 									new OptionData(OptionType.INTEGER, "index", "Der Index für die Sortierung.")),
 					Commands.slash("kpremovereason", "Lösche einen vorgefertigten Kickpunktgrund.")
-							.addOptions(new OptionData(OptionType.STRING, "Club",
+							.addOptions(new OptionData(OptionType.STRING, "club",
 									"Der Club, für welchen dieser erstellt wird.", true).setAutoComplete(true))
 							.addOptions(new OptionData(OptionType.STRING, "reason", "Der angezeigte Grund.", true)
 									.setAutoComplete(true)),
 					Commands.slash("kpeditreason", "Aktualisiere die Anzahl der Kickpunkte für eine Grund-Vorlage.")
-							.addOptions(new OptionData(OptionType.STRING, "Club",
+							.addOptions(new OptionData(OptionType.STRING, "club",
 									"Der Club, für welchen dieser erstellt wird.", true).setAutoComplete(true))
 							.addOptions(new OptionData(OptionType.STRING, "reason", "Der angezeigte Grund.", true)
 									.setAutoComplete(true))
@@ -260,16 +258,16 @@ public class Bot extends ListenerAdapter {
 							.addOptions(new OptionData(OptionType.INTEGER, "id",
 									"Die ID des Kickpunkts. Ist unter /kpmember zu sehen.", true)),
 					Commands.slash("kpinfo", "Infos über Kickpunkt-Gründe eines Clubs.")
-							.addOptions(new OptionData(OptionType.STRING, "Club",
+							.addOptions(new OptionData(OptionType.STRING, "club",
 									"Die Club, welcher angezeigt werden soll.", true).setAutoComplete(true)),
 					Commands.slash("kplistreasons", "Liste aller Kickpunkt-Gründe eines Clubs sortiert nach Index.")
-							.addOptions(new OptionData(OptionType.STRING, "Club",
+							.addOptions(new OptionData(OptionType.STRING, "club",
 									"Der Club, dessen Gründe angezeigt werden sollen.", true).setAutoComplete(true)),
-					Commands.slash("kpClub", "Zeige die Kickpunktanzahlen aller Spieler in einem Club.")
-							.addOptions(new OptionData(OptionType.STRING, "Club",
+					Commands.slash("kpclub", "Zeige die Kickpunktanzahlen aller Spieler in einem Club.")
+							.addOptions(new OptionData(OptionType.STRING, "club",
 									"Der Club, welcher angezeigt werden soll.", true).setAutoComplete(true)),
-					Commands.slash("Clubconfig", "Ändere Einstellungen an einem Club.")
-							.addOptions(new OptionData(OptionType.STRING, "Club",
+					Commands.slash("clubconfig", "Ändere Einstellungen an einem Club.")
+							.addOptions(new OptionData(OptionType.STRING, "club",
 									"Der Club, welcher bearbeitet werden soll.", true).setAutoComplete(true)),
 					Commands.slash("leaguetrophylist", "Sortierte Rangliste.")
 							.addOptions(new OptionData(OptionType.STRING, "timestamp",
@@ -277,102 +275,15 @@ public class Bot extends ListenerAdapter {
 					Commands.slash("transfermember", "Transferiere einen Spieler in einen anderen Club.")
 							.addOptions(new OptionData(OptionType.STRING, "player",
 									"Der Spieler, welcher transferiert werden soll", true).setAutoComplete(true))
-							.addOptions(new OptionData(OptionType.STRING, "Club",
+							.addOptions(new OptionData(OptionType.STRING, "club",
 									"Der Club, zu welchem der Spieler hinzugefügt werden soll", true)
 									.setAutoComplete(true)),
-					Commands.slash("cwfails",
-							"Überprüfe einen Club auf CW-Punkte mit einer Hürde, die zu überwinden gilt.")
-							.addOptions(new OptionData(OptionType.STRING, "Club",
-									"Der Club, welcher überprüft werden soll.", true).setAutoComplete(true))
-							.addOptions(new OptionData(OptionType.STRING, "threshold",
-									"Die Hürde, welche jeder Spieler überwunden haben sollte", true))
-							.addOptions(new OptionData(OptionType.STRING, "kpreason",
-									"(Optional) Der Kickpunkt-Grund für jeden Spieler, der die Hürde nicht erreicht hat.")
-									.setAutoComplete(true))
-							.addOptions(new OptionData(OptionType.STRING, "min_threshold",
-									"(Optional) Minimale Punktzahl - Spieler darunter werden nicht angezeigt")
-									.setRequired(false))
-							.addOptions(new OptionData(OptionType.STRING, "exclude_leaders",
-									"(Optional) Wenn 'true', werden Leader, Co-Leader und Admins von der Prüfung ausgeschlossen")
-									.setAutoComplete(true).setRequired(false)),
-					Commands.slash("remindersadd", "Erstelle einen Reminder für Club War Beteiligung.")
-							.addOptions(new OptionData(OptionType.STRING, "Club",
-									"Der Club, für welchen der Reminder erstellt wird.", true).setAutoComplete(true))
-							.addOptions(new OptionData(OptionType.CHANNEL, "channel",
-									"Der Kanal, in dem der Reminder gesendet wird.", true))
-							.addOptions(new OptionData(OptionType.STRING, "time",
-									"Die Uhrzeit für den Reminder (Format: HH:mm, z.B. 14:30)", true))
-							.addOptions(new OptionData(OptionType.STRING, "weekday",
-									"Der Wochentag für den Reminder (z.B. monday, tuesday, ...)", true)
-									.setAutoComplete(true)),
+					
 					Commands.slash("remindersremove", "Entferne einen Reminder.")
 							.addOptions(new OptionData(OptionType.INTEGER, "id",
 									"Die ID des Reminders. Ist unter /remindersinfo zu sehen.", true)),
-					Commands.slash("remindersinfo", "Zeige alle Reminder für einen Club an.")
-							.addOptions(new OptionData(OptionType.STRING, "Club",
-									"Der Club, für welchen Reminder angezeigt werden sollen.", true)
-									.setAutoComplete(true)),
-					Commands.slash("wins",
-							"Zeige die Wins-Statistik für einen Spieler oder Club in einem bestimmten Monat.")
-							.addOptions(new OptionData(OptionType.STRING, "month",
-									"Der Monat, für den die Wins angezeigt werden sollen.", true).setAutoComplete(true))
-							.addOptions(new OptionData(OptionType.STRING, "player",
-									"Der Spieler, für den die Wins angezeigt werden sollen.").setAutoComplete(true)
-									.setRequired(false))
-							.addOptions(new OptionData(OptionType.STRING, "Club",
-									"Der Club, für den die Wins angezeigt werden sollen.").setAutoComplete(true)
-									.setRequired(false))
-							.addOptions(new OptionData(OptionType.STRING, "exclude_leaders",
-									"(Optional) Wenn 'true', werden Leader, Co-Leader und Admins von der Liste ausgeschlossen")
-									.setAutoComplete(true).setRequired(false)),
-					Commands.slash("statslist",
-							"Erstelle eine konfigurierbare Stats-Liste für einen oder mehrere Clubs.")
-							.addOptions(new OptionData(OptionType.STRING, "Club",
-									"Club(s) kommagetrennt, z.B. #ClubTAG1,#ClubTAG2", true).setAutoComplete(true))
-							.addOptions(new OptionData(OptionType.STRING, "display_fields",
-									"Anzuzeigende Felder (kommagetrennt, z.B. Wins,Trophies,PoLLeagueNumber)", true)
-									.setAutoComplete(true))
-							.addOptions(new OptionData(OptionType.STRING, "sort_fields",
-									"Sortierfelder (kommagetrennt, z.B. PoLLeagueNumber,Trophies). Standard: alphabetisch")
-									.setAutoComplete(true).setRequired(false))
-							.addOptions(new OptionData(OptionType.STRING, "roles_sorting",
-									"(Optional) 'true' für Rollen-Sortierung, 'Clubs' für Clubs+Rollen-Sortierung")
-									.setAutoComplete(true).setRequired(false)),
-					Commands.slash("checkroles", "Überprüfe, ob Club-Mitglieder die korrekten Discord-Rollen haben.")
-							.addOptions(new OptionData(OptionType.STRING, "Club",
-									"Der Club, welcher überprüft werden soll.", true).setAutoComplete(true))
-							.addOptions(new OptionData(OptionType.STRING, "ignore_hiddencoleaders",
-									"(Optional) Wenn 'true', werden versteckte Vize-Anführer ignoriert")
-									.setAutoComplete(true).setRequired(false)),
-					Commands.slash("winsfails",
-							"Überprüfe einen Club auf monatliche Wins mit einer Hürde, die zu überwinden gilt.")
-							.addOptions(new OptionData(OptionType.STRING, "Club",
-									"Der Club, welcher überprüft werden soll.", true).setAutoComplete(true))
-							.addOptions(new OptionData(OptionType.STRING, "month",
-									"Der Monat, für den die Wins überprüft werden sollen.", true).setAutoComplete(true))
-							.addOptions(new OptionData(OptionType.STRING, "threshold",
-									"Die Hürde, welche jeder Spieler überwunden haben sollte", true))
-							.addOptions(new OptionData(OptionType.STRING, "kpreason",
-									"(Optional) Der Kickpunkt-Grund für jeden Spieler, der die Hürde nicht erreicht hat.")
-									.setAutoComplete(true))
-							.addOptions(new OptionData(OptionType.STRING, "min_threshold",
-									"(Optional) Minimale Wins - Spieler darunter werden nicht angezeigt")
-									.setRequired(false))
-							.addOptions(new OptionData(OptionType.STRING, "exclude_leaders",
-									"(Optional) Wenn 'true', werden Leader, Co-Leader und Admins von der Prüfung ausgeschlossen")
-									.setAutoComplete(true).setRequired(false)),
-					Commands.slash("trackchanneladd", "Füge einen TrackChannel hinzu (Admin).")
-							.addOption(OptionType.STRING, "name", "Der Name des Events", true)
-							.addOption(OptionType.STRING, "channelid", "Die Discord-Kanal-ID", true),
-					Commands.slash("trackchannelremove", "Entferne einen TrackChannel (Admin).")
-							.addOptions(new OptionData(OptionType.STRING, "trackchannel",
-									"Der zu entfernende TrackChannel", true).setAutoComplete(true)),
-					Commands.slash("trackchannellist", "Liste alle TrackChannels auf (Coleader+)."),
-					Commands.slash("trackchanneltime", "Setze die Zeit für einen TrackChannel (Coleader+).")
-							.addOptions(new OptionData(OptionType.STRING, "trackchannel", "Der TrackChannel", true)
-									.setAutoComplete(true))
-							.addOptions(new OptionData(OptionType.STRING, "timestamp",
-									"Der Zeitpunkt (dd.MM.yyyy HH:mm)", true).setAutoComplete(true)),
+					
+					
 					Commands.slash("signoff",
 							"Melde einen Spieler ab (Abwesenheit). Abgemeldete Spieler erhalten keine automatischen Kickpunkte.")
 							.addOptions(new OptionData(OptionType.STRING, "player",
@@ -425,44 +336,8 @@ public class Bot extends ListenerAdapter {
 		return jda;
 	}
 
-	public static void startLoadingLists() {
-		System.out.println("Jede Stunde wird nun die Leaguetrophylist erstellt. " + System.currentTimeMillis());
-		Runnable task = () -> {
-			Thread thread = new Thread(() -> {
-				File folder = new File(leaguetrophylist.getRunningJarDirectory(), "BSManager_ListFiles");
-				Pattern pattern = Pattern.compile("Liste_(\\d+)\\.txt");
+	public static void startLoadingLists() {} 
 
-				ZonedDateTime twoMonthsAgo = ZonedDateTime.now().minusMonths(2);
-				long twoMonthsAgoMillis = twoMonthsAgo.toInstant().toEpochMilli();
-
-				if (folder.exists() && folder.isDirectory()) {
-					File[] files = folder.listFiles();
-					if (files != null) {
-						for (File file : files) {
-							Matcher matcher = pattern.matcher(file.getName());
-							if (matcher.matches()) {
-								long millis = Long.parseLong(matcher.group(1));
-								if (millis < twoMonthsAgoMillis) {
-									boolean deleted = file.delete();
-									if (deleted) {
-										System.out.println("Gelöscht: " + file.getName());
-									} else {
-										System.err.println("Konnte nicht löschen: " + file.getName());
-									}
-								}
-							}
-						}
-					}
-				} else {
-					System.out.println("Der Ordner existiert nicht oder ist kein Verzeichnis");
-				}
-				leaguetrophylist.saveNewList();
-
-			});
-			thread.start();
-		};
-		scheduler.scheduleAtFixedRate(task, 0, 1, TimeUnit.HOURS);
-	}
 
 	@SuppressWarnings("null")
 	public static void startNameUpdates() {
@@ -470,19 +345,19 @@ public class Bot extends ListenerAdapter {
 		Runnable task = () -> {
 			Thread thread = new Thread(() -> {
 
-				// Update Club badges and descriptions
-				String ClubSql = "SELECT tag FROM Clubs";
-				for (String ClubTag : DBUtil.getArrayListFromSQL(ClubSql, String.class)) {
-					if (ClubTag.equals("warteliste")) {
+				// Update club badges and descriptions
+				String clubSql = "SELECT tag FROM clubs";
+				for (String clubTag : DBUtil.getArrayListFromSQL(clubSql, String.class)) {
+					if (clubTag.equals("warteliste")) {
 						continue;
 					}
 					try {
-						Club Club = new Club(ClubTag);
-						String description = Club.getDescriptionAPI();
-						DBUtil.executeUpdate("UPDATE Clubs SET description = ? WHERE tag = ?", description, ClubTag);
+						Club club = new Club(clubTag);
+						String description = club.getDescriptionAPI();
+						DBUtil.executeUpdate("UPDATE clubs SET description = ? WHERE tag = ?", description, clubTag);
 					} catch (Exception e) {
 						System.out.println(
-								"Fehler beim Badge/Description Update von Club " + ClubTag + ": " + e.getMessage());
+								"Fehler beim Badge/Description Update von Club " + clubTag + ": " + e.getMessage());
 					}
 				}
 
@@ -519,17 +394,8 @@ public class Bot extends ListenerAdapter {
 		scheduler.scheduleAtFixedRate(task, 0, 2, TimeUnit.HOURS);
 	}
 
-	public static void startReminders() {
-		System.out.println("Reminder-Check wird gestartet. Prüfung alle 5 Minuten. " + System.currentTimeMillis());
-		Runnable task = () -> {
-			Thread thread = new Thread(() -> {
-				checkReminders();
-				updateTrackChannels();
-			});
-			thread.start();
-		};
-		scheduler.scheduleAtFixedRate(task, 0, 5, TimeUnit.MINUTES);
-	}
+	public static void startReminders() {} 
+
 
 	@SuppressWarnings("null")
 	public static void updateTrackChannels() {
@@ -586,12 +452,12 @@ public class Bot extends ListenerAdapter {
 		LocalDate currentDate = now.toLocalDate();
 
 		// Get all reminders
-		String sql = "SELECT id, Clubtag, channelid, time, last_sent_date, weekday FROM reminders";
+		String sql = "SELECT id, clubtag, channelid, time, last_sent_date, weekday FROM reminders";
 		try (PreparedStatement pstmt = datautil.Connection.getConnection().prepareStatement(sql)) {
 			try (ResultSet rs = pstmt.executeQuery()) {
 				while (rs.next()) {
 					int reminderId = rs.getInt("id");
-					String Clubtag = rs.getString("Clubtag");
+					String clubtag = rs.getString("clubtag");
 					String channelId = rs.getString("channelid");
 					Time reminderTime = rs.getTime("time");
 					Date lastSentDate = rs.getDate("last_sent_date");
@@ -615,7 +481,7 @@ public class Bot extends ListenerAdapter {
 					// Check if reminder should be sent (within 5 minute window)
 					long minutesDiff = java.time.Duration.between(reminderLocalTime, currentTime).toMinutes();
 					if (minutesDiff >= 0 && minutesDiff < 5) {
-						sendReminder(reminderId, Clubtag, channelId);
+						sendReminder(reminderId, clubtag, channelId);
 					}
 				}
 			}
@@ -650,30 +516,30 @@ public class Bot extends ListenerAdapter {
 	}
 
 	@SuppressWarnings("null")
-	private static void sendReminder(int reminderId, String Clubtag, String channelId) {
+	private static void sendReminder(int reminderId, String clubtag, String channelId) {
 		try {
-			// Get Club info
-			Club Club = new Club(Clubtag);
-			if (!Club.ExistsDB()) {
-				System.out.println("Club " + Clubtag + " existiert nicht mehr.");
+			// Get club info
+			Club club = new Club(clubtag);
+			if (!club.ExistsDB()) {
+				System.out.println("Club " + clubtag + " existiert nicht mehr.");
 				return;
 			}
 
 			// Get current river race data
-			String json = APIUtil.getCurrentRiverRaceJson(Clubtag);
+			String json = APIUtil.getCurrentRiverRaceJson(clubtag);
 			if (json == null) {
-				System.out.println("Konnte River Race Daten für " + Clubtag + " nicht abrufen.");
+				System.out.println("Konnte River Race Daten für " + clubtag + " nicht abrufen.");
 				return;
 			}
 
 			JSONObject data = new JSONObject(json);
-			JSONObject ClubData = data.getJSONObject("Club");
-			if (ClubData.has("finishTime")) {
-				System.out.println("Der Club War für " + Clubtag + " ist bereits beendet.");
+			JSONObject clubData = data.getJSONObject("club");
+			if (clubData.has("finishTime")) {
+				System.out.println("Der Club War für " + clubtag + " ist bereits beendet.");
 				updateLastSentDate(reminderId);
 				return;
 			}
-			JSONArray participants = ClubData.getJSONArray("participants");
+			JSONArray participants = clubData.getJSONArray("participants");
 
 			// Build a map of player tag to decksUsedToday from API
 			java.util.HashMap<String, Integer> apiDecksUsedMap = new java.util.HashMap<>();
@@ -686,14 +552,14 @@ public class Bot extends ListenerAdapter {
 
 			// Get database memberlist and set decksUsed for each player
 			ArrayList<Player> playersWithDecksUsed = new ArrayList<>();
-			ArrayList<Player> dbMembers = Club.getPlayersDB();
+			ArrayList<Player> dbMembers = club.getPlayersDB();
 			for (Player player : dbMembers) {
 				String playerTag = player.getTag();
 				if (apiDecksUsedMap.containsKey(playerTag)) {
-					// Player is in Club, set their decks used
+					// Player is in club, set their decks used
 					player.setDecksUsed(apiDecksUsedMap.get(playerTag));
 				} else {
-					// Player is not in API list (not in Club)
+					// Player is not in API list (not in club)
 					player.setDecksUsed(null);
 				}
 				playersWithDecksUsed.add(player);
@@ -703,7 +569,7 @@ public class Bot extends ListenerAdapter {
 			ArrayList<String> reminderList = new ArrayList<>();
 			for (Player player : playersWithDecksUsed) {
 				Integer decksUsed = player.getDecksUsed();
-				// Include players not in Club (decksUsed == null) or with <4 decks
+				// Include players not in club (decksUsed == null) or with <4 decks
 				if (decksUsed == null || decksUsed < 4) {
 					if (player.isHiddenColeader()) {
 						continue; // Skip hidden co-leaders
@@ -736,7 +602,7 @@ public class Bot extends ListenerAdapter {
 			}
 
 			if (reminderList.isEmpty()) {
-				System.out.println("Keine Spieler mit weniger als 4 Decks für " + Clubtag);
+				System.out.println("Keine Spieler mit weniger als 4 Decks für " + clubtag);
 				return;
 			}
 
@@ -749,7 +615,7 @@ public class Bot extends ListenerAdapter {
 						// Build messages with split logic
 						ArrayList<String> messages = new ArrayList<>();
 						StringBuilder currentMessage = new StringBuilder();
-						currentMessage.append("⚠️ **Club War Reminder - " + Club.getNameDB() + "**\n\n");
+						currentMessage.append("⚠️ **Club War Reminder - " + club.getNameDB() + "**\n\n");
 						currentMessage.append("Folgende Spieler haben heute weniger als 4 Decks verwendet:\n\n");
 
 						for (String playerInfo : reminderList) {
@@ -769,36 +635,36 @@ public class Bot extends ListenerAdapter {
 						}
 
 						// Send all messages
-						sendMessagesSequentially(channel, messages, reminderId, Clubtag);
+						sendMessagesSequentially(channel, messages, reminderId, clubtag);
 					} else {
 						System.err.println("Kanal " + channelId + " nicht gefunden.");
 					}
 				}
 			}
 		} catch (Exception e) {
-			System.err.println("Fehler beim Senden des Reminders für " + Clubtag + ": " + e.getMessage());
+			System.err.println("Fehler beim Senden des Reminders für " + clubtag + ": " + e.getMessage());
 			e.printStackTrace();
 		}
 	}
 
 	private static void sendMessagesSequentially(TextChannel channel, ArrayList<String> messages, int reminderId,
-			String Clubtag) {
-		sendMessagesSequentially(channel, messages, 0, reminderId, Clubtag);
+			String clubtag) {
+		sendMessagesSequentially(channel, messages, 0, reminderId, clubtag);
 	}
 
 	@SuppressWarnings("null")
 	private static void sendMessagesSequentially(TextChannel channel, ArrayList<String> messages, int index,
-			int reminderId, String Clubtag) {
+			int reminderId, String clubtag) {
 		if (index >= messages.size()) {
 			// All messages sent successfully
-			System.out.println("Reminder erfolgreich gesendet für " + Clubtag);
+			System.out.println("Reminder erfolgreich gesendet für " + clubtag);
 			updateLastSentDate(reminderId);
 			return;
 		}
 
 		channel.sendMessage(messages.get(index)).queue(_ -> {
 			// Send next message
-			sendMessagesSequentially(channel, messages, index + 1, reminderId, Clubtag);
+			sendMessagesSequentially(channel, messages, index + 1, reminderId, clubtag);
 		}, error -> {
 			System.err
 					.println("Fehler beim Senden des Reminders (Nachricht " + (index + 1) + "): " + error.getMessage());
@@ -822,80 +688,17 @@ public class Bot extends ListenerAdapter {
 		}
 	}
 
-	public static void startMonthlyWinsSave() {
-		System.out.println("Monthly Wins-Save wird gestartet. Prüfung jede Stunde. " + System.currentTimeMillis());
-		Runnable task = () -> {
-			Thread thread = new Thread(() -> {
-				checkAndSaveMonthlyWins();
-			});
-			thread.start();
-		};
-		scheduler.scheduleAtFixedRate(task, 0, 1, TimeUnit.HOURS);
-	}
+	public static void startMonthlyWinsSave() {} 
 
-	private static void checkAndSaveMonthlyWins() {
-		ZoneId zoneId = ZoneId.of("Europe/Berlin");
-		ZonedDateTime now = ZonedDateTime.now(zoneId);
-		int dayOfMonth = now.getDayOfMonth();
 
-		// Delete data older than a year
-		cleanupOldWinsData(zoneId, now);
+	public static void checkAndSaveMonthlyWins() {} 
 
-		// Only save on the 1st day of the month (or 2nd day to be safe with timezones)
-		if (dayOfMonth == 1 || dayOfMonth == 2) {
-			// Check if we already saved this month
-			LocalDate today = now.toLocalDate();
-			LocalDate firstOfMonth = today.withDayOfMonth(1);
 
-			String sql = "SELECT COUNT(*) as cnt FROM player_wins WHERE recorded_at >= ? AND recorded_at < ?";
-			try (PreparedStatement pstmt = datautil.Connection.getConnection().prepareStatement(sql)) {
-				ZonedDateTime startOfDay = firstOfMonth.atStartOfDay(zoneId);
-				ZonedDateTime endOfDay = firstOfMonth.plusDays(2).atStartOfDay(zoneId);
-				pstmt.setObject(1, startOfDay.toOffsetDateTime());
-				pstmt.setObject(2, endOfDay.toOffsetDateTime());
+	public static void cleanupOldWinsData() {} 
 
-				try (ResultSet rs = pstmt.executeQuery()) {
-					if (rs.next()) {
-						int count = rs.getInt("cnt");
-						if (count > 0) {
-							System.out.println(
-									"Wins für diesen Monat bereits gespeichert (" + count + " Einträge). Überspringe.");
-							return;
-						}
-					}
-				}
-			} catch (SQLException e) {
-				System.err.println("Fehler beim Prüfen der monatlichen Wins: " + e.getMessage());
-				e.printStackTrace();
-			}
-
-			// Save wins for all players
-			System.out.println("Speichere Wins für alle Spieler zum Monatsanfang...");
-			wins.saveAllPlayerWins();
-			System.out.println("Wins für alle Spieler gespeichert.");
-		}
-	}
-
-	private static void cleanupOldWinsData(ZoneId zoneId, ZonedDateTime now) {
-		// Delete data older than 1 year
-		ZonedDateTime oneYearAgo = now.minusYears(1);
-		String deleteSql = "DELETE FROM player_wins WHERE recorded_at < ?";
-		try (PreparedStatement pstmt = datautil.Connection.getConnection().prepareStatement(deleteSql)) {
-			pstmt.setObject(1, oneYearAgo.toOffsetDateTime());
-			int deleted = pstmt.executeUpdate();
-			if (deleted > 0) {
-				System.out.println("Alte Wins-Daten gelöscht: " + deleted + " Einträge älter als 1 Jahr.");
-			}
-		} catch (SQLException e) {
-			System.err.println("Fehler beim Löschen alter Wins-Daten: " + e.getMessage());
-			e.printStackTrace();
-		}
-	}
 
 	public void stopScheduler() {
 		scheduler.shutdown();
 	}
 
 }
-
-

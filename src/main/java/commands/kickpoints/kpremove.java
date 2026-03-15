@@ -45,9 +45,9 @@ public class kpremove extends ListenerAdapter {
 			return;
 		}
 
-		String Clubtag = kp.getPlayer().getClubDB().getTag();
+		String clubtag = kp.getPlayer().getClubDB().getTag();
 
-		if (Clubtag.equals("warteliste")) {
+		if (clubtag.equals("warteliste")) {
 			event.getHook()
 					.editOriginalEmbeds(MessageUtil.buildEmbed(title,
 							"Diesen Befehl kannst du nicht auf die Warteliste ausführen.", MessageUtil.EmbedType.ERROR))
@@ -81,4 +81,6 @@ public class kpremove extends ListenerAdapter {
 	}
 
 }
+
+
 

@@ -22,7 +22,7 @@ import lostbsmanager.Bot;
 public class Player {
 
 	public enum RoleType {
-		ADMIN, LEADER, COLEADER, ELDER, MEMBER, NOTINClub
+		ADMIN, LEADER, COLEADER, ELDER, MEMBER, NOTINCLUB
 	};
 
 	private JSONObject apiresult;
@@ -30,9 +30,9 @@ public class Player {
 	private String namedb;
 	private String nameapi;
 	private User user;
-	private Club Clubdb;
-	private Club Clubapi;
-	private String Clubtagcwdone;
+	private Club clubdb;
+	private Club clubapi;
+	private String clubtagcwdone;
 	private Integer cwfame;
 	private Integer decksUsed;
 	private Integer PathofLegendLeagueNumber;
@@ -58,12 +58,12 @@ public class Player {
 		namedb = null;
 		nameapi = null;
 		user = null;
-		Clubdb = null;
-		Clubapi = null;
+		clubdb = null;
+		clubapi = null;
 		kickpoints = null;
 		kickpointstotal = null;
 		role = null;
-		Clubtagcwdone = null;
+		clubtagcwdone = null;
 		cwfame = null;
 		decksUsed = null;
 		PathofLegendLeagueNumber = null;
@@ -94,13 +94,13 @@ public class Player {
 		return this;
 	}
 
-	public Player setClubDB(Club Club) {
-		this.Clubdb = Club;
+	public Player setClubDB(Club club) {
+		this.clubdb = club;
 		return this;
 	}
 
-	public Player setClubAPI(Club Club) {
-		this.Clubapi = Club;
+	public Player setClubAPI(Club club) {
+		this.clubapi = club;
 		return this;
 	}
 
@@ -140,7 +140,7 @@ public class Player {
 	}
 
 	public Player setClubtagCWDone(String tag) {
-		this.Clubtagcwdone = tag;
+		this.clubtagcwdone = tag;
 		return this;
 	}
 
@@ -237,27 +237,27 @@ public class Player {
 	}
 
 	public Club getClubDB() {
-		if (Clubdb == null) {
-			String value = DBUtil.getValueFromSQL("SELECT Club_tag FROM Club_members WHERE player_tag = ?",
+		if (clubdb == null) {
+			String value = DBUtil.getValueFromSQL("SELECT club_tag FROM club_members WHERE player_tag = ?",
 					String.class, tag);
-			Clubdb = value == null ? null : new Club(value);
+			clubdb = value == null ? null : new Club(value);
 		}
-		return Clubdb;
+		return clubdb;
 	}
 
 	public Club getClubAPI() {
-		if (Clubapi == null) {
+		if (clubapi == null) {
 			JSONObject jsonObject = new JSONObject(APIUtil.getPlayerJson(tag));
 
-			// Prüfen, ob der Schlüssel "Club" vorhanden ist und nicht null
-			if (jsonObject.has("Club") && !jsonObject.isNull("Club")) {
-				JSONObject ClubObject = jsonObject.getJSONObject("Club");
-				if (ClubObject.has("tag")) {
-					Clubapi = new Club(ClubObject.getString("tag"));
+			// Prüfen, ob der Schlüssel "club" vorhanden ist und nicht null
+			if (jsonObject.has("club") && !jsonObject.isNull("club")) {
+				JSONObject clubObject = jsonObject.getJSONObject("club");
+				if (clubObject.has("tag")) {
+					clubapi = new Club(clubObject.getString("tag"));
 				}
 			}
 		}
-		return Clubapi;
+		return clubapi;
 	}
 
 	public ArrayList<Kickpoint> getActiveKickpoints() {
@@ -302,12 +302,12 @@ public class Player {
 				}
 			}
 			if (b) {
-				String sql = "SELECT Club_role FROM Club_members WHERE player_tag = ?";
+				String sql = "SELECT club_role FROM club_members WHERE player_tag = ?";
 				try (PreparedStatement pstmt = Connection.getConnection().prepareStatement(sql)) {
 					pstmt.setString(1, tag);
 					try (ResultSet rs = pstmt.executeQuery()) {
 						if (rs.next()) {
-							String rolestring = rs.getString("Club_role");
+							String rolestring = rs.getString("club_role");
 							role = rolestring.equals("leader") ? RoleType.LEADER
 									: rolestring.equals("coleader") || rolestring.equals("hiddencoleader")
 											? RoleType.COLEADER
@@ -438,10 +438,10 @@ public class Player {
 	public Boolean isMarked() {
 		if (mark == null) {
 			if (getClubDB() != null) {
-				Boolean marked = DBUtil.getValueFromSQL("SELECT marked FROM Club_members WHERE player_tag = ?",
+				Boolean marked = DBUtil.getValueFromSQL("SELECT marked FROM club_members WHERE player_tag = ?",
 						Boolean.class, tag);
 				if (marked == null) {
-					DBUtil.executeUpdate("UPDATE Club_members SET marked = FALSE WHERE player_tag = ?", tag);
+					DBUtil.executeUpdate("UPDATE club_members SET marked = FALSE WHERE player_tag = ?", tag);
 					mark = false;
 				} else {
 					mark = marked;
@@ -454,7 +454,7 @@ public class Player {
 	public String getNote() {
 		if (note == null) {
 			if (getClubDB() != null) {
-				note = DBUtil.getValueFromSQL("SELECT note FROM Club_members WHERE player_tag = ?",
+				note = DBUtil.getValueFromSQL("SELECT note FROM club_members WHERE player_tag = ?",
 						String.class, tag);
 			}
 		}
@@ -469,7 +469,7 @@ public class Player {
 				for (Player t : cwfamelist) {
 					if (t.getTag().equals(tag)) {
 						cwfame = t.getCWFame();
-						Clubtagcwdone = t.getClubtagCWDone();
+						clubtagcwdone = t.getClubtagCWDone();
 						break;
 					}
 				}
@@ -479,11 +479,11 @@ public class Player {
 	}
 
 	public String getClubtagCWDone() {
-		if (Clubtagcwdone == null) {
+		if (clubtagcwdone == null) {
 			// same logic here
 			getCWFame();
 		}
-		return Clubtagcwdone;
+		return clubtagcwdone;
 	}
 
 	public Integer getDecksUsed() {
@@ -494,7 +494,7 @@ public class Player {
 		if (getClubDB() == null) {
 			return false;
 		}
-		String rolestring = DBUtil.getValueFromSQL("SELECT Club_role FROM Club_members WHERE player_tag = ?",
+		String rolestring = DBUtil.getValueFromSQL("SELECT club_role FROM club_members WHERE player_tag = ?",
 				String.class, tag);
 		return "hiddencoleader".equals(rolestring);
 	}

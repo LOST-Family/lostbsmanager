@@ -25,12 +25,12 @@ public class kpeditreason extends ListenerAdapter {
 		event.deferReply().queue();
 		String title = "Kickpunkt-Grund Vorlage";
 
-		OptionMapping ClubOption = event.getOption("Club");
+		OptionMapping clubOption = event.getOption("club");
 		OptionMapping reasonoption = event.getOption("reason");
 		OptionMapping amountoption = event.getOption("amount");
 		OptionMapping indexOption = event.getOption("index");
 
-		if (ClubOption == null || reasonoption == null || amountoption == null) {
+		if (clubOption == null || reasonoption == null || amountoption == null) {
 			event.getHook().editOriginalEmbeds(
 					MessageUtil.buildEmbed(title, "Alle Parameter sind erforderlich!", MessageUtil.EmbedType.ERROR))
 					.queue();
@@ -38,10 +38,10 @@ public class kpeditreason extends ListenerAdapter {
 		}
 
 		String reason = reasonoption.getAsString();
-		String Clubtag = ClubOption.getAsString();
+		String clubtag = clubOption.getAsString();
 		int amount = amountoption.getAsInt();
 
-		Club c = new Club(Clubtag);
+		Club c = new Club(clubtag);
 
 		User userexecuted = new User(event.getUser().getId());
 		if (!userexecuted.isColeaderOrHigher()) {
@@ -61,7 +61,7 @@ public class kpeditreason extends ListenerAdapter {
 			return;
 		}
 
-		if (Clubtag.equals("warteliste")) {
+		if (clubtag.equals("warteliste")) {
 			event.getHook().editOriginalEmbeds(
 					MessageUtil.buildEmbed(title, "Diesen Befehl kannst du nicht auf die Warteliste ausführen.",
 							MessageUtil.EmbedType.ERROR))
@@ -69,7 +69,7 @@ public class kpeditreason extends ListenerAdapter {
 			return;
 		}
 
-		KickpointReason kpreason = new KickpointReason(reason, Clubtag);
+		KickpointReason kpreason = new KickpointReason(reason, clubtag);
 
 		if (!kpreason.Exists()) {
 			event.getHook().editOriginalEmbeds(
@@ -80,20 +80,20 @@ public class kpeditreason extends ListenerAdapter {
 
 		if (indexOption != null) {
 			int index = indexOption.getAsInt();
-			DBUtil.executeUpdate("UPDATE kickpoint_reasons SET amount = ?, index = ? WHERE name = ? AND Club_tag = ?",
+			DBUtil.executeUpdate("UPDATE kickpoint_reasons SET amount = ?, index = ? WHERE name = ? AND club_tag = ?",
 					amount, index, reason,
-					Clubtag);
+					clubtag);
 		} else {
-			DBUtil.executeUpdate("UPDATE kickpoint_reasons SET amount = ? WHERE name = ? AND Club_tag = ?", amount,
+			DBUtil.executeUpdate("UPDATE kickpoint_reasons SET amount = ? WHERE name = ? AND club_tag = ?", amount,
 					reason,
-					Clubtag);
+					clubtag);
 		}
 
-		Club Club = new Club(Clubtag);
+		Club club = new Club(clubtag);
 
 		String desc = "Der Kickpunkt-Grund wurde bearbeitet.\n";
 		desc += "Grund: " + reason + "\n";
-		desc += "Club: " + Club.getInfoStringDB() + "\n";
+		desc += "Club: " + club.getInfoStringDB() + "\n";
 		desc += "Anzahl: " + amount + "\n";
 		if (indexOption != null) {
 			desc += "Neuer Index: " + indexOption.getAsInt() + "\n";
@@ -112,18 +112,20 @@ public class kpeditreason extends ListenerAdapter {
 		String focused = event.getFocusedOption().getName();
 		String input = event.getFocusedOption().getValue();
 
-		if (focused.equals("Club")) {
+		if (focused.equals("club")) {
 			List<Command.Choice> choices = DBManager.getClubsAutocompleteNoWaitlist(input);
 
 			event.replyChoices(choices).queue();
 		}
 		if (focused.equals("reason")) {
 			List<Command.Choice> choices = DBManager.getKPReasonsAutocomplete(input,
-					event.getOption("Club").getAsString());
+					event.getOption("club").getAsString());
 
 			event.replyChoices(choices).queue();
 		}
 	}
 
 }
+
+
 

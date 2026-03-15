@@ -13,26 +13,26 @@ import util.Tuple;
 
 public class DBManager {
 
-	private static ArrayList<Tuple<String, String>> Clubs;
-	private static Boolean Clubslocked;
+	private static ArrayList<Tuple<String, String>> clubs;
+	private static Boolean clubslocked;
 	private static ArrayList<Triplet<String, String, String>> players;
 	private static Boolean playerslocked;
 
 	public enum InClubType {
-		INClub, NOTINClub, ALL
+		INCLUB, NOTINCLUB, ALL
 	}
 
 	public static ArrayList<String> getAllClubs() {
-		return DBUtil.getArrayListFromSQL("SELECT tag FROM Clubs ORDER BY index ASC", String.class);
+		return DBUtil.getArrayListFromSQL("SELECT tag FROM clubs ORDER BY index ASC", String.class);
 	}
 
-	public static List<Command.Choice> getKPReasonsAutocomplete(String input, String Clubtag) {
+	public static List<Command.Choice> getKPReasonsAutocomplete(String input, String clubtag) {
 		List<Command.Choice> choices = new ArrayList<>();
 
-		String sql = "SELECT name, Club_tag FROM kickpoint_reasons WHERE Club_tag = ?";
+		String sql = "SELECT name, club_tag FROM kickpoint_reasons WHERE club_tag = ?";
 
 		try (PreparedStatement pstmt = Connection.getConnection().prepareStatement(sql)) {
-			pstmt.setString(1, Clubtag);
+			pstmt.setString(1, clubtag);
 			try (ResultSet rs = pstmt.executeQuery()) {
 				while (rs.next()) {
 					String name = rs.getString("name");
@@ -77,13 +77,13 @@ public class DBManager {
 
 	@SuppressWarnings("null")
 	public static List<Command.Choice> getClubsAutocompleteWithMarked(String input, boolean includeMarked) {
-		if (Clubs == null) {
+		if (clubs == null) {
 			cacheClubs();
 		}
 
 		List<Command.Choice> choices = new ArrayList<>();
 
-		for (Tuple<String, String> available : Clubs) {
+		for (Tuple<String, String> available : clubs) {
 			String display = available.getFirst();
 			String tag = available.getSecond();
 			if (display.toLowerCase().contains(input.toLowerCase())
@@ -100,7 +100,7 @@ public class DBManager {
 			choices.add(new Command.Choice("Alle markierten Spieler", "all_marked"));
 		}
 		Thread thread = new Thread(() -> {
-			if (!Clubslocked)
+			if (!clubslocked)
 				cacheClubs();
 		});
 		thread.start();
@@ -111,7 +111,7 @@ public class DBManager {
 	private static void cacheClubs() {
 		ArrayList<Tuple<String, String>> list = new ArrayList<>();
 
-		String sql = "SELECT name, tag FROM Clubs ORDER BY index ASC";
+		String sql = "SELECT name, tag FROM clubs ORDER BY index ASC";
 
 		try (PreparedStatement pstmt = Connection.getConnection().prepareStatement(sql)) {
 			try (ResultSet rs = pstmt.executeQuery()) {
@@ -131,23 +131,23 @@ public class DBManager {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		Clubs = list;
-		Clubslocked = true;
+		clubs = list;
+		clubslocked = true;
 		new java.util.Timer().schedule(new java.util.TimerTask() {
 			@Override
 			public void run() {
-				Clubslocked = false;
+				clubslocked = false;
 			}
 		}, 10000);
 	}
 
 	public static List<Command.Choice> getClubsAutocompleteNoWaitlist(String input) {
-		if (Clubs == null) {
+		if (clubs == null) {
 			cacheClubs();
 		}
 
 		List<Command.Choice> choices = new ArrayList<>();
-		for (Tuple<String, String> available : Clubs) {
+		for (Tuple<String, String> available : clubs) {
 			String display = available.getFirst();
 			String tag = available.getSecond();
 			if (!tag.equals("warteliste")) {
@@ -161,7 +161,7 @@ public class DBManager {
 			}
 		}
 		Thread thread = new Thread(() -> {
-			if (!Clubslocked)
+			if (!clubslocked)
 				cacheClubs();
 		});
 		thread.start();
@@ -170,7 +170,7 @@ public class DBManager {
 	}
 
 	@SuppressWarnings("null")
-	public static List<Command.Choice> getPlayerlistAutocomplete(String input, InClubType inClubtype) {
+	public static List<Command.Choice> getPlayerlistAutocomplete(String input, InClubType inclubtype) {
 		if (players == null) {
 			cachePlayers();
 		}
@@ -178,11 +178,11 @@ public class DBManager {
 		List<Command.Choice> choices = new ArrayList<>();
 		for (Triplet<String, String, String> available : players) {
 			String display = available.getFirst();
-			String ClubName = available.getSecond();
+			String clubName = available.getSecond();
 			String tag = available.getThird();
 
-			if (inClubtype == InClubType.NOTINClub) {
-				if (ClubName == null || ClubName.isEmpty()) {
+			if (inclubtype == InClubType.NOTINCLUB) {
+				if (clubName == null || clubName.isEmpty()) {
 					if (display.toLowerCase().contains(input.toLowerCase())
 							|| tag.toLowerCase().startsWith(input.toLowerCase())) {
 						choices.add(new Command.Choice(display, tag));
@@ -191,9 +191,9 @@ public class DBManager {
 						}
 					}
 				}
-			} else if (inClubtype == InClubType.INClub) {
-				if (ClubName != null && !ClubName.isEmpty()) {
-					display += " - " + ClubName;
+			} else if (inclubtype == InClubType.INCLUB) {
+				if (clubName != null && !clubName.isEmpty()) {
+					display += " - " + clubName;
 					if (display.toLowerCase().contains(input.toLowerCase())
 							|| tag.toLowerCase().startsWith(input.toLowerCase())) {
 						choices.add(new Command.Choice(display, tag));
@@ -202,9 +202,9 @@ public class DBManager {
 						}
 					}
 				}
-			} else if (inClubtype == InClubType.ALL) {
-				if (ClubName != null && !ClubName.isEmpty()) {
-					display += " - " + ClubName;
+			} else if (inclubtype == InClubType.ALL) {
+				if (clubName != null && !clubName.isEmpty()) {
+					display += " - " + clubName;
 				}
 
 				// Filter mit Eingabe (input ist String mit aktuell eingegebenem Text)
@@ -230,19 +230,19 @@ public class DBManager {
 	private static void cachePlayers() {
 		ArrayList<Triplet<String, String, String>> list = new ArrayList<>();
 
-		String sql = "SELECT players.bs_tag AS tag, players.name AS player_name, Clubs.name AS Club_name "
-				+ "FROM players " + "LEFT JOIN Club_members ON Club_members.player_tag = players.bs_tag "
-				+ "LEFT JOIN Clubs ON Clubs.tag = Club_members.Club_tag";
+		String sql = "SELECT players.bs_tag AS tag, players.name AS player_name, clubs.name AS club_name "
+				+ "FROM players " + "LEFT JOIN club_members ON club_members.player_tag = players.bs_tag "
+				+ "LEFT JOIN clubs ON clubs.tag = club_members.club_tag";
 
 		try (PreparedStatement pstmt = Connection.getConnection().prepareStatement(sql)) {
 			try (ResultSet rs = pstmt.executeQuery()) {
 				while (rs.next()) {
 					String tag = rs.getString("tag");
-					String ClubName = rs.getString("Club_name");
+					String clubName = rs.getString("club_name");
 
 					String display = new Player(tag).getInfoStringDB();
 
-					list.add(new Triplet<String, String, String>(display, ClubName, tag));
+					list.add(new Triplet<String, String, String>(display, clubName, tag));
 				}
 			}
 		} catch (SQLException e) {
@@ -258,7 +258,7 @@ public class DBManager {
 		}, 10000);
 	}
 
-	public static List<Command.Choice> getPlayerlistAutocompleteNoWaitlist(String input, InClubType inClubtype) {
+	public static List<Command.Choice> getPlayerlistAutocompleteNoWaitlist(String input, InClubType inclubtype) {
 		if (players == null) {
 			cachePlayers();
 		}
@@ -266,11 +266,11 @@ public class DBManager {
 		List<Command.Choice> choices = new ArrayList<>();
 		for (Triplet<String, String, String> available : players) {
 			String display = available.getFirst();
-			String ClubName = available.getSecond();
+			String clubName = available.getSecond();
 			String tag = available.getThird();
 			if (!tag.equals("warteliste")) {
-				if (inClubtype == InClubType.NOTINClub) {
-					if (ClubName == null || ClubName.isEmpty()) {
+				if (inclubtype == InClubType.NOTINCLUB) {
+					if (clubName == null || clubName.isEmpty()) {
 						if (display.toLowerCase().contains(input.toLowerCase())
 								|| tag.toLowerCase().startsWith(input.toLowerCase())) {
 							choices.add(new Command.Choice(display, tag));
@@ -279,9 +279,9 @@ public class DBManager {
 							}
 						}
 					}
-				} else if (inClubtype == InClubType.INClub) {
-					if (ClubName != null && !ClubName.isEmpty()) {
-						display += " - " + ClubName;
+				} else if (inclubtype == InClubType.INCLUB) {
+					if (clubName != null && !clubName.isEmpty()) {
+						display += " - " + clubName;
 						if (display.toLowerCase().contains(input.toLowerCase())
 								|| tag.toLowerCase().startsWith(input.toLowerCase())) {
 							choices.add(new Command.Choice(display, tag));
@@ -290,9 +290,9 @@ public class DBManager {
 							}
 						}
 					}
-				} else if (inClubtype == InClubType.ALL) {
-					if (ClubName != null && !ClubName.isEmpty()) {
-						display += " - " + ClubName;
+				} else if (inclubtype == InClubType.ALL) {
+					if (clubName != null && !clubName.isEmpty()) {
+						display += " - " + clubName;
 					}
 
 					// Filter mit Eingabe (input ist String mit aktuell eingegebenem Text)
@@ -320,22 +320,22 @@ public class DBManager {
 	public static List<Command.Choice> getPlayerlistAutocompleteAllLostClubs(String input) {
 		List<Command.Choice> choices = new ArrayList<>();
 
-		String sql = "SELECT players.bs_tag AS tag, players.name AS player_name, Clubs.name AS Club_name, Clubs.tag AS Club_tag "
+		String sql = "SELECT players.bs_tag AS tag, players.name AS player_name, clubs.name AS club_name, clubs.tag AS club_tag "
 				+ "FROM players "
-				+ "LEFT JOIN Club_members ON Club_members.player_tag = players.bs_tag "
-				+ "LEFT JOIN Clubs ON Clubs.tag = Club_members.Club_tag "
-				+ "WHERE Clubs.tag IS NOT NULL AND Clubs.tag != 'warteliste'";
+				+ "LEFT JOIN club_members ON club_members.player_tag = players.bs_tag "
+				+ "LEFT JOIN clubs ON clubs.tag = club_members.club_tag "
+				+ "WHERE clubs.tag IS NOT NULL AND clubs.tag != 'warteliste'";
 
 		try (PreparedStatement pstmt = Connection.getConnection().prepareStatement(sql)) {
 			try (ResultSet rs = pstmt.executeQuery()) {
 				while (rs.next()) {
 					String tag = rs.getString("tag");
 					String playerName = rs.getString("player_name");
-					String ClubName = rs.getString("Club_name");
+					String clubName = rs.getString("club_name");
 
 					String display = playerName + " (" + tag + ")";
-					if (ClubName != null && !ClubName.isEmpty()) {
-						display += " [" + ClubName + "]";
+					if (clubName != null && !clubName.isEmpty()) {
+						display += " [" + clubName + "]";
 					}
 
 					// Filter with input
@@ -381,5 +381,6 @@ public class DBManager {
 	}
 
 }
+
 
 

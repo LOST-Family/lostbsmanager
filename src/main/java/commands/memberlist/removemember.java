@@ -54,20 +54,20 @@ public class removemember extends ListenerAdapter {
 
 			Player.RoleType role = player.getRole();
 
-			Club playerClub = player.getClubDB();
+			Club playerclub = player.getClubDB();
 
-			if (playerClub == null) {
+			if (playerclub == null) {
 				event.getHook().editOriginalEmbeds(
 						MessageUtil.buildEmbed(title, "Dieser Spieler ist in keinem Club.", MessageUtil.EmbedType.ERROR))
 						.queue();
 				return;
 			}
 
-			String Clubtag = playerClub.getTag();
+			String clubtag = playerclub.getTag();
 
 			User userexecuted = new User(event.getUser().getId());
-			if (!Clubtag.equals("warteliste")) {
-				if (!userexecuted.isColeaderOrHigherInClub(Clubtag)) {
+			if (!clubtag.equals("warteliste")) {
+				if (!userexecuted.isColeaderOrHigherInClub(clubtag)) {
 					event.getHook().editOriginalEmbeds(MessageUtil.buildEmbed(title,
 							"Du musst mindestens Vize-Anführer des Clubs sein, um diesen Befehl ausführen zu können.",
 							MessageUtil.EmbedType.ERROR)).queue();
@@ -82,15 +82,15 @@ public class removemember extends ListenerAdapter {
 				}
 			}
 
-			if (role == Player.RoleType.LEADER && userexecuted.getClubRoles().get(Clubtag) != Player.RoleType.ADMIN) {
+			if (role == Player.RoleType.LEADER && userexecuted.getClubRoles().get(clubtag) != Player.RoleType.ADMIN) {
 				event.getHook()
 						.editOriginalEmbeds(MessageUtil.buildEmbed(title,
 								"Um jemanden als Leader zu entfernen, musst du Admin sein.", MessageUtil.EmbedType.ERROR))
 						.queue();
 				return;
 			}
-			if (role == Player.RoleType.COLEADER && !(userexecuted.getClubRoles().get(Clubtag) == Player.RoleType.ADMIN
-					|| userexecuted.getClubRoles().get(Clubtag) == Player.RoleType.LEADER)) {
+			if (role == Player.RoleType.COLEADER && !(userexecuted.getClubRoles().get(clubtag) == Player.RoleType.ADMIN
+					|| userexecuted.getClubRoles().get(clubtag) == Player.RoleType.LEADER)) {
 				event.getHook()
 						.editOriginalEmbeds(MessageUtil.buildEmbed(title,
 								"Um jemanden als Vize-Anführer zu entfernen, musst du Admin oder Anführer sein.",
@@ -99,14 +99,14 @@ public class removemember extends ListenerAdapter {
 				return;
 			}
 
-			String Clubname = playerClub.getNameDB();
+			String clubname = playerclub.getNameDB();
 
-			DBUtil.executeUpdate("DELETE FROM Club_members WHERE player_tag = ?", playertag);
+			DBUtil.executeUpdate("DELETE FROM club_members WHERE player_tag = ?", playertag);
 			String desc = "";
-			if (!playerClub.getTag().equals("warteliste")) {
+			if (!playerclub.getTag().equals("warteliste")) {
 				try {
 					desc += "Der Spieler " + MessageUtil.unformat(player.getInfoStringDB()) + " wurde aus dem Club "
-							+ Clubname + " entfernt.";
+							+ clubname + " entfernt.";
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -119,11 +119,11 @@ public class removemember extends ListenerAdapter {
 				}
 			}
 
-			if (!playerClub.getTag().equals("warteliste")) {
+			if (!playerclub.getTag().equals("warteliste")) {
 				String userid = player.getUser().getUserID();
 				Guild guild = Bot.getJda().getGuildById(Bot.guild_id);
 				Member member = guild.getMemberById(userid);
-				String memberroleid = playerClub.getRoleID(Club.Role.MEMBER);
+				String memberroleid = playerclub.getRoleID(Club.Role.MEMBER);
 				Role memberrole = guild.getRoleById(memberroleid);
 				if (member != null) {
 					if (member.getRoles().contains(memberrole)) {
@@ -157,11 +157,13 @@ public class removemember extends ListenerAdapter {
 		String input = event.getFocusedOption().getValue();
 
 		if (focused.equals("player")) {
-			List<Command.Choice> choices = DBManager.getPlayerlistAutocomplete(input, DBManager.InClubType.INClub);
+			List<Command.Choice> choices = DBManager.getPlayerlistAutocomplete(input, DBManager.InClubType.INCLUB);
 
 			event.replyChoices(choices).queue();
 		}
 	}
 
 }
+
+
 

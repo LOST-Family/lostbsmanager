@@ -20,25 +20,25 @@ import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import util.MessageUtil;
 
-public class Clubconfig extends ListenerAdapter {
+public class clubconfig extends ListenerAdapter {
 
 	@SuppressWarnings("null")
 	@Override
 	public void onSlashCommandInteraction(@Nonnull SlashCommandInteractionEvent event) {
-		if (!event.getName().equals("Clubconfig"))
+		if (!event.getName().equals("clubconfig"))
 			return;
 		String title = "Clubconfig";
 
-		OptionMapping ClubOption = event.getOption("Club");
+		OptionMapping clubOption = event.getOption("club");
 
-		if (ClubOption == null) {
+		if (clubOption == null) {
 			event.replyEmbeds(
 					MessageUtil.buildEmbed(title, "Der Parameter ist erforderlich!", MessageUtil.EmbedType.ERROR))
 					.queue();
 			return;
 		}
 
-		String Clubtag = ClubOption.getAsString();
+		String clubtag = clubOption.getAsString();
 
 		User userexecuted = new User(event.getUser().getId());
 		if (!userexecuted.isColeaderOrHigher()) {
@@ -48,7 +48,7 @@ public class Clubconfig extends ListenerAdapter {
 			return;
 		}
 
-		Club c = new Club(Clubtag);
+		Club c = new Club(clubtag);
 
 		if (!c.ExistsDB()) {
 			event.replyEmbeds(MessageUtil.buildEmbed(title, "Gib einen gültigen Club an!", MessageUtil.EmbedType.ERROR))
@@ -56,7 +56,7 @@ public class Clubconfig extends ListenerAdapter {
 			return;
 		}
 
-		if (Clubtag.equals("warteliste")) {
+		if (clubtag.equals("warteliste")) {
 			event.getHook().editOriginalEmbeds(
 					MessageUtil.buildEmbed(title, "Diesen Befehl kannst du nicht auf die Warteliste ausführen.",
 							MessageUtil.EmbedType.ERROR))
@@ -82,7 +82,7 @@ public class Clubconfig extends ListenerAdapter {
 					.setPlaceholder("z.B. 9").setMinLength(1).build();
 		}
 
-		Modal modal = Modal.create("Clubconfig_" + c.getTag(), "Clubconfig bearbeiten")
+		Modal modal = Modal.create("clubconfig_" + c.getTag(), "Clubconfig bearbeiten")
 				.addActionRows(ActionRow.of(kpdays), ActionRow.of(kpmax)).build();
 
 		event.replyModal(modal).queue();
@@ -92,7 +92,7 @@ public class Clubconfig extends ListenerAdapter {
 	@SuppressWarnings("null")
 	@Override
 	public void onModalInteraction(@Nonnull ModalInteractionEvent event) {
-		if (event.getModalId().startsWith("Clubconfig")) {
+		if (event.getModalId().startsWith("clubconfig")) {
 			event.deferReply().queue();
 			String title = "Clubconfig";
 			String daysstr = event.getValue("days").getAsString();
@@ -110,18 +110,18 @@ public class Clubconfig extends ListenerAdapter {
 				return;
 			}
 
-			String Clubtag = event.getModalId().split("_")[1];
+			String clubtag = event.getModalId().split("_")[1];
 
-			Club c = new Club(Clubtag);
+			Club c = new Club(clubtag);
 
 			if (c.getDaysKickpointsExpireAfter() == null) {
 				DBUtil.executeUpdate(
-						"INSERT INTO Club_settings (Club_tag, max_kickpoints, kickpoints_expire_after_days) VALUES (?, ?, ?)",
-						Clubtag, max, days);
+						"INSERT INTO club_settings (club_tag, max_kickpoints, kickpoints_expire_after_days) VALUES (?, ?, ?)",
+						clubtag, max, days);
 			} else {
 				DBUtil.executeUpdate(
-						"UPDATE Club_settings SET max_kickpoints = ?, kickpoints_expire_after_days = ? WHERE Club_tag = ?",
-						max, days, Clubtag);
+						"UPDATE club_settings SET max_kickpoints = ?, kickpoints_expire_after_days = ? WHERE club_tag = ?",
+						max, days, clubtag);
 			}
 
 			String desc = "### Die Club-Settings wurden bearbeitet.\n";
@@ -137,13 +137,13 @@ public class Clubconfig extends ListenerAdapter {
 	@SuppressWarnings("null")
 	@Override
 	public void onCommandAutoCompleteInteraction(@Nonnull CommandAutoCompleteInteractionEvent event) {
-		if (!event.getName().equals("Clubconfig"))
+		if (!event.getName().equals("clubconfig"))
 			return;
 
 		String focused = event.getFocusedOption().getName();
 		String input = event.getFocusedOption().getValue();
 
-		if (focused.equals("Club")) {
+		if (focused.equals("club")) {
 			List<Command.Choice> choices = DBManager.getClubsAutocompleteNoWaitlist(input);
 
 			event.replyChoices(choices).queue();
@@ -151,4 +151,6 @@ public class Clubconfig extends ListenerAdapter {
 	}
 
 }
+
+
 

@@ -24,19 +24,19 @@ public class kplistreasons extends ListenerAdapter {
         event.deferReply().queue();
         String title = "Kickpunkt-Gründe Liste";
 
-        OptionMapping ClubOption = event.getOption("Club");
+        OptionMapping clubOption = event.getOption("club");
 
-        if (ClubOption == null) {
+        if (clubOption == null) {
             event.getHook().editOriginalEmbeds(
                     MessageUtil.buildEmbed(title, "Der Parameter Club ist erforderlich!", MessageUtil.EmbedType.ERROR))
                     .queue();
             return;
         }
 
-        String Clubtag = ClubOption.getAsString();
-        Club Club = new Club(Clubtag);
+        String clubtag = clubOption.getAsString();
+        Club club = new Club(clubtag);
 
-        if (!Club.ExistsDB()) {
+        if (!club.ExistsDB()) {
             event.getHook()
                     .editOriginalEmbeds(
                             MessageUtil.buildEmbed(title, "Dieser Club existiert nicht.", MessageUtil.EmbedType.ERROR))
@@ -44,7 +44,7 @@ public class kplistreasons extends ListenerAdapter {
             return;
         }
 
-        if (Clubtag.equals("warteliste")) {
+        if (clubtag.equals("warteliste")) {
             event.getHook().editOriginalEmbeds(
                     MessageUtil.buildEmbed(title, "Diesen Befehl kannst du nicht auf die Warteliste ausführen.",
                             MessageUtil.EmbedType.ERROR))
@@ -52,8 +52,8 @@ public class kplistreasons extends ListenerAdapter {
             return;
         }
 
-        ArrayList<KickpointReason> reasons = Club.getKickpointReasons();
-        String desc = "Liste aller Kickpunkt-Gründe für " + Club.getInfoStringDB() + ":\n\n";
+        ArrayList<KickpointReason> reasons = club.getKickpointReasons();
+        String desc = "Liste aller Kickpunkt-Gründe für " + club.getInfoStringDB() + ":\n\n";
 
         if (reasons.isEmpty()) {
             desc += "Keine Gründe vorhanden.";
@@ -81,10 +81,12 @@ public class kplistreasons extends ListenerAdapter {
         String focused = event.getFocusedOption().getName();
         String input = event.getFocusedOption().getValue();
 
-        if (focused.equals("Club")) {
+        if (focused.equals("club")) {
             List<Command.Choice> choices = DBManager.getClubsAutocompleteNoWaitlist(input);
             event.replyChoices(choices).queue();
         }
     }
 }
+
+
 
