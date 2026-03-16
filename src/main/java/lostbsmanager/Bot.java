@@ -1,28 +1,13 @@
 package lostbsmanager;
 
-import java.io.File;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Time;
 import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAdjusters;
-import java.util.ArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import javax.annotation.Nonnull;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import commands.admin.copyreasons;
 import commands.admin.restart;
@@ -55,12 +40,7 @@ import commands.memberlist.transfermember;
 //import commands.reminders.remindersremove;
 import commands.util.checkroles;
 
-
-
 import commands.util.trackchannels;
-//import commands.wins.wins;
-//import commands.wins.winsfails;
-import datautil.APIUtil;
 import datautil.DBUtil;
 import datawrapper.Club;
 import datawrapper.Player;
@@ -71,7 +51,6 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildChannel;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.ShutdownEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -85,7 +64,6 @@ import net.dv8tion.jda.api.utils.MemberCachePolicy;
 public class Bot extends ListenerAdapter {
 
 	private final static ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-	private static final int MIN_LEVEL_FOR_PING = 45;
 
 	private static JDA jda;
 	private static RestApiServer restApiServer;
@@ -141,8 +119,8 @@ public class Bot extends ListenerAdapter {
 
 		startNameUpdates();
 		startLoadingLists();
-		//startReminders();
-		//startMonthlyWinsSave();
+		// startReminders();
+		// startMonthlyWinsSave();
 
 		JDABuilder.createDefault(token).enableIntents(GatewayIntent.GUILD_MEMBERS)
 				.setMemberCachePolicy(MemberCachePolicy.ALL).setChunkingFilter(ChunkingFilter.ALL)
@@ -152,7 +130,8 @@ public class Bot extends ListenerAdapter {
 						new removemember(), new listmembers(), new editmember(), new playerinfo(), new memberstatus(),
 						new kpaddreason(), new kpremovereason(), new kpeditreason(), new kpadd(), new kpmember(),
 						new kpremove(), new kpedit(), new kpinfo(), new kplistreasons(), new kpclub(), new clubconfig(),
-						new transfermember(), new togglemark(), new checkroles(), new relink(), new trackchannels(), new signoff(),
+						new transfermember(), new togglemark(), new checkroles(), new relink(), new trackchannels(),
+						new signoff(),
 						new signofflist())
 				.build();
 	}
@@ -278,12 +257,11 @@ public class Bot extends ListenerAdapter {
 							.addOptions(new OptionData(OptionType.STRING, "club",
 									"Der Club, zu welchem der Spieler hinzugefügt werden soll", true)
 									.setAutoComplete(true)),
-					
+
 					Commands.slash("remindersremove", "Entferne einen Reminder.")
 							.addOptions(new OptionData(OptionType.INTEGER, "id",
 									"Die ID des Reminders. Ist unter /remindersinfo zu sehen.", true)),
-					
-					
+
 					Commands.slash("signoff",
 							"Melde einen Spieler ab (Abwesenheit). Abgemeldete Spieler erhalten keine automatischen Kickpunkte.")
 							.addOptions(new OptionData(OptionType.STRING, "player",
@@ -336,8 +314,8 @@ public class Bot extends ListenerAdapter {
 		return jda;
 	}
 
-	public static void startLoadingLists() {} 
-
+	public static void startLoadingLists() {
+	}
 
 	@SuppressWarnings("null")
 	public static void startNameUpdates() {
@@ -393,8 +371,6 @@ public class Bot extends ListenerAdapter {
 		};
 		scheduler.scheduleAtFixedRate(task, 0, 2, TimeUnit.HOURS);
 	}
- 
-
 
 	@SuppressWarnings("null")
 	public static void updateTrackChannels() {
@@ -443,35 +419,8 @@ public class Bot extends ListenerAdapter {
 		}
 	}
 
-
-	private static boolean isDayOfWeek(DayOfWeek dayOfWeek, String weekdayString) {
-		if (weekdayString == null) {
-			return false;
-		}
-		String normalized = weekdayString.toLowerCase();
-		switch (normalized) {
-			case "monday":
-				return dayOfWeek == DayOfWeek.MONDAY;
-			case "tuesday":
-				return dayOfWeek == DayOfWeek.TUESDAY;
-			case "wednesday":
-				return dayOfWeek == DayOfWeek.WEDNESDAY;
-			case "thursday":
-				return dayOfWeek == DayOfWeek.THURSDAY;
-			case "friday":
-				return dayOfWeek == DayOfWeek.FRIDAY;
-			case "saturday":
-				return dayOfWeek == DayOfWeek.SATURDAY;
-			case "sunday":
-				return dayOfWeek == DayOfWeek.SUNDAY;
-			default:
-				return false;
-		}
-	}
-
 	public void stopScheduler() {
 		scheduler.shutdown();
 	}
 
 }
-

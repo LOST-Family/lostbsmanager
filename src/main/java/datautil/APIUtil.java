@@ -39,7 +39,7 @@ public class APIUtil {
 			return null;
 		}
 	}
-	
+
 	public static String getPlayerJson(String playerTag) {
 		// URL-kodieren des Spieler-Tags (# -> %23)
 		String encodedTag = java.net.URLEncoder.encode(playerTag, java.nio.charset.StandardCharsets.UTF_8);
@@ -68,5 +68,5 @@ public class APIUtil {
 			System.err.println("Antwort: " + response.body());
 			return null;
 		}
-	}}
-
+	}
+}

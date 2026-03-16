@@ -282,10 +282,10 @@ public class Player {
 					try (ResultSet rs = pstmt.executeQuery()) {
 						if (rs.next()) {
 							String rolestring = rs.getString("club_role");
-							role = rolestring.equals("president") ? RoleType.PRESIDENT
-									: rolestring.equals("copresident") || rolestring.equals("hiddencopresident")
+							role = rolestring.equals("leader") ? RoleType.PRESIDENT
+									: rolestring.equals("coleader") || rolestring.equals("hiddencoleader")
 											? RoleType.COPRESIDENT
-											: rolestring.equals("senior") ? RoleType.SENIOR
+											: rolestring.equals("elder") ? RoleType.SENIOR
 													: rolestring.equals("member") ? RoleType.MEMBER : null;
 						}
 					}

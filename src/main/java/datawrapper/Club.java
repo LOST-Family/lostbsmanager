@@ -1,10 +1,5 @@
 package datawrapper;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -17,7 +12,6 @@ import org.json.JSONObject;
 import datautil.APIUtil;
 import datautil.Connection;
 import datautil.DBUtil;
-import lostbsmanager.Bot;
 
 public class Club {
 
@@ -59,7 +53,8 @@ public class Club {
 	public String getRoleID(Role role) {
 		switch (role) {
 			case PRESIDENT:
-				return DBUtil.getValueFromSQL("SELECT president_roleid FROM clubs WHERE tag = ?", String.class, club_tag);
+				return DBUtil.getValueFromSQL("SELECT president_roleid FROM clubs WHERE tag = ?", String.class,
+						club_tag);
 			case COPRESIDENT:
 				return DBUtil.getValueFromSQL("SELECT copresident_roleid FROM clubs WHERE tag = ?", String.class,
 						club_tag);
@@ -126,7 +121,7 @@ public class Club {
 			playerlistapi = new ArrayList<>();
 			JSONObject jsonObject = new JSONObject(APIUtil.getClubJson(club_tag));
 
-			JSONArray members = jsonObject.getJSONArray("memberList");
+			JSONArray members = jsonObject.getJSONArray("members");
 
 			for (int i = 0; i < members.length(); i++) {
 				JSONObject member = members.getJSONObject(i);
@@ -204,7 +199,6 @@ public class Club {
 		return nameapi;
 	}
 
-
 	public String getDescriptionDB() {
 		if (descriptiondb == null) {
 			String sql = "SELECT description FROM clubs WHERE tag = ?";
@@ -232,9 +226,3 @@ public class Club {
 		return descriptionapi;
 	}
 }
-
-
-
-
-
-

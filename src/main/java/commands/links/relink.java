@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.annotation.Nonnull;
 
-
 import datautil.DBManager;
 import datautil.DBUtil;
 import datawrapper.Player;
@@ -69,9 +68,8 @@ public class relink extends ListenerAdapter {
                     DBUtil.executeUpdate("UPDATE players SET discord_id = ? WHERE bs_tag = ?", userid, tag);
 
                     // Save initial wins data for the newly linked player (async like in link.java)
-                    final String finalTag = tag;
                     Thread saveWinsThread = new Thread(() -> {
-                        
+
                     });
                     saveWinsThread.setDaemon(true);
                     saveWinsThread.start();
@@ -119,10 +117,3 @@ public class relink extends ListenerAdapter {
     }
 
 }
-
-
-
-
-
-
-
