@@ -1,12 +1,15 @@
 package lostbsmanager;
 
+import java.io.IOException;
 import java.time.DayOfWeek;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAdjusters;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
 import javax.annotation.Nonnull;
 
 import commands.admin.copyreasons;
@@ -35,17 +38,11 @@ import commands.memberlist.signoff;
 import commands.memberlist.signofflist;
 import commands.memberlist.togglemark;
 import commands.memberlist.transfermember;
-//import commands.reminders.remindersadd;
-//import commands.reminders.remindersinfo;
-//import commands.reminders.remindersremove;
 import commands.util.checkroles;
-
 import commands.util.trackchannels;
 import datautil.DBUtil;
 import datawrapper.Club;
 import datawrapper.Player;
-import webserver.LinkWebServer;
-import webserver.api.RestApiServer;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -60,6 +57,8 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
+import webserver.LinkWebServer;
+import webserver.api.RestApiServer;
 
 public class Bot extends ListenerAdapter {
 
@@ -105,16 +104,16 @@ public class Bot extends ListenerAdapter {
 		int restPort = 8070;
 		try {
 			restPort = Integer.parseInt(System.getenv().getOrDefault("REST_API_PORT", "8060"));
-		} catch (NumberFormatException e) {
+		} catch (final NumberFormatException e) {
 			System.err.println("Invalid REST_API_PORT, using default 8060");
 		}
 		try {
 			restApiServer = new RestApiServer(restPort);
 			restApiServer.start();
 			System.out.println("RestApiServer started on port " + restPort);
-		} catch (Exception e) {
+		} catch (final IOException e) {
 			System.err.println("Failed to start RestApiServer: " + e.getMessage());
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 		}
 
 		startNameUpdates();
@@ -268,6 +267,8 @@ public class Bot extends ListenerAdapter {
 									"Der Spieler, der ab-/angemeldet werden soll.", true).setAutoComplete(true))
 							.addOptions(new OptionData(OptionType.STRING, "action",
 									"Die Aktion (create, end, extend, info)", true).setAutoComplete(true))
+							.addOptions(new OptionData(OptionType.STRING, "startdate",
+									"(Optional) Startdatum (DD.MM.YYYY). Ohne = sofort.").setRequired(false).setAutoComplete(true))
 							.addOptions(new OptionData(OptionType.INTEGER, "days",
 									"(Optional) Dauer der Abmeldung in Tagen. Ohne = unbegrenzt.").setRequired(false))
 							.addOptions(new OptionData(OptionType.STRING, "reason",
@@ -299,7 +300,7 @@ public class Bot extends ListenerAdapter {
 		if (restApiServer != null) {
 			try {
 				restApiServer.stop();
-			} catch (Exception e) {
+			} catch (final Exception e) {
 				System.err.println("Error stopping RestApiServer: " + e.getMessage());
 			}
 		}
@@ -333,7 +334,7 @@ public class Bot extends ListenerAdapter {
 						Club club = new Club(clubTag);
 						String description = club.getDescriptionAPI();
 						DBUtil.executeUpdate("UPDATE clubs SET description = ? WHERE tag = ?", description, clubTag);
-					} catch (Exception e) {
+					} catch (final Exception e) {
 						System.out.println(
 								"Fehler beim Badge/Description Update von Club " + clubTag + ": " + e.getMessage());
 					}
@@ -347,7 +348,7 @@ public class Bot extends ListenerAdapter {
 								getJda().getGuildById(guild_id).retrieveMemberById(id).submit().get()
 										.getEffectiveName(),
 								id);
-					} catch (Exception e) {
+					} catch (final InterruptedException | ExecutionException e) {
 						if (e.getMessage().contains("Unknown Member")) {
 							continue;
 						}
@@ -360,7 +361,7 @@ public class Bot extends ListenerAdapter {
 					try {
 						Player p = new Player(tag);
 						DBUtil.executeUpdate("UPDATE players SET name = ? WHERE bs_tag = ?", p.getNameAPI(), tag);
-					} catch (Exception e) {
+					} catch (final Exception e) {
 						System.out.println(
 								"Beim Updaten des Namens von Spieler mit Tag " + tag + " ist ein Fehler aufgetreten.");
 					}
@@ -412,7 +413,7 @@ public class Bot extends ListenerAdapter {
 						}
 					}
 				}
-			} catch (Exception e) {
+			} catch (final Exception e) {
 				System.err
 						.println("Fehler beim Updaten des Channel-Namens für " + tc.getName() + ": " + e.getMessage());
 			}

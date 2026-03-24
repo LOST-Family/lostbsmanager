@@ -56,7 +56,7 @@ public class signofflist extends ListenerAdapter {
                     String[] parts = monthValue.split("-");
                     year = Integer.parseInt(parts[0]);
                     month = Integer.parseInt(parts[1]);
-                } catch (Exception e) {
+                } catch (final NumberFormatException e) {
                     event.getHook().editOriginalEmbeds(
                             MessageUtil.buildEmbed(title,
                                     "Ungültiges Monatsformat. Bitte nutze die Autovervollständigung.",
@@ -119,7 +119,7 @@ public class signofflist extends ListenerAdapter {
         }
 
         List<SignoffData> dataList = new ArrayList<>();
-        for (MemberSignoff s : signoffs) {
+        for (final MemberSignoff s : signoffs) {
             SignoffData d = new SignoffData();
             d.signoff = s;
             Player p = new Player(s.getPlayerTag());
@@ -128,7 +128,8 @@ public class signofflist extends ListenerAdapter {
                 d.playerName = s.getPlayerTag();
             }
             Club club = p.getClubDB();
-            d.clubIndex = club != null && club.getIndex() != null ? club.getIndex() : Long.MAX_VALUE;
+            Long clubIndexValue = club != null ? club.getIndex() : null;
+            d.clubIndex = clubIndexValue != null ? clubIndexValue : Long.MAX_VALUE;
             d.clubName = club != null && club.getNameDB() != null ? club.getNameDB() : "Kein Club";
             dataList.add(d);
         }
@@ -146,7 +147,7 @@ public class signofflist extends ListenerAdapter {
         StringBuilder desc = new StringBuilder();
         desc.append("### Abmeldungen im ").append(monthName).append(" ").append(year).append("\n\n");
 
-        for (SignoffData d : dataList) {
+        for (final SignoffData d : dataList) {
             MemberSignoff signoff = d.signoff;
 
             desc.append("**").append(MessageUtil.unformat(d.playerName)).append("** (")
