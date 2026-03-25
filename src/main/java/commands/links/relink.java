@@ -50,7 +50,7 @@ public class relink extends ListenerAdapter {
                 return;
             }
 
-            String tag = tagOption.getAsString().toUpperCase();
+            String tag = tagOption.getAsString().toUpperCase().replace("O", "0");
             if (!tag.startsWith("#")) {
                 tag = "#" + tag;
             }

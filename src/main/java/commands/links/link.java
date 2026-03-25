@@ -2,7 +2,6 @@ package commands.links;
 
 import javax.annotation.Nonnull;
 
-
 import datautil.DBUtil;
 import datawrapper.Player;
 import datawrapper.User;
@@ -43,7 +42,7 @@ public class link extends ListenerAdapter {
 			return;
 		}
 
-		String tag = tagOption.getAsString();
+		String tag = tagOption.getAsString().toUpperCase().replace("O", "0");
 		if (!tag.startsWith("#")) {
 			tag = "#" + tag;
 		}

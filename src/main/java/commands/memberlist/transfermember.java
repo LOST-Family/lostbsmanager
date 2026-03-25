@@ -79,36 +79,12 @@ public class transfermember extends ListenerAdapter {
 			String clubtag = playerclub.getTag();
 
 			User userexecuted = new User(event.getUser().getId());
-			if (!clubtag.equals("warteliste")) {
-				if (!userexecuted.isColeaderOrHigherInClub(clubtag)) {
-					event.getHook().editOriginalEmbeds(MessageUtil.buildEmbed(title,
-							"Du musst mindestens Vize-Anführer des Clubs sein, in dem der Spieler gerade ist, um diesen Befehl ausführen zu können.",
-							MessageUtil.EmbedType.ERROR)).queue();
-					return;
-				}
-			} else {
-				if (!userexecuted.isColeaderOrHigher()) {
-					event.getHook().editOriginalEmbeds(MessageUtil.buildEmbed(title,
-							"Du musst mindestens Vize-Anführer eines Clubs sein, um diesen Befehl ausführen zu können.",
-							MessageUtil.EmbedType.ERROR)).queue();
-					return;
-				}
-			}
 
-			if (!newclubtag.equals("warteliste")) {
-				if (!userexecuted.isColeaderOrHigherInClub(newclubtag)) {
-					event.getHook().editOriginalEmbeds(MessageUtil.buildEmbed(title,
-							"Du musst mindestens Vize-Anführer des Clubs sein, in den du den Spieler transferieren möchtest, um diesen Befehl ausführen zu können.",
-							MessageUtil.EmbedType.ERROR)).queue();
-					return;
-				}
-			} else {
-				if (!userexecuted.isColeaderOrHigher()) {
-					event.getHook().editOriginalEmbeds(MessageUtil.buildEmbed(title,
-							"Du musst mindestens Vize-Anführer eines Clubs sein, um diesen Befehl ausführen zu können.",
-							MessageUtil.EmbedType.ERROR)).queue();
-					return;
-				}
+			if (!userexecuted.isColeaderOrHigher()) {
+				event.getHook().editOriginalEmbeds(MessageUtil.buildEmbed(title,
+						"Du musst mindestens Vize-Anführer eines Clubs sein, um diesen Befehl ausführen zu können.",
+						MessageUtil.EmbedType.ERROR)).queue();
+				return;
 			}
 
 			if (clubtag.equals(newclubtag)) {

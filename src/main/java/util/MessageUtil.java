@@ -15,7 +15,7 @@ public class MessageUtil {
 		INFO, SUCCESS, ERROR, LOADING
 	}
 
-	public static String footer = "CR Manager | Made by Pixel | v" + Bot.VERSION;
+	public static String footer = "BS Manager | Made by Pixel | v" + Bot.VERSION;
 
 	public static MessageEmbed buildEmbed(String title, String description, EmbedType type, String additionalfooter,
 			Field... fields) {

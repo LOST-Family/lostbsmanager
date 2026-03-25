@@ -78,19 +78,18 @@ public class memberstatus extends ListenerAdapter {
 			ArrayList<Player> playerlistdb = c.getPlayersDB();
 
 			ArrayList<String> taglistdb = new ArrayList<>();
-			playerlistdb.forEach(p -> taglistdb.add(p.getTag()));
+			playerlistdb.forEach(p -> taglistdb.add(p.getTag().toUpperCase().replace("O", "0")));
 
 			ArrayList<Player> playerlistapi = c.getPlayersAPI();
 
 			ArrayList<String> taglistapi = new ArrayList<>();
-			playerlistapi.forEach(p -> taglistapi.add(p.getTag()));
+			playerlistapi.forEach(p -> taglistapi.add(p.getTag().toUpperCase().replace("O", "0")));
 
 			ArrayList<Player> membernotinclub = new ArrayList<>();
 			ArrayList<Player> inclubnotmember = new ArrayList<>();
 
-			for (String s : taglistdb) {
-				if (!taglistapi.contains(s)) {
-					Player p = new Player(s);
+			for (Player p : playerlistdb) {
+				if (!taglistapi.contains(p.getTag().toUpperCase().replace("O", "0"))) {
 					// Skip hidden coleaders - they don't need to be in the club ingame
 					if (p.isCoPresident()) {
 						continue;
@@ -107,9 +106,9 @@ public class memberstatus extends ListenerAdapter {
 				}
 			}
 
-			for (String s : taglistapi) {
-				if (!taglistdb.contains(s)) {
-					inclubnotmember.add(new Player(s));
+			for (Player p : playerlistapi) {
+				if (!taglistdb.contains(p.getTag().toUpperCase().replace("O", "0"))) {
+					inclubnotmember.add(p);
 				}
 			}
 
@@ -215,19 +214,18 @@ public class memberstatus extends ListenerAdapter {
 			ArrayList<Player> playerlistdb = c.getPlayersDB();
 
 			ArrayList<String> taglistdb = new ArrayList<>();
-			playerlistdb.forEach(p -> taglistdb.add(p.getTag()));
+			playerlistdb.forEach(p -> taglistdb.add(p.getTag().toUpperCase().replace("O", "0")));
 
 			ArrayList<Player> playerlistapi = c.getPlayersAPI();
 
 			ArrayList<String> taglistapi = new ArrayList<>();
-			playerlistapi.forEach(p -> taglistapi.add(p.getTag()));
+			playerlistapi.forEach(p -> taglistapi.add(p.getTag().toUpperCase().replace("O", "0")));
 
 			ArrayList<Player> membernotinclub = new ArrayList<>();
 			ArrayList<Player> inclubnotmember = new ArrayList<>();
 
-			for (String s : taglistdb) {
-				if (!taglistapi.contains(s)) {
-					Player p = new Player(s);
+			for (Player p : playerlistdb) {
+				if (!taglistapi.contains(p.getTag().toUpperCase().replace("O", "0"))) {
 					// Skip hidden coleaders - they don't need to be in the club ingame
 					if (p.isCoPresident()) {
 						continue;
@@ -244,9 +242,9 @@ public class memberstatus extends ListenerAdapter {
 				}
 			}
 
-			for (String s : taglistapi) {
-				if (!taglistdb.contains(s)) {
-					inclubnotmember.add(new Player(s));
+			for (Player p : playerlistapi) {
+				if (!taglistdb.contains(p.getTag().toUpperCase().replace("O", "0"))) {
+					inclubnotmember.add(p);
 				}
 			}
 
