@@ -74,25 +74,27 @@ public class kpedit extends ListenerAdapter {
 
 	}
 
-	@SuppressWarnings("null")
 	@Override
 	public void onModalInteraction(@Nonnull ModalInteractionEvent event) {
 		if (event.getModalId().startsWith("kpedit")) {
 			event.deferReply().queue();
-			int id = Integer.valueOf(event.getModalId().split("_")[1]);
+			int id = Integer.parseInt(event.getModalId().split("_")[1]);
 			String title = "Kickpunkte";
-			String reason = event.getValue("reason").getAsString();
-			String amountstr = event.getValue("amount").getAsString();
-			int amount = -1;
+			var reasonOpt = event.getValue("reason");
+			String reason = reasonOpt != null ? reasonOpt.getAsString() : "";
+			var amountOpt = event.getValue("amount");
+			String amountstr = amountOpt != null ? amountOpt.getAsString() : "";
+			int amount;
 			try {
-				amount = Integer.valueOf(amountstr);
-			} catch (Exception ex) {
+				amount = Integer.parseInt(amountstr);
+			} catch (NumberFormatException ex) {
 				event.getHook().editOriginalEmbeds(
 						MessageUtil.buildEmbed(title, "Die Anzahl muss eine Zahl sein.", MessageUtil.EmbedType.ERROR))
 						.queue();
 				return;
 			}
-			String date = event.getValue("date").getAsString();
+			var dateOpt = event.getValue("date");
+			String date = dateOpt != null ? dateOpt.getAsString() : "";
 
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 			boolean validdate;

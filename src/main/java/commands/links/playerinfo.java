@@ -19,7 +19,7 @@ import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import util.MessageUtil;
 
-public class playerinfo extends ListenerAdapter {
+@SuppressWarnings("null") public class playerinfo extends ListenerAdapter {
 
 	enum ConvertionType {
 		USERTOACCS, ACCTOUSER
@@ -130,7 +130,7 @@ public class playerinfo extends ListenerAdapter {
 		}
 	}
 
-	@SuppressWarnings("null")
+	
 	@Override
 	public void onSlashCommandInteraction(@Nonnull SlashCommandInteractionEvent event) {
 		if (!event.getName().equals("playerinfo"))
@@ -277,7 +277,7 @@ public class playerinfo extends ListenerAdapter {
 
 	}
 
-	@SuppressWarnings("null")
+	
 	@Override
 	public void onCommandAutoCompleteInteraction(@Nonnull CommandAutoCompleteInteractionEvent event) {
 		if (!event.getName().equals("playerinfo"))

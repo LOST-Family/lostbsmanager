@@ -12,7 +12,7 @@ import util.MessageUtil;
 
 public class link extends ListenerAdapter {
 
-	@SuppressWarnings("null")
+	
 	@Override
 	public void onSlashCommandInteraction(@Nonnull SlashCommandInteractionEvent event) {
 		if (!event.getName().equals("link"))
@@ -46,11 +46,18 @@ public class link extends ListenerAdapter {
 		if (!tag.startsWith("#")) {
 			tag = "#" + tag;
 		}
-		String userid;
+		String userid = null;
 		if (useroption != null) {
 			userid = useroption.getAsMentionable().getId();
-		} else {
+		} else if (useridoption != null) {
 			userid = useridoption.getAsString();
+		}
+		
+		if(userid == null) {
+			event.getHook().editOriginalEmbeds(
+					MessageUtil.buildEmbed("Fehler", "Benutzer konnte nicht gefunden werden", MessageUtil.EmbedType.ERROR))
+					.queue();
+			return;
 		}
 
 		final String finalTag = tag;
@@ -63,7 +70,7 @@ public class link extends ListenerAdapter {
 				try {
 					playername = p.getNameAPI();
 				} catch (Exception e) {
-					e.printStackTrace();
+					System.err.println("API Error: " + e.getMessage());
 				}
 				if (!p.IsLinked()) {
 					DBUtil.executeUpdate("INSERT INTO players (bs_tag, discord_id, name) VALUES (?, ?, ?)", finalTag, finalUserid,
@@ -101,6 +108,7 @@ public class link extends ListenerAdapter {
 	}
 
 }
+
 
 
 

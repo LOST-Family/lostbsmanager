@@ -120,25 +120,28 @@ public class kpadd extends ListenerAdapter {
 
 	}
 
-	@SuppressWarnings("null")
 	@Override
 	public void onModalInteraction(@Nonnull ModalInteractionEvent event) {
 		if (event.getModalId().equals("kpadd")) {
 			event.deferReply().queue();
 			String title = "Kickpunkte";
-			String reason = event.getValue("reason").getAsString();
-			String amountstr = event.getValue("amount").getAsString();
-			int amount = -1;
+			var reasonOpt = event.getValue("reason");
+			String reason = reasonOpt != null ? reasonOpt.getAsString() : "";
+			var amountOpt = event.getValue("amount");
+			String amountstr = amountOpt != null ? amountOpt.getAsString() : "";
+			int amount;
 			try {
-				amount = Integer.valueOf(amountstr);
-			} catch (Exception ex) {
+				amount = Integer.parseInt(amountstr);
+			} catch (NumberFormatException ex) {
 				event.getHook().editOriginalEmbeds(
 						MessageUtil.buildEmbed(title, "Die Anzahl muss eine Zahl sein.", MessageUtil.EmbedType.ERROR))
 						.queue();
 				return;
 			}
-			String date = event.getValue("date").getAsString();
-			String playertag = event.getValue("tag").getAsString();
+			var dateOpt = event.getValue("date");
+			String date = dateOpt != null ? dateOpt.getAsString() : "";
+			var tagOpt = event.getValue("tag");
+			String playertag = tagOpt != null ? tagOpt.getAsString() : "";
 
 			Player p = new Player(playertag);
 			Club c = p.getClubDB();

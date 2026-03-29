@@ -20,9 +20,9 @@ import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import util.MessageUtil;
 
-public class clubconfig extends ListenerAdapter {
+@SuppressWarnings("null") public class clubconfig extends ListenerAdapter {
 
-	@SuppressWarnings("null")
+	
 	@Override
 	public void onSlashCommandInteraction(@Nonnull SlashCommandInteractionEvent event) {
 		if (!event.getName().equals("clubconfig"))
@@ -89,20 +89,20 @@ public class clubconfig extends ListenerAdapter {
 
 	}
 
-	@SuppressWarnings("null")
+	
 	@Override
 	public void onModalInteraction(@Nonnull ModalInteractionEvent event) {
 		if (event.getModalId().startsWith("clubconfig")) {
 			event.deferReply().queue();
 			String title = "Clubconfig";
-			String daysstr = event.getValue("days").getAsString();
-			String maxstr = event.getValue("max").getAsString();
-			int days = -1;
-			int max = -1;
+			String daysstr = event.getValue("days") != null ? event.getValue("days").getAsString() : "";
+			String maxstr = event.getValue("max") != null ? event.getValue("max").getAsString() : "";
+			int days;
+			int max;
 			try {
-				days = Integer.valueOf(daysstr);
-				max = Integer.valueOf(maxstr);
-			} catch (Exception ex) {
+				days = Integer.parseInt(daysstr);
+				max = Integer.parseInt(maxstr);
+			} catch (NumberFormatException ex) {
 				event.getHook()
 						.editOriginalEmbeds(
 								MessageUtil.buildEmbed(title, "Es müssen Zahlen sein.", MessageUtil.EmbedType.ERROR))
@@ -134,7 +134,7 @@ public class clubconfig extends ListenerAdapter {
 		}
 	}
 
-	@SuppressWarnings("null")
+	
 	@Override
 	public void onCommandAutoCompleteInteraction(@Nonnull CommandAutoCompleteInteractionEvent event) {
 		if (!event.getName().equals("clubconfig"))

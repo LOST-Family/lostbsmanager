@@ -15,9 +15,9 @@ import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import util.MessageUtil;
 
-public class relink extends ListenerAdapter {
+@SuppressWarnings("null") public class relink extends ListenerAdapter {
 
-    @SuppressWarnings("null")
+    
     @Override
     public void onSlashCommandInteraction(@Nonnull SlashCommandInteractionEvent event) {
         if (!event.getName().equals("relink"))
@@ -96,7 +96,7 @@ public class relink extends ListenerAdapter {
 
     }
 
-    @SuppressWarnings("null")
+    
     @Override
     public void onCommandAutoCompleteInteraction(@Nonnull CommandAutoCompleteInteractionEvent event) {
         if (!event.getName().equals("relink"))
