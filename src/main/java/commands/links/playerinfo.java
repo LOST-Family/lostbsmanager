@@ -74,45 +74,36 @@ import util.MessageUtil;
 				
 				// Format structural characters
 				switch (c) {
-					case '{':
-					case '[':
+					case '{', '[' -> {
 						formatted.append(c);
 						indentLevel++;
 						formatted.append('\n');
 						appendIndent(formatted, indentLevel);
-						break;
-					case '}':
-					case ']':
+					}
+					case '}', ']' -> {
 						indentLevel = Math.max(0, indentLevel - 1); // Guard against negative indent
 						formatted.append('\n');
 						appendIndent(formatted, indentLevel);
 						formatted.append(c);
-						break;
-					case ',':
+					}
+					case ',' -> {
 						formatted.append(c);
 						formatted.append('\n');
 						appendIndent(formatted, indentLevel);
-						break;
-					case ':':
+					}
+					case ':' -> {
 						formatted.append(c);
 						formatted.append(' ');
-						break;
-					case ' ':
-					case '\t':
-					case '\n':
-					case '\r':
-						// Skip existing whitespace
-						break;
-					default:
-						formatted.append(c);
-						break;
+					}
+					case ' ', '\t', '\n', '\r' -> {
+					}
+					default -> formatted.append(c);
 				}
 			}
 			
 			return formatted.toString();
 			
 		} catch (Exception e) {
-			e.printStackTrace();
 			return "Error formatting JSON from API: " + e.getMessage();
 		}
 	}
@@ -203,7 +194,6 @@ import util.MessageUtil;
 				try {
 					desc += "## " + MessageUtil.unformat(player.getInfoStringDB()) + "\n";
 				} catch (Exception e) {
-					e.printStackTrace();
 				}
 				desc += "Verlinkter Discord Account: <@" + userid + ">\n";
 				if (player.getClubDB() != null) {
@@ -235,7 +225,6 @@ import util.MessageUtil;
 				try {
 					desc += "## <@" + userid + "> \n";
 				} catch (Exception e) {
-					e.printStackTrace();
 				}
 				if (linkedaccs.isEmpty()) {
 					desc += "	Keine verlinkten Accounts.\n";
