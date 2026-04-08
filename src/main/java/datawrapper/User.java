@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 
-import lostbsmanager.Bot;
 import datautil.DBManager;
 import datautil.DBUtil;
+import lostbsmanager.Bot;
 
 public class User {
 
@@ -93,7 +93,13 @@ public class User {
 			} else {
 				for (Player p : linkedaccs) {
 					if (p.getClubDB() != null) {
-						clubroles.put(p.getClubDB().getTag(), p.getRole());
+						String tag = p.getClubDB().getTag();
+						Player.RoleType role = p.getRole();
+						if (role != null) {
+							if (!clubroles.containsKey(tag) || role.ordinal() < clubroles.get(tag).ordinal()) {
+								clubroles.put(tag, role);
+							}
+						}
 					}
 				}
 			}
