@@ -171,6 +171,7 @@ public class checkroles extends ListenerAdapter {
 		int unlinkedMembers = 0;
 
 		List<String> missingRolesList = new ArrayList<>();
+		List<String> unlinkedMembersList = new ArrayList<>();
 
 		for (Player p : playerlist) {
 			Player.RoleType roleDB = p.getRole();
@@ -187,6 +188,7 @@ public class checkroles extends ListenerAdapter {
 
 			User user = p.getUser();
 			if (user == null) {
+				unlinkedMembersList.add(String.format("%s - **%s**", p.getInfoStringDB(), getRoleDisplayName(roleDB)));
 				unlinkedMembers++;
 				continue;
 			}
@@ -199,20 +201,12 @@ public class checkroles extends ListenerAdapter {
 			// Get expected Discord role ID based on club role (for higher roles)
 			String expectedRoleId = null;
 			switch (roleDB) {
-				case PRESIDENT:
-					expectedRoleId = club.getRoleID(Club.Role.PRESIDENT);
-					break;
-				case COPRESIDENT:
-					expectedRoleId = club.getRoleID(Club.Role.COPRESIDENT);
-					break;
-				case SENIOR:
-					expectedRoleId = club.getRoleID(Club.Role.SENIOR);
-					break;
-				case MEMBER:
-					expectedRoleId = memberRoleId;
-					break;
-				default:
-					break;
+				case PRESIDENT -> expectedRoleId = club.getRoleID(Club.Role.PRESIDENT);
+				case COPRESIDENT -> expectedRoleId = club.getRoleID(Club.Role.COPRESIDENT);
+				case SENIOR -> expectedRoleId = club.getRoleID(Club.Role.SENIOR);
+				case MEMBER -> expectedRoleId = memberRoleId;
+				default -> {
+                        }
 			}
 
 			// Check if Discord user has the expected role(s)
@@ -265,6 +259,17 @@ public class checkroles extends ListenerAdapter {
 		} else {
 			description.append("**Mitglieder ohne korrekte Discord-Rolle:**\n");
 			for (String member : missingRolesList) {
+				description.append(member).append("\n");
+			}
+		}
+
+		description.append("\n");
+
+		if (unlinkedMembersList.isEmpty()) {
+			description.append("**✅ Alle Mitglieder sind verlinkt!**\n");
+		} else {
+			description.append("**Nicht verlinkte Mitglieder:**\n");
+			for (String member : unlinkedMembersList) {
 				description.append(member).append("\n");
 			}
 		}
@@ -389,33 +394,23 @@ public class checkroles extends ListenerAdapter {
 	private int getRoleWeight(Player.RoleType role) {
 		if (role == null)
 			return -1;
-		switch (role) {
-			case PRESIDENT:
-				return 4;
-			case COPRESIDENT:
-				return 3;
-			case SENIOR:
-				return 2;
-			case MEMBER:
-				return 1;
-			default:
-				return 0;
-		}
+            return switch (role) {
+                case PRESIDENT -> 4;
+                case COPRESIDENT -> 3;
+                case SENIOR -> 2;
+                case MEMBER -> 1;
+                default -> 0;
+            };
 	}
 
 	private String getRoleDisplayName(Player.RoleType roleType) {
-		switch (roleType) {
-			case PRESIDENT:
-				return "Anführer";
-			case COPRESIDENT:
-				return "Vize-Anführer";
-			case SENIOR:
-				return "Ältester";
-			case MEMBER:
-				return "Mitglied";
-			default:
-				return "Unbekannt";
-		}
+            return switch (roleType) {
+                case PRESIDENT -> "Anführer";
+                case COPRESIDENT -> "Vize-Anführer";
+                case SENIOR -> "Ältester";
+                case MEMBER -> "Mitglied";
+                default -> "Unbekannt";
+            };
 	}
 }
 
