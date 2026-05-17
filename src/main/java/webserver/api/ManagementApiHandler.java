@@ -19,7 +19,6 @@ import org.json.JSONObject;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
-
 import datautil.DBManager;
 import datautil.DBUtil;
 import datawrapper.Club;
@@ -1037,7 +1036,8 @@ public class ManagementApiHandler implements HttpHandler {
 			}
 		}
 		if (isClientDisconnect) {
-			System.out.println("Client disconnected in ManagementApiHandler: " + e.getMessage());
+			// Ignorieren, um Log-Spam zu vermeiden
+			// System.out.println("Client disconnected in ManagementApiHandler: " + e.getMessage());
 		} else {
 			System.err.println("Error in ManagementApiHandler: " + e.getMessage());
 			e.printStackTrace();
