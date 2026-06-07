@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nonnull;
 
+import commands.api.ApiCommand;
 import commands.admin.copyreasons;
 import commands.admin.restart;
 import commands.kickpoints.clubconfig;
@@ -40,6 +41,7 @@ import commands.memberlist.togglemark;
 import commands.memberlist.transfermember;
 import commands.util.checkroles;
 import commands.util.trackchannels;
+import datautil.ApiRegistry;
 import datautil.DBUtil;
 import datawrapper.Club;
 import datawrapper.Player;
@@ -131,7 +133,7 @@ public class Bot extends ListenerAdapter {
 						new kpremove(), new kpedit(), new kpinfo(), new kplistreasons(), new kpclub(), new clubconfig(),
 						new transfermember(), new togglemark(), new checkroles(), new relink(), new trackchannels(),
 						new signoff(),
-						new signofflist())
+						new signofflist(), new ApiCommand())
 				.build();
 	}
 
@@ -282,7 +284,8 @@ public class Bot extends ListenerAdapter {
 									"Der Monat, für den die Abmeldungen angezeigt werden sollen.", true)
 									.setAutoComplete(true))
 							.addOptions(new OptionData(OptionType.BOOLEAN, "showreasons",
-									"(Optional) Zeige Begründungen an.").setRequired(false)))
+									"(Optional) Zeige Begründungen an.").setRequired(false)),
+					ApiRegistry.buildSlashCommand())
 					.queue();
 		}
 	}
