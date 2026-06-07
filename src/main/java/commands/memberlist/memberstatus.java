@@ -127,9 +127,9 @@ public class memberstatus extends ListenerAdapter {
 			String desc = "## " + c.getInfoStringDB() + "\n";
 
 			desc += "**Mitglied, ingame nicht im Club:**\n\n";
-			desc += membernotinclubstr == "" ? "---\n\n" : MessageUtil.unformat(membernotinclubstr) + "\n";
+			desc += "".equals(membernotinclubstr) ? "---\n\n" : MessageUtil.unformat(membernotinclubstr) + "\n";
 			desc += "**Kein Mitglied, ingame im Club:**\n\n";
-			desc += inclubnotmemberstr == "" ? "---\n\n" : MessageUtil.unformat(inclubnotmemberstr) + "\n";
+			desc += "".equals(inclubnotmemberstr) ? "---\n\n" : MessageUtil.unformat(inclubnotmemberstr) + "\n";
 
 			Button refreshButton = Button.secondary("memberstatus_" + clubtag + "_" + excludeLeadersFinal, "\u200B").withEmoji(Emoji.fromUnicode("🔁"));
 
@@ -263,9 +263,9 @@ public class memberstatus extends ListenerAdapter {
 			String desc = "## " + c.getInfoStringDB() + "\n";
 
 			desc += "**Mitglied, ingame nicht im Club:**\n\n";
-			desc += membernotinclubstr == "" ? "---\n\n" : MessageUtil.unformat(membernotinclubstr) + "\n";
+			desc += "".equals(membernotinclubstr) ? "---\n\n" : MessageUtil.unformat(membernotinclubstr) + "\n";
 			desc += "**Kein Mitglied, ingame im Club:**\n\n";
-			desc += inclubnotmemberstr == "" ? "---\n\n" : MessageUtil.unformat(inclubnotmemberstr) + "\n";
+			desc += "".equals(inclubnotmemberstr) ? "---\n\n" : MessageUtil.unformat(inclubnotmemberstr) + "\n";
 
 			Button refreshButton = Button.secondary("memberstatus_" + clubtag + "_" + excludeLeadersFinal, "\u200B").withEmoji(Emoji.fromUnicode("🔁"));
 

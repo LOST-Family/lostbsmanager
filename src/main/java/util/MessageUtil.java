@@ -3,7 +3,6 @@ package util;
 import java.awt.Color;
 import java.util.regex.Matcher;
 
-import lostbsmanager.Bot;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.MessageEmbed.Field;
@@ -15,15 +14,15 @@ public class MessageUtil {
 		INFO, SUCCESS, ERROR, LOADING
 	}
 
-	public static String footer = "BS Manager | Made by Pixel | v" + Bot.VERSION;
+	public static String footer = "BS Manager | Made by Pixel";
 
 	public static MessageEmbed buildEmbed(String title, String description, EmbedType type, String additionalfooter,
 			Field... fields) {
 		EmbedBuilder embedreply = new EmbedBuilder();
 		embedreply.setTitle(title);
 		embedreply.setDescription(description);
-		for (int i = 0; i < fields.length; i++) {
-			embedreply.addField(fields[i]);
+		for (Field field : fields) {
+			embedreply.addField(field);
 		}
 		if (footer.equals("")) {
 			embedreply.setFooter(footer);
@@ -31,18 +30,10 @@ public class MessageUtil {
 			embedreply.setFooter(additionalfooter + "\n" + footer);
 		}
 		switch (type) {
-			case INFO:
-				embedreply.setColor(Color.CYAN);
-				break;
-			case SUCCESS:
-				embedreply.setColor(Color.GREEN);
-				break;
-			case ERROR:
-				embedreply.setColor(Color.RED);
-				break;
-			case LOADING:
-				embedreply.setColor(Color.MAGENTA);
-				break;
+			case INFO -> embedreply.setColor(Color.CYAN);
+			case SUCCESS -> embedreply.setColor(Color.GREEN);
+			case ERROR -> embedreply.setColor(Color.RED);
+			case LOADING -> embedreply.setColor(Color.MAGENTA);
 		}
 		return embedreply.build();
 	}
@@ -68,7 +59,6 @@ public class MessageUtil {
 					Thread.sleep(100);
 					sentMessage.delete().queue();
 				} catch (InterruptedException e) {
-					e.printStackTrace();
 				}
 			}).start();
 		}, a -> {
@@ -76,9 +66,3 @@ public class MessageUtil {
 	}
 
 }
-
-
-
-
-
-

@@ -55,7 +55,7 @@ public class kpclub extends ListenerAdapter {
 		}
 
 		new Thread(() -> {
-			String desc = "";
+			String desc;
 			ArrayList<Player> playerlist = new ArrayList<>();
 
 			if (clubtag.equals("all")) {

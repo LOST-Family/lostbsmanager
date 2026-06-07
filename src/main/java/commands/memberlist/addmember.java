@@ -2,6 +2,8 @@ package commands.memberlist;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
@@ -23,6 +25,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import util.MessageUtil;
 
 public class addmember extends ListenerAdapter {
+	private static final Logger LOGGER = Logger.getLogger(addmember.class.getName());
 
 	@SuppressWarnings("null")
 	@Override
@@ -134,14 +137,14 @@ public class addmember extends ListenerAdapter {
 					desc += "Der Spieler " + MessageUtil.unformat(p.getInfoStringDB()) + " wurde erfolgreich dem Club "
 							+ new Club(clubtag).getInfoStringDB() + " als " + rolestring + " hinzugefügt.";
 				} catch (Exception e) {
-					e.printStackTrace();
+					LOGGER.log(Level.WARNING, "Fehler beim Erstellen der Erfolgsmeldung für Club-Beitritt.", e);
 				}
 			} else {
 				try {
 					desc += "Der Spieler " + MessageUtil.unformat(p.getInfoStringDB())
 							+ " wurde erfolgreich der Warteliste hinzugefügt.";
 				} catch (Exception e) {
-					e.printStackTrace();
+					LOGGER.log(Level.WARNING, "Fehler beim Erstellen der Erfolgsmeldung für Warteliste.", e);
 				}
 			}
 

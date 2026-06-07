@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
 import datautil.DBManager;
-import util.MessageUtil;
 import datawrapper.Player;
 import datawrapper.TrackChannel;
 import datawrapper.User;
@@ -20,6 +19,7 @@ import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInterac
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.Command;
+import util.MessageUtil;
 
 @SuppressWarnings("null")
 public class trackchannels extends ListenerAdapter {
@@ -31,14 +31,13 @@ public class trackchannels extends ListenerAdapter {
     public void onSlashCommandInteraction(@Nonnull SlashCommandInteractionEvent event) {
         String commandName = event.getName();
 
-        if (commandName.equals("trackchanneladd")) {
-            handleAdd(event);
-        } else if (commandName.equals("trackchannelremove")) {
-            handleRemove(event);
-        } else if (commandName.equals("trackchannellist")) {
-            handleList(event);
-        } else if (commandName.equals("trackchanneltime")) {
-            handleTime(event);
+        switch (commandName) {
+            case "trackchanneladd" -> handleAdd(event);
+            case "trackchannelremove" -> handleRemove(event);
+            case "trackchannellist" -> handleList(event);
+            case "trackchanneltime" -> handleTime(event);
+            default -> {
+            }
         }
     }
 

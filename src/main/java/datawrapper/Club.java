@@ -3,7 +3,6 @@ package datawrapper;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 
 import org.json.JSONArray;
@@ -15,7 +14,7 @@ import datautil.DBUtil;
 
 public class Club {
 
-	private String club_tag;
+	private final String club_tag;
 	private String namedb;
 	private String descriptiondb;
 	private String descriptionapi;
@@ -43,7 +42,7 @@ public class Club {
 				return rs.next(); // true, wenn mindestens eine Zeile existiert
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 		}
 		return false;
 	}
@@ -51,19 +50,12 @@ public class Club {
 	// all public getter Methods
 
 	public String getRoleID(Role role) {
-		switch (role) {
-			case PRESIDENT:
-				return DBUtil.getValueFromSQL("SELECT president_roleid FROM clubs WHERE tag = ?", String.class,
-						club_tag);
-			case COPRESIDENT:
-				return DBUtil.getValueFromSQL("SELECT copresident_roleid FROM clubs WHERE tag = ?", String.class,
-						club_tag);
-			case SENIOR:
-				return DBUtil.getValueFromSQL("SELECT senior_roleid FROM clubs WHERE tag = ?", String.class, club_tag);
-			case MEMBER:
-				return DBUtil.getValueFromSQL("SELECT member_roleid FROM clubs WHERE tag = ?", String.class, club_tag);
-		}
-		return null;
+		return switch (role) {
+			case PRESIDENT -> DBUtil.getValueFromSQL("SELECT president_roleid FROM clubs WHERE tag = ?", String.class, club_tag);
+			case COPRESIDENT -> DBUtil.getValueFromSQL("SELECT copresident_roleid FROM clubs WHERE tag = ?", String.class, club_tag);
+			case SENIOR -> DBUtil.getValueFromSQL("SELECT senior_roleid FROM clubs WHERE tag = ?", String.class, club_tag);
+			case MEMBER -> DBUtil.getValueFromSQL("SELECT member_roleid FROM clubs WHERE tag = ?", String.class, club_tag);
+		};
 	}
 
 	public String getInfoStringAPI() {
@@ -97,7 +89,7 @@ public class Club {
 					}
 				}
 			} catch (SQLException e) {
-				e.printStackTrace();
+				System.err.println(e.getMessage());
 			}
 		}
 		return index;
@@ -161,14 +153,11 @@ public class Club {
 					while (rs.next()) {
 						kickpoint_reasons.add(new KickpointReason(rs.getString("name"), rs.getString("club_tag")));
 					}
-					Statement stmt = rs.getStatement();
-					rs.close();
-					stmt.close();
 				} catch (SQLException e) {
-					e.printStackTrace();
+					System.err.println(e.getMessage());
 				}
 			} catch (SQLException e) {
-				e.printStackTrace();
+				System.err.println(e.getMessage());
 			}
 		}
 		return kickpoint_reasons;
@@ -185,7 +174,7 @@ public class Club {
 					}
 				}
 			} catch (SQLException e) {
-				e.printStackTrace();
+				System.err.println(e.getMessage());
 			}
 		}
 		return namedb;
@@ -210,7 +199,7 @@ public class Club {
 					}
 				}
 			} catch (SQLException e) {
-				e.printStackTrace();
+				System.err.println(e.getMessage());
 			}
 		}
 		return descriptiondb;

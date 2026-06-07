@@ -46,7 +46,7 @@ public class DBManager {
 				}
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 		}
 		return choices;
 	}
@@ -66,7 +66,7 @@ public class DBManager {
 				}
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 		}
 		return available;
 	}
@@ -124,12 +124,12 @@ public class DBManager {
 						display += " (" + tag + ")";
 					}
 
-					list.add(new Tuple<String, String>(display, tag));
+					list.add(new Tuple<>(display, tag));
 
 				}
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 		}
 		clubs = list;
 		clubslocked = true;
@@ -181,38 +181,40 @@ public class DBManager {
 			String clubName = available.getSecond();
 			String tag = available.getThird();
 
-			if (inclubtype == InClubType.NOTINCLUB) {
-				if (clubName == null || clubName.isEmpty()) {
+			switch (inclubtype) {
+				case NOTINCLUB -> {
+					if (clubName == null || clubName.isEmpty()) {
+						if (display.toLowerCase().contains(input.toLowerCase())
+								|| tag.toLowerCase().startsWith(input.toLowerCase())) {
+							choices.add(new Command.Choice(display, tag));
+							if (choices.size() == 25) {
+								break;
+							}
+						}
+					}
+				}
+				case INCLUB -> {
+					if (clubName != null && !clubName.isEmpty()) {
+						display += " - " + clubName;
+						if (display.toLowerCase().contains(input.toLowerCase())
+								|| tag.toLowerCase().startsWith(input.toLowerCase())) {
+							choices.add(new Command.Choice(display, tag));
+							if (choices.size() == 25) {
+								break;
+							}
+						}
+					}
+				}
+				case ALL -> {
+					if (clubName != null && !clubName.isEmpty()) {
+						display += " - " + clubName;
+					}
 					if (display.toLowerCase().contains(input.toLowerCase())
 							|| tag.toLowerCase().startsWith(input.toLowerCase())) {
 						choices.add(new Command.Choice(display, tag));
 						if (choices.size() == 25) {
 							break;
 						}
-					}
-				}
-			} else if (inclubtype == InClubType.INCLUB) {
-				if (clubName != null && !clubName.isEmpty()) {
-					display += " - " + clubName;
-					if (display.toLowerCase().contains(input.toLowerCase())
-							|| tag.toLowerCase().startsWith(input.toLowerCase())) {
-						choices.add(new Command.Choice(display, tag));
-						if (choices.size() == 25) {
-							break; // Max 25 Vorschläge
-						}
-					}
-				}
-			} else if (inclubtype == InClubType.ALL) {
-				if (clubName != null && !clubName.isEmpty()) {
-					display += " - " + clubName;
-				}
-
-				// Filter mit Eingabe (input ist String mit aktuell eingegebenem Text)
-				if (display.toLowerCase().contains(input.toLowerCase())
-						|| tag.toLowerCase().startsWith(input.toLowerCase())) {
-					choices.add(new Command.Choice(display, tag));
-					if (choices.size() == 25) {
-						break; // Max 25 Vorschläge
 					}
 				}
 			}
@@ -242,11 +244,11 @@ public class DBManager {
 
 					String display = new Player(tag).getInfoStringDB();
 
-					list.add(new Triplet<String, String, String>(display, clubName, tag));
+					list.add(new Triplet<>(display, clubName, tag));
 				}
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 		}
 		players = list;
 		playerslocked = true;
@@ -269,38 +271,40 @@ public class DBManager {
 			String clubName = available.getSecond();
 			String tag = available.getThird();
 			if (!tag.equals("warteliste")) {
-				if (inclubtype == InClubType.NOTINCLUB) {
-					if (clubName == null || clubName.isEmpty()) {
+				switch (inclubtype) {
+					case NOTINCLUB -> {
+						if (clubName == null || clubName.isEmpty()) {
+							if (display.toLowerCase().contains(input.toLowerCase())
+									|| tag.toLowerCase().startsWith(input.toLowerCase())) {
+								choices.add(new Command.Choice(display, tag));
+								if (choices.size() == 25) {
+									break;
+								}
+							}
+						}
+					}
+					case INCLUB -> {
+						if (clubName != null && !clubName.isEmpty()) {
+							display += " - " + clubName;
+							if (display.toLowerCase().contains(input.toLowerCase())
+									|| tag.toLowerCase().startsWith(input.toLowerCase())) {
+								choices.add(new Command.Choice(display, tag));
+								if (choices.size() == 25) {
+									break;
+								}
+							}
+						}
+					}
+					case ALL -> {
+						if (clubName != null && !clubName.isEmpty()) {
+							display += " - " + clubName;
+						}
 						if (display.toLowerCase().contains(input.toLowerCase())
 								|| tag.toLowerCase().startsWith(input.toLowerCase())) {
 							choices.add(new Command.Choice(display, tag));
 							if (choices.size() == 25) {
 								break;
 							}
-						}
-					}
-				} else if (inclubtype == InClubType.INCLUB) {
-					if (clubName != null && !clubName.isEmpty()) {
-						display += " - " + clubName;
-						if (display.toLowerCase().contains(input.toLowerCase())
-								|| tag.toLowerCase().startsWith(input.toLowerCase())) {
-							choices.add(new Command.Choice(display, tag));
-							if (choices.size() == 25) {
-								break; // Max 25 Vorschläge
-							}
-						}
-					}
-				} else if (inclubtype == InClubType.ALL) {
-					if (clubName != null && !clubName.isEmpty()) {
-						display += " - " + clubName;
-					}
-
-					// Filter mit Eingabe (input ist String mit aktuell eingegebenem Text)
-					if (display.toLowerCase().contains(input.toLowerCase())
-							|| tag.toLowerCase().startsWith(input.toLowerCase())) {
-						choices.add(new Command.Choice(display, tag));
-						if (choices.size() == 25) {
-							break; // Max 25 Vorschläge
 						}
 					}
 				}
@@ -349,7 +353,7 @@ public class DBManager {
 				}
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 		}
 
 		return choices;
@@ -375,15 +379,9 @@ public class DBManager {
 				}
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 		}
 		return choices;
 	}
 
 }
-
-
-
-
-
-

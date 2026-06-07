@@ -33,7 +33,12 @@ public class restart extends ListenerAdapter {
 		try {
 			Thread.sleep(3000);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			Thread.currentThread().interrupt();
+			event.getHook()
+					.editOriginalEmbeds(MessageUtil.buildEmbed(title,
+							"Der Neustart wurde unterbrochen.", MessageUtil.EmbedType.ERROR))
+					.queue();
+			return;
 		}
 
 		System.exit(0);

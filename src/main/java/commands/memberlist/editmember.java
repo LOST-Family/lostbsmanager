@@ -119,7 +119,7 @@ public class editmember extends ListenerAdapter {
 				desc = "Der Spieler " + MessageUtil.unformat(p.getInfoStringDB()) + " im Club " + c.getInfoStringDB()
 						+ " ist nun " + rolestring + ".";
 			} catch (Exception e) {
-				e.printStackTrace();
+				e.getLocalizedMessage();
 			}
 			event.getHook().editOriginalEmbeds(MessageUtil.buildEmbed(title, desc, MessageUtil.EmbedType.SUCCESS)).queue();
 		}).start();

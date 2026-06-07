@@ -42,29 +42,12 @@ public class UserDTO {
 
         for (Player.RoleType role : rolestypes) {
             switch (role) {
-            case ADMIN:
-                highestRole = role.toString();
-                break;
-            case PRESIDENT:
-                if (highest != Player.RoleType.ADMIN)
-                    highestRole = role.toString();
-                break;
-            case COPRESIDENT:
-                if (highest != Player.RoleType.ADMIN || highest != Player.RoleType.PRESIDENT)
-                    highestRole = role.toString();
-                break;
-            case SENIOR:
-                if (highest != Player.RoleType.ADMIN || highest != Player.RoleType.PRESIDENT
-                        || highest != Player.RoleType.COPRESIDENT)
-                    highestRole = role.toString();
-                break;
-            case MEMBER:
-                if (highest != Player.RoleType.ADMIN || highest != Player.RoleType.PRESIDENT
-                        || highest != Player.RoleType.COPRESIDENT || highest != Player.RoleType.SENIOR)
-                    highestRole = role.toString();
-                break;
-            default:
-                break;
+                case ADMIN -> highestRole = role.toString();
+                case PRESIDENT -> { if (highest != Player.RoleType.ADMIN) highestRole = role.toString(); }
+                case COPRESIDENT -> { if (highest != Player.RoleType.ADMIN || highest != Player.RoleType.PRESIDENT) highestRole = role.toString(); }
+                case SENIOR -> { if (highest != Player.RoleType.ADMIN || highest != Player.RoleType.PRESIDENT || highest != Player.RoleType.COPRESIDENT) highestRole = role.toString(); }
+                case MEMBER -> { if (highest != Player.RoleType.ADMIN || highest != Player.RoleType.PRESIDENT || highest != Player.RoleType.COPRESIDENT || highest != Player.RoleType.SENIOR) highestRole = role.toString(); }
+                default -> {}
             }
         }
 
@@ -80,9 +63,3 @@ public class UserDTO {
     public String getNickname() { return nickname; }
     public void setNickname(String nickname) { this.nickname = nickname; }
 }
-
-
-
-
-
-

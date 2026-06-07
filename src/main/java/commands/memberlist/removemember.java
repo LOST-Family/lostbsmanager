@@ -108,14 +108,14 @@ public class removemember extends ListenerAdapter {
 					desc += "Der Spieler " + MessageUtil.unformat(player.getInfoStringDB()) + " wurde aus dem Club "
 							+ clubname + " entfernt.";
 				} catch (Exception e) {
-					e.printStackTrace();
+					System.err.println("Error removing player from club: " + e.getMessage());
 				}
 			} else {
 				try {
 					desc += "Der Spieler " + MessageUtil.unformat(player.getInfoStringDB())
 							+ " wurde aus der Warteliste entfernt.";
 				} catch (Exception e) {
-					e.printStackTrace();
+					System.err.println("Error removing player from waitlist: " + e.getMessage());
 				}
 			}
 

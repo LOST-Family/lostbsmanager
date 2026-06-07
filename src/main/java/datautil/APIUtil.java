@@ -21,21 +21,19 @@ public class APIUtil {
 		HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url))
 				.header("Authorization", "Bearer " + Bot.api_key).header("Accept", "application/json").GET().build();
 
-		HttpResponse<String> response = null;
 		try {
-			response = client.send(request, HttpResponse.BodyHandlers.ofString());
+			HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+			if (response.statusCode() == 200) {
+				String responseBody = response.body();
+				// Einfacher JSON-Name-Parser ohne Bibliotheken:
+				return responseBody;
+			} else {
+				System.err.println("Fehler beim Abrufen: HTTP " + response.statusCode());
+				System.err.println("Antwort: " + response.body());
+				return null;
+			}
 		} catch (IOException | InterruptedException e) {
-			e.printStackTrace();
-			return null;
-		}
-
-		if (response.statusCode() == 200) {
-			String responseBody = response.body();
-			// Einfacher JSON-Name-Parser ohne Bibliotheken:
-			return responseBody;
-		} else {
-			System.err.println("Fehler beim Abrufen: HTTP " + response.statusCode());
-			System.err.println("Antwort: " + response.body());
+			System.err.println(e.getMessage());
 			return null;
 		}
 	}
@@ -51,21 +49,19 @@ public class APIUtil {
 		HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url))
 				.header("Authorization", "Bearer " + Bot.api_key).header("Accept", "application/json").GET().build();
 
-		HttpResponse<String> response = null;
 		try {
-			response = client.send(request, HttpResponse.BodyHandlers.ofString());
+			HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+			if (response.statusCode() == 200) {
+				String responseBody = response.body();
+				// Einfacher JSON-Name-Parser ohne Bibliotheken:
+				return responseBody;
+			} else {
+				System.err.println("Fehler beim Abrufen: HTTP " + response.statusCode());
+				System.err.println("Antwort: " + response.body());
+				return null;
+			}
 		} catch (IOException | InterruptedException e) {
-			e.printStackTrace();
-			return null;
-		}
-
-		if (response.statusCode() == 200) {
-			String responseBody = response.body();
-			// Einfacher JSON-Name-Parser ohne Bibliotheken:
-			return responseBody;
-		} else {
-			System.err.println("Fehler beim Abrufen: HTTP " + response.statusCode());
-			System.err.println("Antwort: " + response.body());
+			System.err.println(e.getMessage());
 			return null;
 		}
 	}

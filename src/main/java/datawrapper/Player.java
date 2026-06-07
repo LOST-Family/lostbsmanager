@@ -1,6 +1,7 @@
 package datawrapper;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -26,7 +27,7 @@ public class Player {
 	};
 
 	private JSONObject apiresult;
-	private String tag;
+	private final String tag;
 	private String namedb;
 	private String nameapi;
 	private User user;
@@ -126,7 +127,7 @@ public class Player {
 				return rs.next(); // true, wenn mindestens eine Zeile existiert
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 		}
 		return false;
 	}
@@ -144,21 +145,20 @@ public class Player {
 			int responseCode = connection.getResponseCode();
 
 			if (responseCode == 200) {
-				BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-				String line;
-				StringBuilder responseContent = new StringBuilder();
-				while ((line = in.readLine()) != null) {
-					responseContent.append(line);
+				try (BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+					String line;
+					StringBuilder responseContent = new StringBuilder();
+					while ((line = in.readLine()) != null) {
+						responseContent.append(line);
+					}
 				}
-				in.close();
-
 				return true;
 			} else {
 				System.out.println("Verifizierung fehlgeschlagen. Fehlercode: " + responseCode);
 			}
 
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (IOException e) {
+			System.err.println(e.getMessage());
 		}
 		return false;
 	}
@@ -169,7 +169,7 @@ public class Player {
 		try {
 			return getNameDB() + " (" + tag + ")";
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 		}
 		return null;
 	}
@@ -178,7 +178,7 @@ public class Player {
 		try {
 			return getNameAPI() + " (" + tag + ")";
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 		}
 		return null;
 	}
@@ -290,7 +290,7 @@ public class Player {
 						}
 					}
 				} catch (SQLException e) {
-					e.printStackTrace();
+					System.err.println(e.getMessage());
 				}
 			}
 		}
@@ -318,8 +318,8 @@ public class Player {
 				if (leagueStatistics.has("previousSeason")) {
 					JSONObject previousSeason = leagueStatistics.getJSONObject("previousSeason");
 					String previousseasonid = previousSeason.getString("id");
-					int previousseasonyear = Integer.valueOf(previousseasonid.split("-")[0]);
-					int previousseasonmonth = Integer.valueOf(previousseasonid.split("-")[1]);
+					int previousseasonyear = Integer.parseInt(previousseasonid.split("-")[0]);
+					int previousseasonmonth = Integer.parseInt(previousseasonid.split("-")[1]);
 					int currentseasonyear;
 					int currentseasonmonth;
 					if (previousseasonmonth + 1 == 13) {
@@ -353,14 +353,6 @@ public class Player {
 		return trophies;
 	}
 
-	
-
-	
-
-	
-
-	
-
 	public Boolean isMarked() {
 		if (mark == null) {
 			if (getClubDB() != null) {
@@ -374,7 +366,7 @@ public class Player {
 				}
 			}
 		}
-		return mark == null ? false : mark;
+		return Boolean.TRUE.equals(mark);
 	}
 
 	public String getNote() {
@@ -387,17 +379,13 @@ public class Player {
 		return note;
 	}
 
-	
-
 	public String getClubtagCWDone() {
 		if (clubtagcwdone == null) {
 			// same logic here
-			
+
 		}
 		return clubtagcwdone;
 	}
-
-	
 
 	public boolean isHiddenCopresident() {
 		if (getClubDB() == null) {
@@ -407,8 +395,6 @@ public class Player {
 				String.class, tag);
 		return "hiddencopresident".equals(rolestring);
 	}
-
-	
 
 	public Integer getExpLevelAPI() {
 		if (expLevel == null) {
@@ -422,71 +408,7 @@ public class Player {
 		return expLevel;
 	}
 
-	// ============================================================
-	// Centralized Wins Calculation Methods
-	// ============================================================
-
-	/**
-	 * Helper class to hold wins data with warning flag
-	 */
-
-	/**
-	 * Helper class to hold wins record from database
-	 */
-
-	/**
-	 * Calculate monthly wins for a specific month and year
-	 * 
-	 * @param year             The year
-	 * @param month            The month (1-12)
-	 * @param isCurrentMonth   Whether this is the current month
-	 * @param startOfMonth     Start of the month
-	 * @param startOfNextMonth Start of the next month
-	 * @param zone             Time zone
-	 * @return WinsData containing wins count and warning flag
-	 */
-
-	/**
-	 * Get wins for the current month
-	 * 
-	 * @return WinsData containing wins count and warning flag
-	 */
-
-	/**
-	 * Check if any wins data exists for this player in the database
-	 * 
-	 * @return true if data exists, false otherwise
-	 */
-
-	/**
-	 * Get wins record at or after a specific date/time
-	 * 
-	 * @param dateTime The date/time to search from
-	 * @return WinsRecord or null if not found
-	 */
-
-	/**
-	 * Check if a recorded time is at the start of a month
-	 * 
-	 * @param recordedAt    The recorded time
-	 * @param expectedStart The expected start of month
-	 * @return true if recorded time is on the first day of the month
-	 */
-
-	/**
-	 * Save current wins for this player to the database
-	 */
-
-
     public boolean isCoPresident() {
         return this.role == RoleType.COPRESIDENT;
     }
 }
-
-
-
-
-
-
-
-
