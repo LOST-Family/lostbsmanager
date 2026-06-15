@@ -249,6 +249,12 @@ public class Bot extends ListenerAdapter {
 					Commands.slash("clubconfig", "Ändere Einstellungen an einem Club.")
 							.addOptions(new OptionData(OptionType.STRING, "club",
 									"Der Club, welcher bearbeitet werden soll.", true).setAutoComplete(true)),
+					Commands.slash("checkroles", "Überprüfe, ob Club-Mitglieder die korrekten Discord-Rollen haben.")
+							.addOptions(new OptionData(OptionType.STRING, "club",
+									"Der Club, welcher überprüft werden soll.", true).setAutoComplete(true))
+							.addOptions(new OptionData(OptionType.STRING, "ignore_hiddencoleaders",
+									"(Optional) Wenn 'true', werden versteckte Vize-Anführer ignoriert")
+									.setAutoComplete(true).setRequired(false)),
 					Commands.slash("leaguetrophylist", "Sortierte Rangliste.")
 							.addOptions(new OptionData(OptionType.STRING, "timestamp",
 									"Der Zeitpunkt der gespeicherten Liste", true).setAutoComplete(true)),
