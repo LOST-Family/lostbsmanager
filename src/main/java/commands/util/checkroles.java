@@ -180,7 +180,7 @@ public class checkroles extends ListenerAdapter {
 			}
 
 			// Skip hidden coleaders if ignore_hiddencoleaders is true
-			if (ignoreHiddenColeaders && p.isCoPresident()) {
+			if (ignoreHiddenColeaders && p.isHiddenCopresident()) {
 				continue;
 			}
 
