@@ -308,6 +308,9 @@ public class DBManager {
 						}
 					}
 				}
+				if (choices.size() == 25) {
+					break;
+				}
 			}
 
 		}
