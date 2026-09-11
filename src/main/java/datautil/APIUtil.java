@@ -13,8 +13,21 @@ import lostbsmanager.Bot;
 
 public class APIUtil {
 
+	/**
+	 * Basisadresse der Brawl-Stars-API.
+	 *
+	 * Konfigurierbar, weil Supercell-Keys an feste IP-Adressen gebunden sind:
+	 * an einem Anschluss mit wechselnder IP funktioniert ein solcher Key nicht.
+	 * Mit BS_API_BASE_URL=https://bsproxy.royaleapi.dev/v1 laeuft der Verkehr
+	 * ueber den RoyaleAPI-Proxy, dessen feste Adresse (45.79.218.79) beim
+	 * Erstellen des Keys hinterlegt wird. Ohne gesetzte Variable bleibt alles
+	 * wie bisher.
+	 */
+	public static final String BASIS_URL = System.getenv()
+			.getOrDefault("BS_API_BASE_URL", "https://api.brawlstars.com/v1");
+
 	public static ApiResponse raw(String method, String path, Map<String, String> query, String jsonBody) {
-		StringBuilder urlBuilder = new StringBuilder("https://api.brawlstars.com/v1");
+		StringBuilder urlBuilder = new StringBuilder(BASIS_URL);
 		urlBuilder.append(path);
 		if (!query.isEmpty()) {
 			urlBuilder.append("?");
@@ -55,7 +68,7 @@ public class APIUtil {
 		// URL-kodieren des Spieler-Tags (# -> %23)
 		String encodedTag = java.net.URLEncoder.encode(clubTag, java.nio.charset.StandardCharsets.UTF_8);
 
-		String url = "https://api.brawlstars.com/v1/clubs/" + encodedTag;
+		String url = BASIS_URL + "/clubs/" + encodedTag;
 
 		HttpClient client = HttpClient.newHttpClient();
 
@@ -83,7 +96,7 @@ public class APIUtil {
 		// URL-kodieren des Spieler-Tags (# -> %23)
 		String encodedTag = java.net.URLEncoder.encode(playerTag, java.nio.charset.StandardCharsets.UTF_8);
 
-		String url = "https://api.brawlstars.com/v1/players/" + encodedTag;
+		String url = BASIS_URL + "/players/" + encodedTag;
 
 		HttpClient client = HttpClient.newHttpClient();
 
