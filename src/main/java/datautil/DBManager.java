@@ -176,6 +176,8 @@ public class DBManager {
 		}
 
 		List<Command.Choice> choices = new ArrayList<>();
+		// break in einem Arrow-Switch verlässt nur den Switch, nicht die Schleife
+		OUTER:
 		for (Triplet<String, String, String> available : players) {
 			String display = available.getFirst();
 			String clubName = available.getSecond();
@@ -188,7 +190,7 @@ public class DBManager {
 								|| tag.toLowerCase().startsWith(input.toLowerCase())) {
 							choices.add(new Command.Choice(display, tag));
 							if (choices.size() == 25) {
-								break;
+								break OUTER; // Discord erlaubt höchstens 25 Vorschläge
 							}
 						}
 					}
@@ -200,7 +202,7 @@ public class DBManager {
 								|| tag.toLowerCase().startsWith(input.toLowerCase())) {
 							choices.add(new Command.Choice(display, tag));
 							if (choices.size() == 25) {
-								break;
+								break OUTER; // Discord erlaubt höchstens 25 Vorschläge
 							}
 						}
 					}
@@ -213,7 +215,7 @@ public class DBManager {
 							|| tag.toLowerCase().startsWith(input.toLowerCase())) {
 						choices.add(new Command.Choice(display, tag));
 						if (choices.size() == 25) {
-							break;
+							break OUTER; // Discord erlaubt höchstens 25 Vorschläge
 						}
 					}
 				}
