@@ -38,20 +38,30 @@ public class UserDTO {
         HashMap<String, Player.RoleType> roles = user.getClubRoles();
         Collection<Player.RoleType> rolestypes = roles.values();
 
-        Player.RoleType highest = Player.RoleType.NOTINCLUB;
-
-        for (Player.RoleType role : rolestypes) {
-            switch (role) {
-                case ADMIN -> highestRole = role.toString();
-                case PRESIDENT -> { if (highest != Player.RoleType.ADMIN) highestRole = role.toString(); }
-                case COPRESIDENT -> { if (highest != Player.RoleType.ADMIN || highest != Player.RoleType.PRESIDENT) highestRole = role.toString(); }
-                case SENIOR -> { if (highest != Player.RoleType.ADMIN || highest != Player.RoleType.PRESIDENT || highest != Player.RoleType.COPRESIDENT) highestRole = role.toString(); }
-                case MEMBER -> { if (highest != Player.RoleType.ADMIN || highest != Player.RoleType.PRESIDENT || highest != Player.RoleType.COPRESIDENT || highest != Player.RoleType.SENIOR) highestRole = role.toString(); }
-                default -> {}
-            }
-        }
+        Player.RoleType hoechste = hoechsteRolle(rolestypes);
+        highestRole = hoechste == null ? null : hoechste.toString();
 
         this.nickname = user.getNickname();
+    }
+
+    /**
+     * Der höchste Rang über alle Clans. Die Aufzählung ist absteigend sortiert
+     * (ADMIN zuerst), der kleinste Ordinalwert gewinnt. Bis 18.11.2026 wurde hier
+     * nie verglichen: es gewann der Rang des Clans, der in der HashMap zufällig
+     * zuletzt kam – ein Vize mit Zweitaccount als Mitglied in einem anderen Clan
+     * galt auf der Website je nach Reihenfolge nur als Mitglied.
+     *
+     * @return null, wenn die Person in keinem Clan steht
+     */
+    static Player.RoleType hoechsteRolle(Collection<Player.RoleType> rollen) {
+        Player.RoleType beste = null;
+        for (Player.RoleType rolle : rollen) {
+            if (rolle == null || rolle == Player.RoleType.NOTINCLUB)
+                continue;
+            if (beste == null || rolle.ordinal() < beste.ordinal())
+                beste = rolle;
+        }
+        return beste;
     }
 
     public boolean isAdmin() { return isAdmin; }
