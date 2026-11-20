@@ -177,11 +177,7 @@ public class kpadd extends ListenerAdapter {
 			Timestamp timestampnow = Timestamp.from(Instant.now());
 			String userid = event.getUser().getId();
 
-			int id = DBManager.getAvailableKPID();
-
-			DBUtil.executeUpdate(
-					"INSERT INTO kickpoints (id, player_tag, date, amount, description, created_by_discord_id, created_at, expires_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-					id, playertag, timestampcreated, amount, reason, userid, timestampnow, timestampexpires);
+			int id = DBManager.addKickpoint(playertag, timestampcreated, amount, reason, userid, timestampnow, timestampexpires);
 
 			String desc = "### Der Kickpunkt wurde hinzugefügt.\n";
 			desc += "Spieler: " + MessageUtil.unformat(p.getInfoStringDB()) + "\n";
@@ -238,7 +234,6 @@ public class kpadd extends ListenerAdapter {
 
 	public static int addKPtoDB(String playertag, Timestamp timestampcreated, KickpointReason kpreason,
 			String created_by_userid) {
-		int id = DBManager.getAvailableKPID();
 		Player p = new Player(playertag);
 		Club c = p.getClubDB();
 		Timestamp timestampexpires = Timestamp
@@ -249,9 +244,7 @@ public class kpadd extends ListenerAdapter {
 
 		String reason = kpreason.getReason();
 
-		DBUtil.executeUpdate(
-				"INSERT INTO kickpoints (id, player_tag, date, amount, description, created_by_discord_id, created_at, expires_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-				id, playertag, timestampcreated, amount, reason, created_by_userid, timestampnow, timestampexpires);
+		int id = DBManager.addKickpoint(playertag, timestampcreated, amount, reason, created_by_userid, timestampnow, timestampexpires);
 		return id;
 	}
 
