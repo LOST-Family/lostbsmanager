@@ -255,9 +255,6 @@ public class Bot extends ListenerAdapter {
 							.addOptions(new OptionData(OptionType.STRING, "ignore_hiddencoleaders",
 									"(Optional) Wenn 'true', werden versteckte Vize-Anführer ignoriert")
 									.setAutoComplete(true).setRequired(false)),
-					Commands.slash("leaguetrophylist", "Sortierte Rangliste.")
-							.addOptions(new OptionData(OptionType.STRING, "timestamp",
-									"Der Zeitpunkt der gespeicherten Liste", true).setAutoComplete(true)),
 					Commands.slash("transfermember", "Transferiere einen Spieler in einen anderen Club.")
 							.addOptions(new OptionData(OptionType.STRING, "player",
 									"Der Spieler, welcher transferiert werden soll", true).setAutoComplete(true))
@@ -265,9 +262,6 @@ public class Bot extends ListenerAdapter {
 									"Der Club, zu welchem der Spieler hinzugefügt werden soll", true)
 									.setAutoComplete(true)),
 
-					Commands.slash("remindersremove", "Entferne einen Reminder.")
-							.addOptions(new OptionData(OptionType.INTEGER, "id",
-									"Die ID des Reminders. Ist unter /remindersinfo zu sehen.", true)),
 
 					Commands.slash("signoff",
 							"Melde einen Spieler ab (Abwesenheit). Abgemeldete Spieler erhalten keine automatischen Kickpunkte.")
