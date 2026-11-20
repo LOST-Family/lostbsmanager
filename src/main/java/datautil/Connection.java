@@ -47,6 +47,7 @@ public class Connection {
 		tableNames.add("kickpoints");
 		tableNames.add("reminders");
 		tableNames.add("player_wins");
+		tableNames.add("member_signoffs");
 		try (java.sql.Connection conn = DriverManager.getConnection(url, user, password)) {
 			DatabaseMetaData dbm = conn.getMetaData();
 
@@ -93,6 +94,16 @@ public class Connection {
 								createTableSQL = "CREATE TABLE " + tableName + " (player_tag TEXT,"
 										+ "recorded_at TIMESTAMPTZ," + "wins INTEGER,"
 										+ "PRIMARY KEY (player_tag, recorded_at))";
+							// /signoff und /signofflist gab es, die Tabelle wurde aber nie angelegt:
+							// /signoff meldete „erfolgreich“ und speicherte nichts. Aufbau wie im CR-Manager.
+							case "member_signoffs" ->
+								createTableSQL = "CREATE TABLE " + tableName + " (id BIGSERIAL PRIMARY KEY,"
+										+ "player_tag TEXT NOT NULL UNIQUE,"
+										+ "start_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+										+ "end_date TIMESTAMP," + "reason TEXT,"
+										+ "created_by_discord_id TEXT NOT NULL,"
+										+ "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"
+										+ "receive_pings BOOLEAN NOT NULL DEFAULT FALSE)";
 						}
 
 						try (Statement stmt = conn.createStatement()) {

@@ -51,9 +51,11 @@ public class Club {
 
 	public String getRoleID(Role role) {
 		return switch (role) {
-			case PRESIDENT -> DBUtil.getValueFromSQL("SELECT president_roleid FROM clubs WHERE tag = ?", String.class, club_tag);
-			case COPRESIDENT -> DBUtil.getValueFromSQL("SELECT copresident_roleid FROM clubs WHERE tag = ?", String.class, club_tag);
-			case SENIOR -> DBUtil.getValueFromSQL("SELECT senior_roleid FROM clubs WHERE tag = ?", String.class, club_tag);
+			// Die Spalten heißen in der Tabelle clubs leader/coleader/elder (siehe Connection.tablesExists);
+			// president_/copresident_/senior_roleid gab es nie, /checkroles prüfte diese Rollen deshalb gar nicht.
+			case PRESIDENT -> DBUtil.getValueFromSQL("SELECT leader_roleid FROM clubs WHERE tag = ?", String.class, club_tag);
+			case COPRESIDENT -> DBUtil.getValueFromSQL("SELECT coleader_roleid FROM clubs WHERE tag = ?", String.class, club_tag);
+			case SENIOR -> DBUtil.getValueFromSQL("SELECT elder_roleid FROM clubs WHERE tag = ?", String.class, club_tag);
 			case MEMBER -> DBUtil.getValueFromSQL("SELECT member_roleid FROM clubs WHERE tag = ?", String.class, club_tag);
 		};
 	}
