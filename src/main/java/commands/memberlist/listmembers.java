@@ -112,7 +112,7 @@ public class listmembers extends ListenerAdapter {
 			int clubSizeCount = 0;
 
 			for (Player p : playerlist) {
-				boolean isHidden = p.isCoPresident();
+				boolean isHidden = p.isHiddenCopresident();
 				if (!isHidden) {
 					clubSizeCount++;
 				}
@@ -282,7 +282,7 @@ public class listmembers extends ListenerAdapter {
 			int clubSizeCount = 0;
 
 			for (Player p : playerlist) {
-				boolean isHidden = p.isCoPresident();
+				boolean isHidden = p.isHiddenCopresident();
 				if (!isHidden) {
 					clubSizeCount++;
 				}

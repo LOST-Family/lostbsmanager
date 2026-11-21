@@ -45,7 +45,7 @@ public class PlayerDTO {
         Player.RoleType roleDB = player.getRole();
         if (roleDB != null) { this.roleInClub = roleDB.name(); } else { this.roleInClub = "NOTINCLUB"; }
 
-        this.isHidden = player.isCoPresident();
+        this.isHidden = player.isHiddenCopresident();
 
         Club clubDbObj = player.getClubDB();
         this.clubDB = clubDbObj != null ? new ClubDTO(clubDbObj) : null;

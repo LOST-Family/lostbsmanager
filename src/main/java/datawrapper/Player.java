@@ -387,13 +387,17 @@ public class Player {
 		return clubtagcwdone;
 	}
 
+	/**
+	 * Versteckter Vize: in der Datenbank steht die Rolle als "hiddencoleader"
+	 * (dieselbe Schreibweise wie in addmember/editmember und im CR-Manager).
+	 */
 	public boolean isHiddenCopresident() {
 		if (getClubDB() == null) {
 			return false;
 		}
 		String rolestring = DBUtil.getValueFromSQL("SELECT club_role FROM club_members WHERE player_tag = ?",
 				String.class, tag);
-		return "hiddencopresident".equals(rolestring);
+		return "hiddencoleader".equals(rolestring);
 	}
 
 	public Integer getExpLevelAPI() {
@@ -408,7 +412,4 @@ public class Player {
 		return expLevel;
 	}
 
-    public boolean isCoPresident() {
-        return this.role == RoleType.COPRESIDENT;
-    }
 }

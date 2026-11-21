@@ -91,7 +91,7 @@ public class memberstatus extends ListenerAdapter {
 			for (Player p : playerlistdb) {
 				if (!taglistapi.contains(p.getTag().toUpperCase().replace("O", "0"))) {
 					// Skip hidden coleaders - they don't need to be in the club ingame
-					if (p.isCoPresident()) {
+					if (p.isHiddenCopresident()) {
 						continue;
 					}
 					// Skip leaders/coleaders/admins if exclude_leaders is true
@@ -227,7 +227,7 @@ public class memberstatus extends ListenerAdapter {
 			for (Player p : playerlistdb) {
 				if (!taglistapi.contains(p.getTag().toUpperCase().replace("O", "0"))) {
 					// Skip hidden coleaders - they don't need to be in the club ingame
-					if (p.isCoPresident()) {
+					if (p.isHiddenCopresident()) {
 						continue;
 					}
 					// Skip leaders/coleaders/admins if exclude_leaders is true
