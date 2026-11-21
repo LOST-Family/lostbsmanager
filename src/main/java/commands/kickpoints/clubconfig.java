@@ -124,6 +124,7 @@ import util.MessageUtil;
 						max, days, clubtag);
 			}
 
+			c = new Club(clubtag); // frisch lesen, sonst zeigt die Bestätigung die alte Gültigkeitsdauer (zwischengespeichert)
 			String desc = "### Die Club-Settings wurden bearbeitet.\n";
 			desc += "Club: " + c.getInfoStringDB() + "\n";
 			desc += "Gültigkeitsdauer von Kickpunkten: " + c.getDaysKickpointsExpireAfter() + " Tage\n";
