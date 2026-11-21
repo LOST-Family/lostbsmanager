@@ -232,6 +232,17 @@ public class ManagementApiHandler implements HttpHandler {
 			return error("Must be admin or leader to assign hidden coleader role", 403);
 		}
 
+		// Bisherige Rolle schützen (wie beim Entfernen/Verschieben und im LOST Manager)
+		String alteRolle = DBUtil.getValueFromSQL("SELECT club_role FROM club_members WHERE player_tag = ?",
+				String.class, playerTag);
+		util.RollenSchutz.Sperre sperre = util.RollenSchutz.pruefe(alteRolle, user.getClubRoles().get(clubTag));
+		if (sperre == util.RollenSchutz.Sperre.NUR_ADMIN) {
+			return error("Must be admin to modify a leader", 403);
+		}
+		if (sperre == util.RollenSchutz.Sperre.NUR_ADMIN_ODER_ANFUEHRER) {
+			return error("Must be admin or leader to modify a coleader", 403);
+		}
+
 		DBUtil.executeUpdate("UPDATE club_members SET club_role = ? WHERE player_tag = ?", role, playerTag);
 
 		JSONObject response = new JSONObject();
