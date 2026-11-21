@@ -866,6 +866,9 @@ public class ManagementApiHandler implements HttpHandler {
 		if (!p.IsLinked()) {
 			return error("Player is not linked", 404);
 		}
+		if (p.getClubDB() != null) {
+			return error("Player is still in a club. Remove from club first.", 400);
+		}
 
 		DBUtil.executeUpdate("DELETE FROM players WHERE bs_tag = ?", playerTag);
 
