@@ -123,6 +123,7 @@ public class Bot extends ListenerAdapter {
 		// startReminders();
 		// startMonthlyWinsSave();
 
+		util.PingSchutz.setzeStandard();
 		JDABuilder.createDefault(token).enableIntents(GatewayIntent.GUILD_MEMBERS)
 				.setMemberCachePolicy(MemberCachePolicy.ALL).setChunkingFilter(ChunkingFilter.ALL)
 				.setActivity(Activity.playing("mit deinen Kickpunkten"))
