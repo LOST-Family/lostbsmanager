@@ -16,7 +16,14 @@ public class DiscordLogger {
     private static final String CHANNEL_ID = "1482867489674100746";
 
     private static JDA jda;
-    private static final BlockingQueue<String> logQueue = new LinkedBlockingQueue<>();
+    // Begrenzt: ist Discord unerreichbar, darf die Warteschlange nicht endlos wachsen
+    // (26.11.2026: Speicher voll, DNS weg, ~440 gescheiterte Sendungen in zwei Sekunden).
+    private static final BlockingQueue<String> logQueue = new LinkedBlockingQueue<>(20_000);
+    // Nach fünf Fehlschlägen in Folge fünf Minuten Pause; was in der Pause kommt, wird
+    // verworfen und danach nur gezählt gemeldet. Ohne die Drossel schaukelt es sich auf:
+    // jedes gescheiterte Senden schreibt einen Fehler auf die Konsole, den dieser Spiegel
+    // wieder einfängt und zu senden versucht.
+    private static final LogDrossel drossel = new LogDrossel();
     private static final PrintStream originalOut = System.out;
     private static final PrintStream originalErr = System.err;
     private static final String THREAD_NAME = "DiscordLogThread";
@@ -28,7 +35,7 @@ public class DiscordLogger {
             public void write(int b) {
                 originalOut.write(b);
                 if (shouldLog()) {
-                    logQueue.offer(String.valueOf((char) b));
+                    einreihen(String.valueOf((char) b));
                 }
             }
 
@@ -36,7 +43,7 @@ public class DiscordLogger {
             public void write(byte[] b, int off, int len) {
                 originalOut.write(b, off, len);
                 if (shouldLog()) {
-                    logQueue.offer(new String(b, off, len));
+                    einreihen(new String(b, off, len));
                 }
             }
         }));
@@ -47,7 +54,7 @@ public class DiscordLogger {
             public void write(int b) {
                 originalErr.write(b);
                 if (shouldLog()) {
-                    logQueue.offer(String.valueOf((char) b));
+                    einreihen(String.valueOf((char) b));
                 }
             }
 
@@ -55,7 +62,7 @@ public class DiscordLogger {
             public void write(byte[] b, int off, int len) {
                 originalErr.write(b, off, len);
                 if (shouldLog()) {
-                    logQueue.offer(new String(b, off, len));
+                    einreihen(new String(b, off, len));
                 }
             }
         }));
@@ -66,6 +73,12 @@ public class DiscordLogger {
     // Prevent infinite loops if JDA logs to System.out from our logging thread
     private static boolean shouldLog() {
         return !Thread.currentThread().getName().equals(THREAD_NAME);
+    }
+
+    private static void einreihen(String text) {
+        if (!logQueue.offer(text)) {
+            drossel.verworfen(text.length());
+        }
     }
 
     public static void setJda(JDA jdaInstance) {
@@ -81,11 +94,21 @@ public class DiscordLogger {
                 try {
                     // Poll with timeout to allow periodic flushing even if no new logs
                     String s = logQueue.poll(1000, TimeUnit.MILLISECONDS);
+                    long now = System.currentTimeMillis();
+                    if (!drossel.darfSenden(now)) {
+                        // Pause: nichts sammeln, nur zählen.
+                        if (s != null) {
+                            drossel.verworfen(s.length());
+                        }
+                        if (buffer.length() > 0) {
+                            drossel.verworfen(buffer.length());
+                            buffer.setLength(0);
+                        }
+                        continue;
+                    }
                     if (s != null) {
                         buffer.append(s);
                     }
-
-                    long now = System.currentTimeMillis();
                     // Flush if:
                     // 1. Buffer is getting full (> 1800 chars, limit is 2000)
                     // 2. Buffer is not empty AND (we got no new log OR it's been a while)
@@ -93,6 +116,11 @@ public class DiscordLogger {
                     boolean timeToFlush = buffer.length() > 0 && (s == null || now - lastSend > 2000);
 
                     if (bufferFull || timeToFlush) {
+                        long verworfen = drossel.verworfeneAbholen();
+                        if (verworfen > 0) {
+                            sendToDiscord("[Log-Spiegel: " + verworfen
+                                    + " Zeichen verworfen, Discord war nicht erreichbar]\n");
+                        }
                         sendToDiscord(buffer.toString());
                         buffer.setLength(0);
                         lastSend = now;
@@ -108,6 +136,15 @@ public class DiscordLogger {
         t.start();
     }
 
+    // Eigener Fehler-Handler statt JDAs Standard: der schriebe je Fehlschlag einen
+    // Stacktrace nach System.err, und genau den würde dieser Spiegel wieder senden.
+    private static void sendenGescheitert(Throwable fehler) {
+        if (drossel.fehler(System.currentTimeMillis())) {
+            originalErr.println("DiscordLogger: Senden fünfmal in Folge gescheitert, Spiegel pausiert 5 Minuten ("
+                    + fehler + ")");
+        }
+    }
+
     private static void sendToDiscord(String msg) {
         if (jda == null)
             return;
@@ -121,12 +158,12 @@ public class DiscordLogger {
                         String chunk = msg.substring(i, Math.min(msg.length(), i + 1990));
                         // Avoid empty chunks
                         if (!chunk.trim().isEmpty()) {
-                            channel.sendMessage("```" + chunk + "```").queue();
+                            channel.sendMessage("```" + chunk + "```").queue(ok -> drossel.erfolg(), DiscordLogger::sendenGescheitert);
                         }
                     }
                 } else {
                     if (!msg.trim().isEmpty()) {
-                        channel.sendMessage("```" + msg + "```").queue();
+                        channel.sendMessage("```" + msg + "```").queue(ok -> drossel.erfolg(), DiscordLogger::sendenGescheitert);
                     }
                 }
             }
